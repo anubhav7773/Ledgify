@@ -68,36 +68,51 @@ class GeminiAiService:
         if settings.GEMINI_API_KEY:
             try:
                 from google import genai
+                from google.genai import types
                 client = genai.Client(api_key=settings.GEMINI_API_KEY)
                 prompt = (
-                    "Extract structured invoice data from this document in valid JSON with schema: "
-                    '{"invoice_number": str, "invoice_date": "YYYY-MM-DD", "vendor": {"name": str, "gstin": str, "pan": str, "address": str, "state_code": str}, '
+                    "You are an expert Indian GST accounting OCR system. "
+                    "Analyze this invoice image and extract all details in JSON matching this schema: "
+                    '{"invoice_number": str, "invoice_date": "YYYY-MM-DD", '
+                    '"vendor": {"name": str, "gstin": str, "pan": str, "address": str, "state_code": str}, '
                     '"line_items": [{"description": str, "hsn_code": str, "quantity": float, "unit": str, "rate": float, "tax_rate": float, "tax_amount": float, "total_amount": float}], '
-                    '"subtotal": float, "cgst_amount": float, "sgst_amount": float, "igst_amount": float, "total_tax": float, "total_amount": float, "inferred_voucher_type": "Purchase", "confidence_score": 0.96}. '
-                    "Return ONLY the JSON object without markdown formatting."
+                    '"subtotal": float, "cgst_amount": float, "sgst_amount": float, "igst_amount": float, "total_tax": float, "total_amount": float, '
+                    '"inferred_voucher_type": "Purchase", "confidence_score": 0.98}. '
+                    "Return ONLY the JSON object. Do not include markdown backticks or commentary."
                 )
 
-                candidate_models = [settings.GEMINI_MODEL_NAME, "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash", "gemini-1.5-flash-latest"]
+                candidate_models = ["gemini-3.6-flash", "gemini-3.5-flash", "gemini-3.7-flash", "gemini-flash-latest"]
                 response = None
+                last_error = None
                 for model_candidate in candidate_models:
                     try:
                         response = client.models.generate_content(
                             model=model_candidate,
-                            contents=[prompt, genai.types.Part.from_bytes(data=file_bytes, mime_type=mime_type)],
+                            contents=[
+                                types.Part.from_bytes(data=file_bytes, mime_type=mime_type),
+                                prompt,
+                            ],
                         )
-                        if response and response.text:
+                        if response and response.text and "{" in response.text:
                             break
                     except Exception as model_err:
-                        logger.warning(f"Gemini model {model_candidate} returned: {model_err}, trying next...")
+                        last_error = model_err
+                        logger.warning(f"Gemini model {model_candidate} attempt: {model_err}")
 
                 if response and response.text:
-                    clean_json = response.text.replace("```json", "").replace("```", "").strip()
-                    parsed = json.loads(clean_json)
-                    result = InvoiceOcrResult(**parsed)
-                    self._enqueue_draft(business_id, "RECEIPT_OCR", filename, result.model_dump(), result.confidence_score)
-                    return result
+                    clean_text = response.text.strip()
+                    if "```json" in clean_text:
+                        clean_text = clean_text.split("```json")[1].split("```")[0].strip()
+                    elif "```" in clean_text:
+                        clean_text = clean_text.split("```")[1].split("```")[0].strip()
+                    
+                    parsed = json.loads(clean_text)
+                    if parsed.get("vendor", {}).get("name") or parsed.get("invoice_number") or parsed.get("total_amount"):
+                        result = InvoiceOcrResult(**parsed)
+                        self._enqueue_draft(business_id, "RECEIPT_OCR", filename, result.model_dump(), result.confidence_score)
+                        return result
             except Exception as e:
-                logger.warning(f"Gemini API invocation fallback to intelligent heuristic parser: {e}")
+                logger.error(f"Live Gemini OCR extraction encountered: {e}")
 
         # Intelligent structured extraction fallback
         vendor_info = VendorDetailsExtracted(
