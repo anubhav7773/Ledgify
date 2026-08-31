@@ -2,7 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/network/supabase_client.dart';
 import '../../../../core/utils/safe_executor.dart';
-import '../../masters/domain/models/voucher_type_model.dart';
+import 'package:ledgify/features/masters/domain/models/voucher_type_model.dart';
 import '../../domain/models/voucher_model.dart';
 
 /// Repository managing Double-Entry Voucher operations and atomic transaction commits.

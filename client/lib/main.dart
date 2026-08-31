@@ -66,8 +66,8 @@ class AuthWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     final authService = AuthService();
 
-    return StreamBuilder(
-      stream: authService.authStateChanges,
+    return StreamBuilder<User?>(
+      stream: authService.authStateChanges(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(

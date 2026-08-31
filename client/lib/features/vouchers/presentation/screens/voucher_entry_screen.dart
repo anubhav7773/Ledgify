@@ -3,6 +3,7 @@ import '../../../../core/theme/color_tokens.dart';
 import '../../../../core/theme/typography_tokens.dart';
 import '../../../masters/data/repositories/account_repository.dart';
 import '../../../masters/domain/models/account_model.dart';
+import 'package:ledgify/features/masters/domain/models/voucher_type_model.dart';
 import '../../data/repositories/voucher_repository.dart';
 import '../../domain/models/voucher_line_item_model.dart';
 import '../../domain/models/voucher_model.dart';

@@ -1,7 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/network/supabase_client.dart';
 import '../../../../core/utils/safe_executor.dart';
-import '../domain/models/search_result_item.dart';
+import 'package:ledgify/features/search/domain/models/search_result_item.dart';
 
 /// Service executing concurrent multi-index searches across Ledgers, Vouchers, Stock Items, and Reports.
 class GlobalSearchService {

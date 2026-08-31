@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/color_tokens.dart';
-import '../../../../core/theme/typography_tokens.dart';
-import '../../../masters/data/repositories/account_repository.dart';
-import '../../../masters/domain/models/account_model.dart';
-import '../data/repositories/banking_repository.dart';
-import '../domain/models/bank_account_model.dart';
-import '../domain/models/bank_statement_entry_model.dart';
+import 'package:ledgify/core/theme/color_tokens.dart';
+import 'package:ledgify/core/theme/typography_tokens.dart';
+import 'package:ledgify/features/masters/data/repositories/account_repository.dart';
+import 'package:ledgify/features/masters/domain/models/account_model.dart';
+import 'package:ledgify/features/banking/data/repositories/banking_repository.dart';
+import 'package:ledgify/features/banking/domain/models/bank_account_model.dart';
+import 'package:ledgify/features/banking/domain/models/bank_statement_entry_model.dart';
 
 /// Screen for interactive and automated Bank Reconciliation Statement (BRS) workflows.
 /// Adheres strictly to docs/08_banking_brs_payroll_direct_tax.md and docs/10_ui_ux_design_system_tokens.md.

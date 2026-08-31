@@ -125,6 +125,7 @@ class AccountModel {
   }
 
   // Accounting helper getters
+  String? get gstin => partyGstin;
   bool get isDebtor => groupName == 'Sundry Debtors';
   bool get isCreditor => groupName == 'Sundry Creditors';
   bool get isBankOrCash => groupName == 'Bank Accounts' || groupName == 'Cash-in-Hand';

@@ -6,6 +6,7 @@ import '../../../../core/widgets/ai_confirmation_card.dart';
 import '../../../../core/widgets/ai_suggestion_chips.dart';
 import '../../../masters/data/repositories/account_repository.dart';
 import '../../../masters/domain/models/account_model.dart';
+import '../../../masters/domain/models/voucher_type_model.dart';
 import '../../../vouchers/data/repositories/voucher_repository.dart';
 import '../../domain/models/extracted_invoice_payload.dart';
 import '../widgets/edit_amount_bottom_sheet.dart';

@@ -24,6 +24,8 @@ class AppTypography {
         color: AppColors.textPrimary,
       );
 
+  static TextStyle get cardHeader => titleLarge;
+
   static TextStyle get bodyLarge => GoogleFonts.notoSans(
         fontSize: 14,
         fontWeight: FontWeight.w500,

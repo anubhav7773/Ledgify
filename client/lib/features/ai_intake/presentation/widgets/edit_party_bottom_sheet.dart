@@ -3,7 +3,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../masters/data/repositories/account_repository.dart';
 import '../../../masters/domain/models/account_model.dart';
-import 'quick_create_ledger_bottom_sheet.dart';
+import '../../../masters/presentation/widgets/quick_create_ledger_bottom_sheet.dart';
 
 /// Modal bottom sheet for changing or re-assigning the extracted vendor/customer party ledger.
 class EditPartyBottomSheet extends StatefulWidget {
