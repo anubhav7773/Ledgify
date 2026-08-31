@@ -4,12 +4,12 @@ import '../../../../core/theme/app_typography.dart';
 import '../../data/services/global_search_service.dart';
 import '../../domain/models/search_result_item.dart';
 
-/// Global Spotlight Search Delegate for rapid fuzzy querying across Ledgers, Vouchers, Items, and Reports.
+/// Global Spotlight Universal Search Delegate (Google Stitch UI).
 class GlobalSearchDelegate extends SearchDelegate<SearchResultItem?> {
   final GlobalSearchService _searchService = GlobalSearchService();
 
   @override
-  String get searchFieldLabel => 'Search Ledgers, Vouchers, Reports / खोजें...';
+  String get searchFieldLabel => 'Search Ledgers, Vouchers, Reports...';
 
   @override
   TextStyle? get searchFieldStyle => AppTypography.bodyLarge;
@@ -19,7 +19,7 @@ class GlobalSearchDelegate extends SearchDelegate<SearchResultItem?> {
     return [
       if (query.isNotEmpty)
         IconButton(
-          icon: const Icon(Icons.clear),
+          icon: const Icon(Icons.clear_rounded),
           onPressed: () {
             query = '';
             showSuggestions(context);
@@ -31,7 +31,7 @@ class GlobalSearchDelegate extends SearchDelegate<SearchResultItem?> {
   @override
   Widget? buildLeading(BuildContext context) {
     return IconButton(
-      icon: const Icon(Icons.arrow_back),
+      icon: const Icon(Icons.arrow_back_rounded),
       onPressed: () => close(context, null),
     );
   }
@@ -51,24 +51,28 @@ class GlobalSearchDelegate extends SearchDelegate<SearchResultItem?> {
 
   Widget _buildQuickSuggestions(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppColors.standardPadding),
       children: [
-        const Text('Quick Access Reports / त्वरित रिपोर्ट', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.textSecondary)),
+        const Text('Quick Jump & Top Reports', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.textSecondary)),
         const SizedBox(height: 10),
-        _buildQuickTile(context, 'Balance Sheet / तुलन पत्र', Icons.account_balance_outlined, () {
+        _buildQuickTile(context, 'Balance Sheet Report', Icons.account_balance_rounded, () {
           query = 'Balance Sheet';
           showResults(context);
         }),
-        _buildQuickTile(context, 'Profit & Loss / लाभ-हानि', Icons.trending_up, () {
+        _buildQuickTile(context, 'Profit & Loss Account', Icons.trending_up_rounded, () {
           query = 'Profit & Loss';
           showResults(context);
         }),
-        _buildQuickTile(context, 'Day Book / दैनिक बही', Icons.receipt_long_outlined, () {
+        _buildQuickTile(context, 'Transaction Day Book', Icons.receipt_long_rounded, () {
           query = 'Day Book';
           showResults(context);
         }),
-        _buildQuickTile(context, 'GST Compliance & IMS / जीएसटी', Icons.verified_outlined, () {
+        _buildQuickTile(context, 'GST Compliance & IMS Portal', Icons.verified_rounded, () {
           query = 'GSTR-1';
+          showResults(context);
+        }),
+        _buildQuickTile(context, 'Bank Accounts & BRS', Icons.account_balance_wallet_rounded, () {
+          query = 'Bank';
           showResults(context);
         }),
       ],
@@ -77,9 +81,16 @@ class GlobalSearchDelegate extends SearchDelegate<SearchResultItem?> {
 
   Widget _buildQuickTile(BuildContext context, String title, IconData icon, VoidCallback onTap) {
     return ListTile(
-      leading: Icon(icon, color: AppColors.primary),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-      trailing: const Icon(Icons.north_west, size: 16, color: AppColors.textSecondary),
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: AppColors.primaryLight,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Icon(icon, color: AppColors.primary, size: 20),
+      ),
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: AppColors.textPrimary)),
+      trailing: const Icon(Icons.north_west_rounded, size: 16, color: AppColors.textSecondary),
       onTap: onTap,
     );
   }
@@ -97,7 +108,7 @@ class GlobalSearchDelegate extends SearchDelegate<SearchResultItem?> {
         if (results.isEmpty) {
           return const Center(
             child: Text(
-              'No matching records found.\nकोई परिणाम नहीं मिला',
+              'No matching records found.',
               textAlign: TextAlign.center,
               style: TextStyle(color: AppColors.textSecondary),
             ),
@@ -117,19 +128,19 @@ class GlobalSearchDelegate extends SearchDelegate<SearchResultItem?> {
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: item.categoryColor.withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(item.icon, size: 20, color: item.categoryColor),
               ),
-              title: Text(item.title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+              title: Text(item.title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: AppColors.textPrimary)),
               subtitle: Text(item.subtitle, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
               trailing: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: AppColors.surfaceVariant,
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(6),
                 ),
-                child: Text(item.categoryLabel, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600)),
+                child: Text(item.categoryLabel, style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700)),
               ),
               onTap: () => close(context, item),
             );

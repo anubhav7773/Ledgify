@@ -7,6 +7,7 @@ import '../../features/reports/presentation/screens/executive_dashboard_screen.d
 import '../../features/reports/presentation/screens/reports_hub_screen.dart';
 import '../../features/search/domain/models/search_result_item.dart';
 import '../../features/search/presentation/screens/global_search_delegate.dart';
+import '../../features/settings/presentation/screens/profile_settings_screen.dart';
 import '../shortcuts/tally_shortcuts_handler.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_typography.dart';
@@ -156,10 +157,28 @@ class _AppShellState extends State<AppShell> {
                           fontWeight: FontWeight.w700,
                           color: sub.isProOrEnterprise ? const Color(0xFFB45309) : AppColors.textSecondary,
                         ),
-                      ),
                     ],
                   ),
                 ),
+              ),
+            ),
+
+            // Profile & Settings Action
+            Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: IconButton(
+                icon: const CircleAvatar(
+                  radius: 13,
+                  backgroundColor: AppColors.primaryLight,
+                  child: Icon(Icons.person_rounded, size: 16, color: AppColors.primary),
+                ),
+                tooltip: 'Profile & Settings',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ProfileSettingsScreen()),
+                  );
+                },
               ),
             ),
           ],

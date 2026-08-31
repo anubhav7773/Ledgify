@@ -3,9 +3,10 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../domain/services/dpdp_dsr_service.dart';
 import '../dialogs/erasure_confirmation_dialog.dart';
+import 'dpdp_consent_manager_screen.dart';
 import 'dsr_status_tracker_screen.dart';
 
-/// Data Principal Rights Center implementing DPDP Act 2023 Sections 11, 12, and 13.
+/// Data Principal Rights Center implementing DPDP Act 2023 Sections 11, 12, and 13 (Google Stitch UI).
 class DataRightsCenterScreen extends StatefulWidget {
   final DpdpDsrService? dsrService;
 
@@ -57,7 +58,7 @@ class _DataRightsCenterScreenState extends State<DataRightsCenterScreen> {
     final submit = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Submit Correction / सुधार अनुरोध'),
+        title: const Text('Submit Rectification Request'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -69,7 +70,7 @@ class _DataRightsCenterScreenState extends State<DataRightsCenterScreen> {
             TextField(
               controller: correctionController,
               maxLines: 3,
-              decoration: const InputDecoration(labelText: 'Correction Details / नया विवरण'),
+              decoration: const InputDecoration(labelText: 'Correction Details'),
             ),
           ],
         ),
@@ -78,7 +79,7 @@ class _DataRightsCenterScreenState extends State<DataRightsCenterScreen> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Submit / भेजें'),
+            child: const Text('Submit Request'),
           ),
         ],
       ),
@@ -127,13 +128,24 @@ class _DataRightsCenterScreenState extends State<DataRightsCenterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        title: const Text('Data Principal Rights / डेटा अधिकार', style: AppTypography.cardHeader),
+        title: Text('Data Privacy & Consent Center', style: AppTypography.cardHeader),
         backgroundColor: AppColors.surfaceCard,
         actions: [
           IconButton(
-            icon: const Icon(Icons.history_outlined),
-            tooltip: 'Request History / इतिहास',
+            icon: const Icon(Icons.manage_accounts_outlined),
+            tooltip: 'Consent Manager',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const DpdpConsentManagerScreen()),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.history_rounded),
+            tooltip: 'Request History',
             onPressed: () {
               Navigator.push(
                 context,
@@ -151,26 +163,26 @@ class _DataRightsCenterScreenState extends State<DataRightsCenterScreen> {
             children: [
               // Header Card
               Container(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(18),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF0F172A), Color(0xFF1E293B)],
+                    colors: [Color(0xFF0F172A), Color(0xFF1E3A8A)],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(Icons.shield_outlined, color: Color(0xFF38BDF8), size: 32),
-                    const SizedBox(height: 10),
-                    const Text(
-                      'Your Rights Under DPDP Act 2023\nभारतीय डेटा संरक्षण कानून के तहत आपके अधिकार',
+                  children: const [
+                    Icon(Icons.shield_outlined, color: Color(0xFF38BDF8), size: 32),
+                    SizedBox(height: 10),
+                    Text(
+                      'Your Rights Under DPDP Act 2023',
                       style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16),
                     ),
-                    const SizedBox(height: 6),
-                    const Text(
+                    SizedBox(height: 4),
+                    Text(
                       'Access, portability, correction, and erasure of your personal data at any time.',
                       style: TextStyle(color: Colors.white70, fontSize: 12),
                     ),
@@ -184,9 +196,8 @@ class _DataRightsCenterScreenState extends State<DataRightsCenterScreen> {
                 icon: Icons.download_for_offline_outlined,
                 iconColor: AppColors.primary,
                 title: 'Download My Data (Portability)',
-                hindiTitle: 'संपूर्ण डेटा डाउनलोड करें (बैकअप)',
                 description: 'Export all accounting ledgers, vouchers, stock items, and audit logs into standard JSON/ZIP archive.',
-                actionLabel: _isProcessing ? 'Generating...' : 'Export Data / डाउनलोड करें',
+                actionLabel: _isProcessing ? 'Generating...' : 'Export Data Archive',
                 onAction: _isProcessing ? null : _handleDataExport,
               ),
               const SizedBox(height: 12),
@@ -196,9 +207,8 @@ class _DataRightsCenterScreenState extends State<DataRightsCenterScreen> {
                 icon: Icons.edit_note_outlined,
                 iconColor: AppColors.secondary,
                 title: 'Correct My Information (Rectification)',
-                hindiTitle: 'डेटा सुधार अनुरोध दर्ज करें',
                 description: 'Request correction or update of inaccurate financial identifiers, contact details, or tax registration metadata.',
-                actionLabel: 'Submit Correction / सुधारें',
+                actionLabel: 'Submit Correction Request',
                 onAction: _handleRectification,
               ),
               const SizedBox(height: 12),
@@ -208,9 +218,8 @@ class _DataRightsCenterScreenState extends State<DataRightsCenterScreen> {
                 icon: Icons.summarize_outlined,
                 iconColor: AppColors.infoBlue,
                 title: 'Summary of Personal Data',
-                hindiTitle: 'व्यक्तिगत डेटा सारांश',
                 description: 'Review transparently all categories of personal data processed, retention periods, and third-party NIC API disclosures.',
-                actionLabel: 'View Summary / देखें',
+                actionLabel: 'View Data Inventory',
                 onAction: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Viewing sovereign data inventory...')),
@@ -233,16 +242,13 @@ class _DataRightsCenterScreenState extends State<DataRightsCenterScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
-                        children: [
-                          const Icon(Icons.delete_forever_outlined, color: AppColors.creditRed, size: 24),
-                          const SizedBox(width: 10),
+                        children: const [
+                          Icon(Icons.delete_forever_outlined, color: AppColors.creditRed, size: 24),
+                          SizedBox(width: 10),
                           Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: const [
-                                Text('Erase Account & Personal Data', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: AppColors.creditRed)),
-                                Text('खाता एवं व्यक्तिगत डेटा मिटाएं', style: TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-                              ],
+                            child: Text(
+                              'Erase Account & Personal Data',
+                              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: AppColors.creditRed),
                             ),
                           ),
                         ],
@@ -263,7 +269,7 @@ class _DataRightsCenterScreenState extends State<DataRightsCenterScreen> {
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           ),
                           onPressed: _handleErasure,
-                          child: const Text('Request Erasure / डेटा मिटाएं', style: TextStyle(fontWeight: FontWeight.w700)),
+                          child: const Text('Request Erasure', style: TextStyle(fontWeight: FontWeight.w700)),
                         ),
                       ),
                     ],
@@ -282,7 +288,6 @@ class _DataRightsCenterScreenState extends State<DataRightsCenterScreen> {
     required IconData icon,
     required Color iconColor,
     required String title,
-    required String hindiTitle,
     required String description,
     required String actionLabel,
     required VoidCallback? onAction,
@@ -291,7 +296,7 @@ class _DataRightsCenterScreenState extends State<DataRightsCenterScreen> {
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
-        side: const BorderSide(color: AppColors.surfaceVariant),
+        side: const BorderSide(color: AppColors.border),
       ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -303,13 +308,7 @@ class _DataRightsCenterScreenState extends State<DataRightsCenterScreen> {
                 Icon(icon, color: iconColor, size: 24),
                 const SizedBox(width: 10),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
-                      Text(hindiTitle, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
-                    ],
-                  ),
+                  child: Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: AppColors.textPrimary)),
                 ),
               ],
             ),
