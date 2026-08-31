@@ -1,0 +1,62 @@
+# Node & NPM
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+firebase/functions/lib/
+firebase/functions/node_modules/
+
+# Environment variables & secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+service-account*.json
+serviceAccountKey*.json
+server/.env
+server/serviceAccountKey.json
+
+# Dart & Flutter
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+client/.env
+client/.flutter-plugins
+client/.flutter-plugins-dependencies
+client/.packages
+client/build/
+client/.dart_tool/
+
+# Android
+client/android/.gradle/
+client/android/local.properties
+client/android/gradle/
+client/android/captures/
+client/android/app/build/
+client/android/app/src/main/res/raw/
+
+# iOS
+client/ios/Pods/
+client/ios/.symlinks/
+client/ios/Flutter/Flutter.framework
+client/ios/Flutter/Flutter.podspec
+client/ios/Flutter/Generated.xcconfig
+client/ios/Flutter/app.flx
+client/ios/Flutter/app.zip
+client/ios/Flutter/flutter_assets/
+client/ios/ServiceDefinitions.json
+
+# Supabase Local
+supabase/.branches/
+supabase/.temp/
+
+# IDE & OS Metadata
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db

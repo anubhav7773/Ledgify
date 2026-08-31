@@ -1,0 +1,26 @@
+import express from 'express';
+import dotenv from 'dotenv';
+import { handleGooglePlayRtdnWebhook } from './controllers/webhookController';
+import { verifyClientPurchase } from './controllers/subscriptionClientController';
+
+dotenv.config();
+
+const app = express();
+const port = process.env.PORT || 8080;
+
+app.use(express.json());
+
+// Health Check Endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
+});
+
+// Google Play RTDN Webhook Endpoint (Cloud Pub/Sub Push)
+app.post('/api/v1/webhooks/google-play-rtdn', handleGooglePlayRtdnWebhook);
+
+// Authenticated Client Purchase Verification Endpoint
+app.post('/api/v1/subscriptions/verify-client-purchase', verifyClientPurchase);
+
+app.listen(port, () => {
+  console.log(`[Ledgify-Billing] Server listening on port ${port}`);
+});
