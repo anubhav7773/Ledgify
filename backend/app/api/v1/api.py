@@ -3,6 +3,7 @@ from app.api.v1.endpoints import (
     ai_intake,
     auth,
     banking_payroll,
+    dpdp_billing,
     gst,
     health,
     masters,
@@ -20,3 +21,4 @@ api_router.include_router(reports.router, prefix="/reports", tags=["Financial & 
 api_router.include_router(ai_intake.router, prefix="/ai", tags=["Gemini AI Multimodal & Fuzzy Matching"])
 api_router.include_router(gst.router, prefix="/gst", tags=["Indian GST Compliance, E-Invoice & E-Way Bills"])
 api_router.include_router(banking_payroll.router, prefix="", tags=["Banking BRS, Payroll & Direct Tax"])
+api_router.include_router(dpdp_billing.router, prefix="", tags=["DPDP Privacy & Google Play Billing"])

@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ledgify-fastapi-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - PROJECT_NAME=Ledgify Fintech Backend
+      - ENVIRONMENT=production
+      - DEBUG=False
+      - PORT=8000
+      - HOST=0.0.0.0
+      - SUPABASE_URL=${SUPABASE_URL:-https://bbkftnptmxjpbusjpqbg.supabase.co}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    depends_on:
+      - redis
+    networks:
+      - ledgify-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: ledgify-redis-cache
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - ledgify-network
+
+networks:
+  ledgify-network:
+    driver: bridge
+
+volumes:
+  redis-data:
