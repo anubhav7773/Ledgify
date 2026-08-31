@@ -221,9 +221,15 @@ class _EWayBillListScreenState extends State<EWayBillListScreen> {
 
                                 return Card(
                                   margin: const EdgeInsets.only(bottom: 12),
+                                  elevation: 2,
+                                  color: Colors.white,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
-                                    side: const BorderSide(color: AppColors.border),
+                                    side: BorderSide(
+                                      color: bill.isExpired
+                                          ? AppColors.creditRed.withOpacity(0.5)
+                                          : (isExpiringSoon ? AppColors.warningAmber.withOpacity(0.5) : AppColors.border),
+                                    ),
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(14),

@@ -12,7 +12,29 @@ class GlobalSearchDelegate extends SearchDelegate<SearchResultItem?> {
   String get searchFieldLabel => 'Search Ledgers, Vouchers, Reports...';
 
   @override
-  TextStyle? get searchFieldStyle => AppTypography.bodyLarge;
+  TextStyle? get searchFieldStyle => const TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+        color: Color(0xFF0F172A),
+      );
+
+  @override
+  ThemeData appBarTheme(BuildContext context) {
+    return ThemeData(
+      useMaterial3: true,
+      scaffoldBackgroundColor: Colors.white,
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.white,
+        elevation: 1,
+        iconTheme: IconThemeData(color: Color(0xFF0F172A)),
+        titleTextStyle: TextStyle(color: Color(0xFF0F172A), fontSize: 16, fontWeight: FontWeight.w600),
+      ),
+      inputDecorationTheme: const InputDecorationTheme(
+        hintStyle: TextStyle(color: Color(0xFF94A3B8), fontSize: 15),
+        border: InputBorder.none,
+      ),
+    );
+  }
 
   @override
   List<Widget>? buildActions(BuildContext context) {

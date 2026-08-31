@@ -199,6 +199,8 @@ class _BankReconciliationScreenState extends State<BankReconciliationScreen> {
 
                             return Card(
                               margin: const EdgeInsets.only(bottom: 12),
+                              elevation: 2,
+                              color: Colors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
                                 side: BorderSide(

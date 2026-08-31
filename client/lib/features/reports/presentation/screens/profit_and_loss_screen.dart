@@ -150,7 +150,8 @@ class _ProfitAndLossScreenState extends State<ProfitAndLossScreen> {
 
   Widget _buildStatementCard(List<Widget> children) {
     return Card(
-      elevation: 0,
+      elevation: 2,
+      color: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
         side: const BorderSide(color: AppColors.border),
