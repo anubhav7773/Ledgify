@@ -10,6 +10,12 @@ const port = process.env.PORT || 8080;
 
 app.use(express.json());
 
+// Global Request Logger for Render Dashboard Visibility
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl || req.url}`);
+  next();
+});
+
 // -----------------------------------------------------------------------------
 // Keep-Alive & Health Check Endpoints (UptimeRobot / Monitoring)
 // -----------------------------------------------------------------------------
