@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:client/features/ai_intake/domain/models/extracted_invoice_payload.dart';
-import 'package:client/features/dpdp_compliance/domain/models/dpdp_failures.dart';
-import 'package:client/features/dpdp_compliance/domain/models/dpdp_purpose.dart';
+import 'package:ledgify/features/ai_intake/domain/models/extracted_invoice_payload.dart';
+import 'package:ledgify/features/dpdp_compliance/domain/models/dpdp_failures.dart';
+import 'package:ledgify/features/dpdp_compliance/domain/models/dpdp_purpose.dart';
 
 void main() {
   group('AI Intake Pipeline Resiliency & Error Recovery Suite', () {

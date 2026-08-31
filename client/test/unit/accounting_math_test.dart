@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:client/core/utils/formatters.dart';
+import 'package:ledgify/core/utils/formatters.dart';
 
 void main() {
   group('Accounting Math & Statutory Formulas Suite', () {

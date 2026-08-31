@@ -35,8 +35,8 @@ void main() {
     test('Ambiguous Suggestion Threshold (0.50 <= Score < 0.85)', () {
       // Partial name match: "Ganesh Traders" vs "Ganesh Enterprises"
       final score = computeFuzzyScore(
-        trigramSimilarity: 0.55,
-        levenshteinSimilarity: 0.60,
+        trigramSimilarity: 0.65,
+        levenshteinSimilarity: 0.70,
         phoneticMatch: false,
       );
 

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:client/core/theme/app_colors.dart';
-import 'package:client/core/widgets/app_button.dart';
-import 'package:client/core/widgets/financial_card.dart';
+import 'package:ledgify/core/theme/app_colors.dart';
+import 'package:ledgify/core/widgets/app_button.dart';
+import 'package:ledgify/core/widgets/financial_card.dart';
 
 void main() {
   group('Voucher Entry & Touch Target Accessibility Suite', () {
