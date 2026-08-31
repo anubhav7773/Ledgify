@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/color_tokens.dart';
-import '../../../../core/theme/typography_tokens.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import 'package:ledgify/features/reports/data/repositories/reports_repository.dart';
 import 'package:ledgify/features/reports/domain/models/profit_and_loss_model.dart';
 
-/// Screen presenting the Trading and Profit & Loss Statement.
+/// Screen presenting the Trading and Profit & Loss Statement (Google Stitch UI).
 class ProfitAndLossScreen extends StatefulWidget {
   final ReportsRepository? repository;
 
@@ -47,31 +47,38 @@ class _ProfitAndLossScreenState extends State<ProfitAndLossScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        title: const Text('Profit & Loss A/c / लाभ-हानि', style: LedgifyTypography.cardHeader),
-        backgroundColor: LedgifyColors.surfaceLight,
+        title: Text('Profit & Loss Account', style: AppTypography.cardHeader),
+        backgroundColor: AppColors.surfaceCard,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
+            tooltip: 'Refresh P&L',
             onPressed: _loadPnL,
           ),
         ],
       ),
       body: SafeArea(
         child: _isLoading
-            ? const Center(child: CircularProgressIndicator(color: LedgifyColors.primaryBlue))
+            ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
             : _pnl == null
-                ? const Center(child: Text('No data found.'))
+                ? const Center(child: Text('No financial data found for this period.', style: TextStyle(color: AppColors.textSecondary)))
                 : SingleChildScrollView(
-                    padding: const EdgeInsets.all(LedgifyColors.standardPadding),
+                    padding: const EdgeInsets.all(AppColors.standardPadding),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         // Net Profit Summary Card
                         Card(
-                          elevation: 2,
-                          color: _pnl!.isProfit ? LedgifyColors.debitGreenBg : LedgifyColors.creditRedBg,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          elevation: 0,
+                          color: _pnl!.isProfit ? AppColors.debitGreenLight : AppColors.creditRedLight,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
+                            side: BorderSide(
+                              color: _pnl!.isProfit ? AppColors.debitGreen.withOpacity(0.3) : AppColors.creditRed.withOpacity(0.3),
+                            ),
+                          ),
                           child: Padding(
                             padding: const EdgeInsets.all(16.0),
                             child: Row(
@@ -81,21 +88,26 @@ class _ProfitAndLossScreenState extends State<ProfitAndLossScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      _pnl!.isProfit ? 'Net Profit / शुद्ध लाभ' : 'Net Loss / शुद्ध हानि',
+                                      _pnl!.isProfit ? 'Net Profit (Earnings)' : 'Net Loss',
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.w700,
-                                        color: _pnl!.isProfit ? LedgifyColors.debitGreen : LedgifyColors.creditRed,
+                                        color: _pnl!.isProfit ? AppColors.debitGreen : AppColors.creditRed,
                                       ),
                                     ),
-                                    Text('Gross Profit: ₹${_pnl!.grossProfit.toStringAsFixed(2)}', style: const TextStyle(fontSize: 12, color: LedgifyColors.secondarySlate)),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Gross Profit: ₹${_pnl!.grossProfit.toStringAsFixed(2)}',
+                                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                                    ),
                                   ],
                                 ),
                                 Text(
                                   '₹${_pnl!.netProfit.abs().toStringAsFixed(2)}',
-                                  style: LedgifyTypography.financialAmount.copyWith(
+                                  style: AppTypography.currencyText.copyWith(
                                     fontSize: 22,
-                                    color: _pnl!.isProfit ? LedgifyColors.debitGreen : LedgifyColors.creditRed,
+                                    fontWeight: FontWeight.w800,
+                                    color: _pnl!.isProfit ? AppColors.debitGreen : AppColors.creditRed,
                                   ),
                                 ),
                               ],
@@ -105,21 +117,30 @@ class _ProfitAndLossScreenState extends State<ProfitAndLossScreen> {
                         const SizedBox(height: 16),
 
                         // Trading Account Section
-                        const Text('Trading Account (Gross Turnover) / व्यापार खाता', style: LedgifyTypography.cardHeader),
-                        const SizedBox(height: 8),
+                        Text('Trading Account (Gross Turnover)', style: AppTypography.cardHeader),
+                        const SizedBox(height: 10),
 
-                        _buildStatementTile('Direct Incomes (Sales)', _pnl!.directIncomes, isIncome: true),
-                        _buildStatementTile('Direct Expenses (Purchases)', _pnl!.directExpenses, isIncome: false),
-                        _buildSubTotalTile('Gross Profit / सकल लाभ', _pnl!.grossProfit),
-                        const Divider(height: 24),
+                        _buildStatementCard([
+                          _buildStatementRow('Direct Incomes (Sales / Revenue)', _pnl!.directIncomes, isIncome: true),
+                          const Divider(height: 16),
+                          _buildStatementRow('Direct Expenses (Purchases & COGS)', _pnl!.directExpenses, isIncome: false),
+                          const Divider(height: 16),
+                          _buildSubTotalRow('Gross Profit', _pnl!.grossProfit),
+                        ]),
+                        const SizedBox(height: 20),
 
                         // Income Statement Section
-                        const Text('Income Statement / आय विवरण', style: LedgifyTypography.cardHeader),
-                        const SizedBox(height: 8),
+                        Text('Operating & Overhead Expenses', style: AppTypography.cardHeader),
+                        const SizedBox(height: 10),
 
-                        _buildStatementTile('Indirect Incomes', _pnl!.indirectIncomes, isIncome: true),
-                        _buildStatementTile('Indirect Expenses & Overheads', _pnl!.indirectExpenses, isIncome: false),
-                        _buildSubTotalTile('Net Profit / शुद्ध लाभ', _pnl!.netProfit, isFinal: true),
+                        _buildStatementCard([
+                          _buildStatementRow('Indirect Incomes', _pnl!.indirectIncomes, isIncome: true),
+                          const Divider(height: 16),
+                          _buildStatementRow('Indirect Expenses & Overheads', _pnl!.indirectExpenses, isIncome: false),
+                          const Divider(height: 16),
+                          _buildSubTotalRow('Net Profit / Net Margin', _pnl!.netProfit, isFinal: true),
+                        ]),
+                        const SizedBox(height: 20),
                       ],
                     ),
                   ),
@@ -127,49 +148,54 @@ class _ProfitAndLossScreenState extends State<ProfitAndLossScreen> {
     );
   }
 
-  Widget _buildStatementTile(String title, double amount, {required bool isIncome}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-          Text(
-            '₹${amount.toStringAsFixed(2)}',
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: isIncome ? LedgifyColors.debitGreen : LedgifyColors.creditRed,
-            ),
-          ),
-        ],
+  Widget _buildStatementCard(List<Widget> children) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
+        side: const BorderSide(color: AppColors.border),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(children: children),
       ),
     );
   }
 
-  Widget _buildSubTotalTile(String title, double amount, {bool isFinal = false}) {
-    return Container(
-      margin: const EdgeInsets.only(top: 6),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: LedgifyColors.surfaceCard,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: LedgifyColors.surfaceVariant),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(title, style: TextStyle(fontWeight: FontWeight.w700, fontSize: isFinal ? 14 : 12)),
-          Text(
-            '₹${amount.toStringAsFixed(2)}',
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-              fontSize: isFinal ? 16 : 13,
-              color: amount >= 0 ? LedgifyColors.debitGreen : LedgifyColors.creditRed,
-            ),
+  Widget _buildStatementRow(String title, double amount, {required bool isIncome}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(title, style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+        Text(
+          '₹${amount.toStringAsFixed(2)}',
+          style: AppTypography.currencyText.copyWith(
+            fontSize: 14,
+            fontWeight: FontWeight.w700,
+            color: isIncome ? AppColors.debitGreen : AppColors.creditRed,
           ),
-        ],
-      ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSubTotalRow(String title, double amount, {bool isFinal = false}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: isFinal ? 14.5 : 13, color: AppColors.textPrimary),
+        ),
+        Text(
+          '₹${amount.toStringAsFixed(2)}',
+          style: AppTypography.currencyText.copyWith(
+            fontWeight: FontWeight.w800,
+            fontSize: isFinal ? 16.5 : 14,
+            color: amount >= 0 ? AppColors.debitGreen : AppColors.creditRed,
+          ),
+        ),
+      ],
     );
   }
 }

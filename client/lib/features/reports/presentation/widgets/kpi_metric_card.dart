@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/color_tokens.dart';
-import '../../../../core/theme/typography_tokens.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 
-/// Material 3 Expressive KPI summary metric card with trend chip.
+/// Material 3 Expressive KPI summary metric card with trend chip (Google Stitch UI).
 class KpiMetricCard extends StatelessWidget {
   final String title;
-  final String bilingualSubtitle;
+  final String? subtitle;
   final String value;
   final String? changePercent;
   final bool isPositive;
@@ -15,25 +15,26 @@ class KpiMetricCard extends StatelessWidget {
   const KpiMetricCard({
     super.key,
     required this.title,
-    required this.bilingualSubtitle,
+    this.subtitle,
     required this.value,
     this.changePercent,
     this.isPositive = true,
     required this.icon,
     this.color,
+    String? bilingualSubtitle, // For backwards compatibility
   });
 
   @override
   Widget build(BuildContext context) {
-    final themeColor = color ?? LedgifyColors.primaryBlue;
+    final themeColor = color ?? AppColors.primary;
 
     return Card(
-      elevation: 1,
+      elevation: 0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(LedgifyColors.cardBorderRadius),
-        side: const BorderSide(color: LedgifyColors.surfaceVariant),
+        borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
+        side: const BorderSide(color: AppColors.border),
       ),
-      color: LedgifyColors.surfaceCard,
+      color: AppColors.surfaceCard,
       child: Padding(
         padding: const EdgeInsets.all(14.0),
         child: Column(
@@ -44,26 +45,26 @@ class KpiMetricCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(6),
+                  padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: themeColor.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(8),
+                    color: themeColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(icon, size: 20, color: themeColor),
                 ),
                 if (changePercent != null)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
                     decoration: BoxDecoration(
-                      color: isPositive ? LedgifyColors.debitGreenBg : LedgifyColors.creditRedBg,
-                      borderRadius: BorderRadius.circular(4),
+                      color: isPositive ? AppColors.debitGreenLight : AppColors.creditRedLight,
+                      borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
                       changePercent!,
                       style: TextStyle(
                         fontSize: 10.5,
                         fontWeight: FontWeight.w700,
-                        color: isPositive ? LedgifyColors.debitGreen : LedgifyColors.creditRed,
+                        color: isPositive ? AppColors.debitGreen : AppColors.creditRed,
                       ),
                     ),
                   ),
@@ -76,7 +77,7 @@ class KpiMetricCard extends StatelessWidget {
               children: [
                 Text(
                   value,
-                  style: LedgifyTypography.financialAmount.copyWith(
+                  style: AppTypography.currencyText.copyWith(
                     fontSize: 18,
                     color: themeColor,
                   ),
@@ -84,12 +85,15 @@ class KpiMetricCard extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   title,
-                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5),
+                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.textPrimary),
                 ),
-                Text(
-                  bilingualSubtitle,
-                  style: const TextStyle(fontSize: 10.5, color: LedgifyColors.secondarySlate),
-                ),
+                if (subtitle != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle!,
+                    style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                  ),
+                ],
               ],
             ),
           ],

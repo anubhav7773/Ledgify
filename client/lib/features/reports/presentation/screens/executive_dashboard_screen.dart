@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/color_tokens.dart';
-import '../../../../core/theme/typography_tokens.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import 'package:ledgify/features/reports/domain/models/business_ratios_model.dart';
 import 'package:ledgify/features/reports/domain/models/cash_flow_forecast_point.dart';
 import 'package:ledgify/features/reports/domain/models/dashboard_summary_model.dart';
@@ -9,7 +9,7 @@ import '../widgets/cash_flow_forecast_chart.dart';
 import '../widgets/kpi_metric_card.dart';
 import 'reports_hub_screen.dart';
 
-/// Screen presenting the Executive KPI Dashboard, Financial Ratios, and Cash Runway Forecast.
+/// Screen presenting the Executive KPI Dashboard, Financial Ratios, and Cash Runway Forecast (Google Stitch UI).
 class ExecutiveDashboardScreen extends StatefulWidget {
   final AnalyticsDashboardService? service;
 
@@ -57,9 +57,10 @@ class _ExecutiveDashboardScreenState extends State<ExecutiveDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        title: const Text('Executive Dashboard / मुख्य डैशबोर्ड', style: LedgifyTypography.cardHeader),
-        backgroundColor: LedgifyColors.surfaceLight,
+        title: Text('Executive Dashboard', style: AppTypography.cardHeader),
+        backgroundColor: AppColors.surfaceCard,
         actions: [
           IconButton(
             icon: const Icon(Icons.summarize_outlined),
@@ -72,31 +73,39 @@ class _ExecutiveDashboardScreenState extends State<ExecutiveDashboardScreen> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
+            tooltip: 'Refresh Dashboard',
             onPressed: _loadDashboard,
           ),
         ],
       ),
       body: SafeArea(
         child: _isLoading
-            ? const Center(child: CircularProgressIndicator(color: LedgifyColors.primaryBlue))
+            ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
             : RefreshIndicator(
                 onRefresh: _loadDashboard,
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(LedgifyColors.standardPadding),
+                  padding: const EdgeInsets.all(AppColors.standardPadding),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Top Health Score Banner
+                      // Top Health Score Banner (Deep Indigo Gradient)
                       Container(
-                        padding: const EdgeInsets.all(14),
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [Color(0xFF1E3A8A), Color(0xFF3B82F6)],
+                            colors: [Color(0xFF1E3A8A), Color(0xFF2563EB)],
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                           ),
-                          borderRadius: BorderRadius.circular(LedgifyColors.cardBorderRadius),
+                          borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primary.withOpacity(0.2),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
                         child: Row(
                           children: [
@@ -117,9 +126,10 @@ class _ExecutiveDashboardScreenState extends State<ExecutiveDashboardScreen> {
                                     'Business Health: ${_summary.healthScore}% Optimal',
                                     style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 16),
                                   ),
+                                  const SizedBox(height: 2),
                                   const Text(
-                                    'Working capital & liquidity ratios are healthy / स्थिति उत्तम है',
-                                    style: TextStyle(color: Colors.white70, fontSize: 11.5),
+                                    'Working capital and liquidity ratios are performing within optimal bands.',
+                                    style: TextStyle(color: Colors.white70, fontSize: 12),
                                   ),
                                 ],
                               ),
@@ -140,37 +150,33 @@ class _ExecutiveDashboardScreenState extends State<ExecutiveDashboardScreen> {
                         children: [
                           KpiMetricCard(
                             title: 'Net Profit (YTD)',
-                            bilingualSubtitle: 'शुद्ध लाभ',
                             value: '₹${_summary.netProfitYtd.toStringAsFixed(0)}',
                             changePercent: '+14.2%',
                             isPositive: true,
-                            icon: Icons.trending_up,
-                            color: LedgifyColors.debitGreen,
+                            icon: Icons.trending_up_rounded,
+                            color: AppColors.debitGreen,
                           ),
                           KpiMetricCard(
                             title: 'Operating Cash',
-                            bilingualSubtitle: 'रोकड़ शेष',
                             value: '₹${_summary.operatingCash.toStringAsFixed(0)}',
                             icon: Icons.account_balance_wallet_outlined,
-                            color: LedgifyColors.primaryBlue,
+                            color: AppColors.primary,
                           ),
                           KpiMetricCard(
                             title: 'Overdue Receivables',
-                            bilingualSubtitle: 'प्राप्य बकाया',
                             value: '₹${_summary.overdueReceivables.toStringAsFixed(0)}',
                             changePercent: '${_ratios?.debtorDaysDso.toStringAsFixed(0) ?? 42} Days DSO',
                             isPositive: false,
-                            icon: Icons.call_received,
-                            color: LedgifyColors.warningOrange,
+                            icon: Icons.call_received_rounded,
+                            color: AppColors.warningAmber,
                           ),
                           KpiMetricCard(
                             title: 'Overdue Payables',
-                            bilingualSubtitle: 'देय बकाया',
                             value: '₹${_summary.overduePayables.toStringAsFixed(0)}',
                             changePercent: '${_ratios?.creditorDaysDpo.toStringAsFixed(0) ?? 30} Days DPO',
                             isPositive: true,
-                            icon: Icons.call_made,
-                            color: LedgifyColors.secondarySlate,
+                            icon: Icons.call_made_rounded,
+                            color: AppColors.textSecondary,
                           ),
                         ],
                       ),
@@ -182,45 +188,46 @@ class _ExecutiveDashboardScreenState extends State<ExecutiveDashboardScreen> {
 
                       // Financial Ratios Hub
                       if (_ratios != null) ...[
-                        const Text('Key Financial Ratios / मुख्य वित्तीय अनुपात', style: LedgifyTypography.cardHeader),
+                        Text('Key Financial Ratios', style: AppTypography.cardHeader),
                         const SizedBox(height: 10),
 
                         Card(
+                          elevation: 0,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(LedgifyColors.cardBorderRadius),
-                            side: const BorderSide(color: LedgifyColors.surfaceVariant),
+                            borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
+                            side: const BorderSide(color: AppColors.border),
                           ),
-                          color: LedgifyColors.surfaceCard,
+                          color: AppColors.surfaceCard,
                           child: Padding(
                             padding: const EdgeInsets.all(16.0),
                             child: Column(
                               children: [
                                 _buildRatioRow(
-                                  'Current Ratio (चालू अनुपात)',
+                                  'Current Ratio',
                                   '${_ratios!.currentRatio.toStringAsFixed(2)} : 1',
                                   _ratios!.currentRatioStatus,
                                   _ratios!.currentRatioColor,
                                 ),
                                 const Divider(height: 20),
                                 _buildRatioRow(
-                                  'Quick Ratio (त्वरित अनुपात)',
+                                  'Quick Ratio',
                                   '${_ratios!.quickRatio.toStringAsFixed(2)} : 1',
                                   _ratios!.quickRatio >= 1.0 ? 'Optimal' : 'Low Buffer',
-                                  _ratios!.quickRatio >= 1.0 ? LedgifyColors.debitGreen : LedgifyColors.warningOrange,
+                                  _ratios!.quickRatio >= 1.0 ? AppColors.debitGreen : AppColors.warningAmber,
                                 ),
                                 const Divider(height: 20),
                                 _buildRatioRow(
-                                  'Gross Profit Margin (सकल मार्जिन)',
+                                  'Gross Profit Margin',
                                   '${_ratios!.grossProfitMargin.toStringAsFixed(1)}%',
                                   'Direct Profitability',
-                                  LedgifyColors.primaryBlue,
+                                  AppColors.primary,
                                 ),
                                 const Divider(height: 20),
                                 _buildRatioRow(
-                                  'Debt-to-Equity (ऋण-पूंजी अनुपात)',
+                                  'Debt-to-Equity Ratio',
                                   '${_ratios!.debtToEquity.toStringAsFixed(2)}',
                                   _ratios!.debtToEquity <= 1.5 ? 'Conservative' : 'Leveraged',
-                                  _ratios!.debtToEquity <= 1.5 ? LedgifyColors.debitGreen : LedgifyColors.creditRed,
+                                  _ratios!.debtToEquity <= 1.5 ? AppColors.debitGreen : AppColors.creditRed,
                                 ),
                               ],
                             ),
@@ -242,13 +249,13 @@ class _ExecutiveDashboardScreenState extends State<ExecutiveDashboardScreen> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
-            Text(statusText, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: color)),
+            Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5, color: AppColors.textPrimary)),
+            Text(statusText, style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: color)),
           ],
         ),
         Text(
           ratioVal,
-          style: LedgifyTypography.financialAmount.copyWith(fontSize: 16, color: color),
+          style: AppTypography.currencyText.copyWith(fontSize: 16, color: color, fontWeight: FontWeight.w700),
         ),
       ],
     );

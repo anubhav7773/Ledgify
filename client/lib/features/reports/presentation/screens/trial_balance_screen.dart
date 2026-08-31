@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/color_tokens.dart';
-import '../../../../core/theme/typography_tokens.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import 'package:ledgify/features/reports/data/repositories/reports_repository.dart';
 import 'package:ledgify/features/reports/domain/models/trial_balance_model.dart';
 
-/// Screen presenting the multi-column Trial Balance report.
+/// Screen presenting the multi-column Trial Balance report (Google Stitch UI).
 class TrialBalanceScreen extends StatefulWidget {
   final ReportsRepository? repository;
 
@@ -47,12 +47,14 @@ class _TrialBalanceScreenState extends State<TrialBalanceScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        title: const Text('Trial Balance / तलपट', style: LedgifyTypography.cardHeader),
-        backgroundColor: LedgifyColors.surfaceLight,
+        title: Text('Trial Balance Report', style: AppTypography.cardHeader),
+        backgroundColor: AppColors.surfaceCard,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
+            tooltip: 'Refresh Report',
             onPressed: _loadReport,
           ),
         ],
@@ -63,17 +65,17 @@ class _TrialBalanceScreenState extends State<TrialBalanceScreen> {
             // Date Range Bar
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              color: LedgifyColors.surfaceCard,
+              color: AppColors.surfaceCard,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Period: ${_fromDate.day}/${_fromDate.month}/${_fromDate.year} to ${_toDate.day}/${_toDate.month}/${_toDate.year}',
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                    'Period: ${_fromDate.day.toString().padLeft(2, '0')}/${_fromDate.month.toString().padLeft(2, '0')}/${_fromDate.year} to ${_toDate.day.toString().padLeft(2, '0')}/${_toDate.month.toString().padLeft(2, '0')}/${_toDate.year}',
+                    style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                   ),
                   TextButton.icon(
-                    icon: const Icon(Icons.date_range, size: 16),
-                    label: const Text('Change Date'),
+                    icon: const Icon(Icons.date_range_outlined, size: 16),
+                    label: const Text('Change Date', style: TextStyle(fontWeight: FontWeight.w700)),
                     onPressed: () async {
                       final picked = await showDateRangePicker(
                         context: context,
@@ -96,15 +98,15 @@ class _TrialBalanceScreenState extends State<TrialBalanceScreen> {
             const Divider(height: 1),
 
             if (_isLoading)
-              const Expanded(child: Center(child: CircularProgressIndicator(color: LedgifyColors.primaryBlue)))
+              const Expanded(child: Center(child: CircularProgressIndicator(color: AppColors.primary)))
             else if (_report == null)
-              const Expanded(child: Center(child: Text('No data found.')))
+              const Expanded(child: Center(child: Text('No data found.', style: TextStyle(color: AppColors.textSecondary))))
             else ...[
               // Balance Verification Banner
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                color: _report!.isBalanced ? LedgifyColors.debitGreenBg : LedgifyColors.creditRedBg,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                color: _report!.isBalanced ? AppColors.debitGreenLight : AppColors.creditRedLight,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -112,13 +114,13 @@ class _TrialBalanceScreenState extends State<TrialBalanceScreen> {
                       _report!.isBalanced ? '✓ Trial Balance Balanced (₹${_report!.totalClosingDr.toStringAsFixed(2)})' : '⚠ Discrepancy Detected',
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
-                        fontSize: 12,
-                        color: _report!.isBalanced ? LedgifyColors.debitGreen : LedgifyColors.creditRed,
+                        fontSize: 12.5,
+                        color: _report!.isBalanced ? AppColors.debitGreen : AppColors.creditRed,
                       ),
                     ),
                     Text(
                       'Dr: ₹${_report!.totalClosingDr.toStringAsFixed(2)} | Cr: ₹${_report!.totalClosingCr.toStringAsFixed(2)}',
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                      style: AppTypography.currencyText.copyWith(fontSize: 11.5, fontWeight: FontWeight.w700),
                     ),
                   ],
                 ),
@@ -126,15 +128,15 @@ class _TrialBalanceScreenState extends State<TrialBalanceScreen> {
 
               // Table Headers
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                color: LedgifyColors.surfaceVariant.withOpacity(0.4),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                color: AppColors.surfaceVariant.withOpacity(0.6),
                 child: const Row(
                   children: [
-                    Expanded(flex: 3, child: Text('Particulars / खाता', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 11))),
-                    Expanded(flex: 2, child: Text('Opening', textAlign: TextAlign.right, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 11))),
-                    Expanded(flex: 2, child: Text('Debit', textAlign: TextAlign.right, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 11))),
-                    Expanded(flex: 2, child: Text('Credit', textAlign: TextAlign.right, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 11))),
-                    Expanded(flex: 2, child: Text('Closing', textAlign: TextAlign.right, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 11))),
+                    Expanded(flex: 3, child: Text('Particulars', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 11.5, color: AppColors.textPrimary))),
+                    Expanded(flex: 2, child: Text('Opening', textAlign: TextAlign.right, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 11.5, color: AppColors.textPrimary))),
+                    Expanded(flex: 2, child: Text('Debit', textAlign: TextAlign.right, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 11.5, color: AppColors.textPrimary))),
+                    Expanded(flex: 2, child: Text('Credit', textAlign: TextAlign.right, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 11.5, color: AppColors.textPrimary))),
+                    Expanded(flex: 2, child: Text('Closing', textAlign: TextAlign.right, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 11.5, color: AppColors.textPrimary))),
                   ],
                 ),
               ),
@@ -151,7 +153,7 @@ class _TrialBalanceScreenState extends State<TrialBalanceScreen> {
                     final closingType = item.closingDr > 0 ? 'Dr' : (item.closingCr > 0 ? 'Cr' : '');
 
                     return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      padding: const EdgeInsets.symmetric(vertical: 10.0),
                       child: Row(
                         children: [
                           Expanded(
@@ -159,8 +161,8 @@ class _TrialBalanceScreenState extends State<TrialBalanceScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(item.accountName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12)),
-                                Text(item.groupName, style: const TextStyle(fontSize: 10, color: LedgifyColors.secondarySlate)),
+                                Text(item.accountName, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.textPrimary)),
+                                Text(item.groupName, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
                               ],
                             ),
                           ),
@@ -169,7 +171,7 @@ class _TrialBalanceScreenState extends State<TrialBalanceScreen> {
                             child: Text(
                               item.openingDr > 0 ? '${item.openingDr.toStringAsFixed(0)} Dr' : (item.openingCr > 0 ? '${item.openingCr.toStringAsFixed(0)} Cr' : '-'),
                               textAlign: TextAlign.right,
-                              style: const TextStyle(fontSize: 11),
+                              style: AppTypography.currencyText.copyWith(fontSize: 11.5),
                             ),
                           ),
                           Expanded(
@@ -177,7 +179,7 @@ class _TrialBalanceScreenState extends State<TrialBalanceScreen> {
                             child: Text(
                               item.periodDr > 0 ? item.periodDr.toStringAsFixed(0) : '-',
                               textAlign: TextAlign.right,
-                              style: const TextStyle(fontSize: 11, color: LedgifyColors.debitGreen),
+                              style: AppTypography.currencyText.copyWith(fontSize: 11.5, color: AppColors.debitGreen),
                             ),
                           ),
                           Expanded(
@@ -185,7 +187,7 @@ class _TrialBalanceScreenState extends State<TrialBalanceScreen> {
                             child: Text(
                               item.periodCr > 0 ? item.periodCr.toStringAsFixed(0) : '-',
                               textAlign: TextAlign.right,
-                              style: const TextStyle(fontSize: 11, color: LedgifyColors.creditRed),
+                              style: AppTypography.currencyText.copyWith(fontSize: 11.5, color: AppColors.creditRed),
                             ),
                           ),
                           Expanded(
@@ -193,7 +195,7 @@ class _TrialBalanceScreenState extends State<TrialBalanceScreen> {
                             child: Text(
                               closingAmount > 0 ? '${closingAmount.toStringAsFixed(0)} $closingType' : '-',
                               textAlign: TextAlign.right,
-                              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+                              style: AppTypography.currencyText.copyWith(fontSize: 12, fontWeight: FontWeight.w700),
                             ),
                           ),
                         ],

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/color_tokens.dart';
-import '../../../../core/theme/typography_tokens.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import 'package:ledgify/features/reports/data/repositories/reports_repository.dart';
 import 'package:ledgify/features/reports/domain/models/balance_sheet_model.dart';
 
-/// Screen presenting Schedule III compliant Balance Sheet statement.
+/// Screen presenting Schedule III compliant Balance Sheet statement (Google Stitch UI).
 class BalanceSheetScreen extends StatefulWidget {
   final ReportsRepository? repository;
 
@@ -46,12 +46,14 @@ class _BalanceSheetScreenState extends State<BalanceSheetScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        title: const Text('Balance Sheet / तुलन पत्र', style: LedgifyTypography.cardHeader),
-        backgroundColor: LedgifyColors.surfaceLight,
+        title: Text('Balance Sheet Report', style: AppTypography.cardHeader),
+        backgroundColor: AppColors.surfaceCard,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
+            tooltip: 'Refresh Balance Sheet',
             onPressed: _loadBalanceSheet,
           ),
         ],
@@ -62,17 +64,17 @@ class _BalanceSheetScreenState extends State<BalanceSheetScreen> {
             // Date Selector Bar
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              color: LedgifyColors.surfaceCard,
+              color: AppColors.surfaceCard,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'As on: ${_asOfDate.day}/${_asOfDate.month}/${_asOfDate.year}',
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                    'As on: ${_asOfDate.day.toString().padLeft(2, '0')}/${_asOfDate.month.toString().padLeft(2, '0')}/${_asOfDate.year}',
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                   ),
                   TextButton.icon(
-                    icon: const Icon(Icons.calendar_today, size: 16),
-                    label: const Text('Change Date'),
+                    icon: const Icon(Icons.calendar_today_outlined, size: 16),
+                    label: const Text('Change Date', style: TextStyle(fontWeight: FontWeight.w700)),
                     onPressed: () async {
                       final picked = await showDatePicker(
                         context: context,
@@ -92,15 +94,15 @@ class _BalanceSheetScreenState extends State<BalanceSheetScreen> {
             const Divider(height: 1),
 
             if (_isLoading)
-              const Expanded(child: Center(child: CircularProgressIndicator(color: LedgifyColors.primaryBlue)))
+              const Expanded(child: Center(child: CircularProgressIndicator(color: AppColors.primary)))
             else if (_report == null)
-              const Expanded(child: Center(child: Text('No data found.')))
+              const Expanded(child: Center(child: Text('No balance sheet data found.', style: TextStyle(color: AppColors.textSecondary))))
             else ...[
               // Balance Equality Verification Banner
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                color: _report!.isBalanced ? LedgifyColors.debitGreenBg : LedgifyColors.creditRedBg,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                color: _report!.isBalanced ? AppColors.debitGreenLight : AppColors.creditRedLight,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -108,13 +110,13 @@ class _BalanceSheetScreenState extends State<BalanceSheetScreen> {
                       _report!.isBalanced ? '✓ Balance Sheet Balanced (₹${_report!.totalAssets.toStringAsFixed(2)})' : '⚠ Imbalance Difference: ₹${_report!.difference.toStringAsFixed(2)}',
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
-                        fontSize: 12,
-                        color: _report!.isBalanced ? LedgifyColors.debitGreen : LedgifyColors.creditRed,
+                        fontSize: 12.5,
+                        color: _report!.isBalanced ? AppColors.debitGreen : AppColors.creditRed,
                       ),
                     ),
                     Text(
                       'Total: ₹${_report!.totalAssets.toStringAsFixed(0)}',
-                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+                      style: AppTypography.currencyText.copyWith(fontSize: 12, fontWeight: FontWeight.w700),
                     ),
                   ],
                 ),
@@ -123,30 +125,65 @@ class _BalanceSheetScreenState extends State<BalanceSheetScreen> {
               // Liabilities & Assets Sections
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(LedgifyColors.standardPadding),
+                  padding: const EdgeInsets.all(AppColors.standardPadding),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       // Sources of Funds (Liabilities & Equity)
-                      const Text('I. Liabilities & Equity / देनदारियां और पूंजी', style: LedgifyTypography.cardHeader),
-                      const SizedBox(height: 8),
+                      Text('I. Liabilities & Equity (Sources of Funds)', style: AppTypography.cardHeader),
+                      const SizedBox(height: 10),
 
-                      _buildLineItem('Capital Account', _report!.capitalEquity),
-                      _buildLineItem('Current Net Profit', _report!.currentNetProfit),
-                      _buildSubHeader('Total Equity & Reserves', _report!.totalEquityAndReserves),
-
-                      _buildLineItem('Loans (Liability)', _report!.loansLiability),
-                      _buildLineItem('Current Liabilities & Creditors', _report!.currentLiabilities),
-                      _buildTotalHeader('Total Liabilities & Equity', _report!.totalLiabilitiesAndEquity),
-                      const Divider(height: 28),
+                      Card(
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
+                          side: const BorderSide(color: AppColors.border),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            children: [
+                              _buildLineItem('Capital Account', _report!.capitalEquity),
+                              const Divider(height: 16),
+                              _buildLineItem('Current Net Profit (Reserves)', _report!.currentNetProfit),
+                              const Divider(height: 16),
+                              _buildSubHeader('Total Equity & Reserves', _report!.totalEquityAndReserves),
+                              const Divider(height: 16),
+                              _buildLineItem('Loans & Borrowings (Liability)', _report!.loansLiability),
+                              const Divider(height: 16),
+                              _buildLineItem('Current Liabilities & Sundry Creditors', _report!.currentLiabilities),
+                              const Divider(height: 18),
+                              _buildTotalHeader('Total Liabilities & Equity', _report!.totalLiabilitiesAndEquity),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
 
                       // Application of Funds (Assets)
-                      const Text('II. Assets / परिसंपत्तियां (संपत्ति)', style: LedgifyTypography.cardHeader),
-                      const SizedBox(height: 8),
+                      Text('II. Assets (Application of Funds)', style: AppTypography.cardHeader),
+                      const SizedBox(height: 10),
 
-                      _buildLineItem('Fixed Assets (Net Block)', _report!.fixedAssets),
-                      _buildLineItem('Current Assets (Bank, Cash, Debtors)', _report!.currentAssets),
-                      _buildTotalHeader('Total Assets / कुल संपत्ति', _report!.totalAssets),
+                      Card(
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
+                          side: const BorderSide(color: AppColors.border),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            children: [
+                              _buildLineItem('Fixed Assets (Net Block & Plant)', _report!.fixedAssets),
+                              const Divider(height: 16),
+                              _buildLineItem('Current Assets (Bank, Cash, Sundry Debtors)', _report!.currentAssets),
+                              const Divider(height: 18),
+                              _buildTotalHeader('Total Assets', _report!.totalAssets),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
                     ],
                   ),
                 ),
@@ -159,52 +196,40 @@ class _BalanceSheetScreenState extends State<BalanceSheetScreen> {
   }
 
   Widget _buildLineItem(String title, double amount) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
-          Text('₹${amount.toStringAsFixed(2)}', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
-        ],
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(title, style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w500, color: AppColors.textPrimary)),
+        Text('₹${amount.toStringAsFixed(2)}', style: AppTypography.currencyText.copyWith(fontSize: 13.5, fontWeight: FontWeight.w600)),
+      ],
     );
   }
 
   Widget _buildSubHeader(String title, double amount) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: LedgifyColors.surfaceCard,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(title, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
-          Text('₹${amount.toStringAsFixed(2)}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
-        ],
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
+        Text('₹${amount.toStringAsFixed(2)}', style: AppTypography.currencyText.copyWith(fontSize: 13.5, fontWeight: FontWeight.w700)),
+      ],
     );
   }
 
   Widget _buildTotalHeader(String title, double amount) {
     return Container(
-      margin: const EdgeInsets.only(top: 8),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: LedgifyColors.primaryContainer.withOpacity(0.4),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: LedgifyColors.primaryBlue.withOpacity(0.3)),
+        color: AppColors.primaryContainer,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: AppColors.primaryLight),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: LedgifyColors.primaryBlue)),
+          Text(title, style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w800, color: AppColors.primaryDark)),
           Text(
             '₹${amount.toStringAsFixed(2)}',
-            style: LedgifyTypography.financialAmount.copyWith(fontSize: 16, color: LedgifyColors.primaryBlue),
+            style: AppTypography.currencyText.copyWith(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.primary),
           ),
         ],
       ),

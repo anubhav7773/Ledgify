@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/color_tokens.dart';
-import '../../../../core/theme/typography_tokens.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../vouchers/presentation/screens/voucher_entry_screen.dart';
 import 'package:ledgify/features/reports/domain/models/day_book_model.dart';
 import 'package:ledgify/features/reports/domain/services/statutory_registers_service.dart';
 
-/// Screen presenting the Day Book daily transaction register with day stepping and drill-down capabilities.
+/// Screen presenting the Day Book daily transaction register (Google Stitch UI).
 class DayBookScreen extends StatefulWidget {
   final StatutoryRegistersService? service;
 
@@ -53,12 +53,14 @@ class _DayBookScreenState extends State<DayBookScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        title: const Text('Day Book / दैनिक बही (डे बुक)', style: LedgifyTypography.cardHeader),
-        backgroundColor: LedgifyColors.surfaceLight,
+        title: Text('Transaction Day Book', style: AppTypography.cardHeader),
+        backgroundColor: AppColors.surfaceCard,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
+            tooltip: 'Refresh Day Book',
             onPressed: _loadDayBook,
           ),
         ],
@@ -69,19 +71,19 @@ class _DayBookScreenState extends State<DayBookScreen> {
             // Date Stepper Bar
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              color: LedgifyColors.surfaceCard,
+              color: AppColors.surfaceCard,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.chevron_left),
+                    icon: const Icon(Icons.chevron_left_rounded),
                     onPressed: () => _stepDate(-1),
                   ),
                   TextButton.icon(
-                    icon: const Icon(Icons.calendar_month, size: 18),
+                    icon: const Icon(Icons.calendar_month_outlined, size: 18),
                     label: Text(
-                      '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
-                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                      '${_selectedDate.day.toString().padLeft(2, '0')}/${_selectedDate.month.toString().padLeft(2, '0')}/${_selectedDate.year}',
+                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: AppColors.textPrimary),
                     ),
                     onPressed: () async {
                       final picked = await showDatePicker(
@@ -97,7 +99,7 @@ class _DayBookScreenState extends State<DayBookScreen> {
                     },
                   ),
                   IconButton(
-                    icon: const Icon(Icons.chevron_right),
+                    icon: const Icon(Icons.chevron_right_rounded),
                     onPressed: () => _stepDate(1),
                   ),
                 ],
@@ -106,25 +108,29 @@ class _DayBookScreenState extends State<DayBookScreen> {
             const Divider(height: 1),
 
             if (_isLoading)
-              const Expanded(child: Center(child: CircularProgressIndicator(color: LedgifyColors.primaryBlue)))
+              const Expanded(child: Center(child: CircularProgressIndicator(color: AppColors.primary)))
             else if (_report == null || _report!.totalVouchers == 0)
               const Expanded(
                 child: Center(
-                  child: Text('No vouchers posted on this date.\nइस तारीख पर कोई वाउचर दर्ज नहीं है', textAlign: TextAlign.center, style: LedgifyTypography.bilingualLabel),
+                  child: Text(
+                    'No vouchers posted on this date.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: AppColors.textSecondary),
+                  ),
                 ),
               )
             else ...[
               // Summary Banner
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                color: LedgifyColors.primaryContainer.withOpacity(0.4),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                color: AppColors.primaryContainer.withOpacity(0.5),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('Total Transactions: ${_report!.totalVouchers}', style: const TextStyle(fontWeight: FontWeight.w700)),
                     Text(
                       'Turnover: ₹${_report!.totalTurnover.toStringAsFixed(2)}',
-                      style: LedgifyTypography.financialAmount.copyWith(fontSize: 15, color: LedgifyColors.primaryBlue),
+                      style: AppTypography.currencyText.copyWith(fontSize: 15, color: AppColors.primary, fontWeight: FontWeight.w700),
                     ),
                   ],
                 ),
@@ -141,11 +147,11 @@ class _DayBookScreenState extends State<DayBookScreen> {
                     return Card(
                       margin: const EdgeInsets.only(bottom: 12),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: const BorderSide(color: LedgifyColors.surfaceVariant),
+                        borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
+                        side: const BorderSide(color: AppColors.border),
                       ),
                       child: InkWell(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
                         onTap: () {
                           Navigator.push(
                             context,
@@ -163,28 +169,28 @@ class _DayBookScreenState extends State<DayBookScreen> {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                                     decoration: BoxDecoration(
-                                      color: LedgifyColors.primaryContainer,
+                                      color: AppColors.primaryLight,
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(
                                       voucher.voucherTypeName.toUpperCase(),
-                                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: LedgifyColors.primaryBlue),
+                                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.primary),
                                     ),
                                   ),
                                   Text(
                                     '₹${voucher.totalAmount.toStringAsFixed(2)}',
-                                    style: LedgifyTypography.financialAmount.copyWith(fontSize: 16, color: LedgifyColors.debitGreen),
+                                    style: AppTypography.currencyText.copyWith(fontSize: 16, color: AppColors.debitGreen),
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 6),
+                              const SizedBox(height: 8),
 
-                              Text('Voucher No: ${voucher.voucherNumber}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+                              Text('Voucher No: ${voucher.voucherNumber}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5)),
                               if (voucher.narration != null && voucher.narration!.isNotEmpty) ...[
                                 const SizedBox(height: 2),
-                                Text(voucher.narration!, style: const TextStyle(fontSize: 11.5, color: LedgifyColors.secondarySlate)),
+                                Text(voucher.narration!, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
                               ],
                               const Divider(height: 16),
 
@@ -195,8 +201,8 @@ class _DayBookScreenState extends State<DayBookScreen> {
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text('${li.entryType}  ${li.accountName}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
-                                      Text('₹${li.amount.toStringAsFixed(2)}', style: const TextStyle(fontSize: 12, fontFamily: 'monospace')),
+                                      Text('${li.entryType}  ${li.accountName}', style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w500)),
+                                      Text('₹${li.amount.toStringAsFixed(2)}', style: AppTypography.currencyText.copyWith(fontSize: 12)),
                                     ],
                                   ),
                                 );
