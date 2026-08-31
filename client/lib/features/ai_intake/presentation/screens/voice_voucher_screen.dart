@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../../../core/errors/failures.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/color_tokens.dart';
-import '../../../../core/theme/typography_tokens.dart';
 import '../../../masters/data/repositories/account_repository.dart';
 import '../../../masters/domain/models/account_model.dart';
 import '../../../vouchers/data/repositories/voucher_repository.dart';
@@ -12,8 +13,7 @@ import 'package:ledgify/features/ai_intake/data/repositories/voice_intake_reposi
 import 'package:ledgify/features/ai_intake/data/services/audio_recording_service.dart';
 import '../widgets/audio_waveform_visualizer.dart';
 
-/// Screen for recording code-switched Hindi/Hinglish Voice Vouchers and auto-generating double-entry postings.
-/// Adheres strictly to docs/06_gemini_ai_multimodal_pipeline.md and docs/10_ui_ux_design_system_tokens.md.
+/// Screen for recording natural Voice Vouchers and auto-generating double-entry postings (Google Stitch Design).
 class VoiceVoucherScreen extends StatefulWidget {
   final VoiceIntakeRepository? voiceRepository;
   final AudioRecordingService? recordingService;
@@ -102,7 +102,7 @@ class _VoiceVoucherScreenState extends State<VoiceVoucherScreen> {
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to start recording: $e'), backgroundColor: LedgifyColors.creditRed),
+        SnackBar(content: Text('Failed to start recording: $e'), backgroundColor: AppColors.creditRed),
       );
     }
   }
@@ -142,7 +142,7 @@ class _VoiceVoucherScreenState extends State<VoiceVoucherScreen> {
       setState(() => _isProcessing = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Voice parsing error: $e'), backgroundColor: LedgifyColors.creditRed),
+          SnackBar(content: Text('Voice parsing error: $e'), backgroundColor: AppColors.creditRed),
         );
       }
     }
@@ -200,15 +200,15 @@ class _VoiceVoucherScreenState extends State<VoiceVoucherScreen> {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        title: const Text('DPDP Voice Consent / आवाज डेटा सहमति'),
+        title: const Text('DPDP Voice Processing Consent'),
         content: const Text(
-          'Under the DPDP Act, Ledgify requires your explicit consent to process your spoken voice recordings using Google Gemini AI for automated accounting entries.',
+          'Under the DPDP Act, Ledgify requires your explicit consent to process spoken audio recordings using Google Gemini AI for automated double-entry accounting entries.',
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Decline')),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: LedgifyColors.primaryBlue,
+              backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
             ),
             onPressed: () => Navigator.pop(ctx, true),
@@ -282,8 +282,8 @@ class _VoiceVoucherScreenState extends State<VoiceVoucherScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Voice Voucher posted successfully! / वाउचर दर्ज हो गया!'),
-            backgroundColor: LedgifyColors.debitGreen,
+            content: Text('Voice Voucher created & posted successfully!'),
+            backgroundColor: AppColors.debitGreen,
           ),
         );
         Navigator.pop(context, true);
@@ -291,7 +291,7 @@ class _VoiceVoucherScreenState extends State<VoiceVoucherScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to post voucher: $e'), backgroundColor: LedgifyColors.creditRed),
+          SnackBar(content: Text('Failed to post voucher: $e'), backgroundColor: AppColors.creditRed),
         );
       }
     } finally {
@@ -305,12 +305,12 @@ class _VoiceVoucherScreenState extends State<VoiceVoucherScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Voice Voucher / आवाज से वाउचर', style: LedgifyTypography.cardHeader),
-        backgroundColor: LedgifyColors.surfaceLight,
+        title: Text('Voice Voucher Entry', style: AppTypography.cardHeader),
+        backgroundColor: AppColors.surfaceCard,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(LedgifyColors.standardPadding),
+          padding: const EdgeInsets.all(AppColors.standardPadding),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -318,18 +318,18 @@ class _VoiceVoucherScreenState extends State<VoiceVoucherScreen> {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: LedgifyColors.primaryContainer.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: LedgifyColors.primaryBlue.withOpacity(0.3)),
+                  color: AppColors.primaryContainer.withOpacity(0.6),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: AppColors.primaryLight),
                 ),
                 child: const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Speak naturally in Hindi or English / बोलकर बताएं:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                    Text('Speak naturally to record journal entries:', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primaryDark)),
                     SizedBox(height: 6),
-                    Text('• "शर्मा जी को ₹2,500 नकद भुगतान किया"', style: TextStyle(fontSize: 13, color: LedgifyColors.secondarySlate)),
-                    Text('• "Ramesh se 12,000 ka payment aaya phonepe pe"', style: TextStyle(fontSize: 13, color: LedgifyColors.secondarySlate)),
-                    Text('• "Gupta Traders ko 10 peti tel becha"', style: TextStyle(fontSize: 13, color: LedgifyColors.secondarySlate)),
+                    Text('• "Paid 2,500 rupees in cash to Sharma Builders for repairs"', style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+                    Text('• "Received 12,000 from Apex Enterprises via PhonePe UPI"', style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+                    Text('• "Sold 50 bags of cement to Gupta Traders on credit"', style: TextStyle(fontSize: 13, color: AppColors.textSecondary)),
                   ],
                 ),
               ),
@@ -346,20 +346,20 @@ class _VoiceVoucherScreenState extends State<VoiceVoucherScreen> {
               Center(
                 child: Text(
                   _isRecording
-                      ? 'Recording... 00:${_recordDurationSeconds.toString().padLeft(2, '0')} / रिकॉर्डिंग जारी...'
+                      ? 'Recording... 00:${_recordDurationSeconds.toString().padLeft(2, '0')}'
                       : _isProcessing
-                          ? 'Analyzing voice with Gemini 2.5 Flash... / विश्लेषण जारी...'
-                          : 'Tap microphone to speak / बोलने के लिए माइक दबाएं',
+                          ? 'Analyzing voice with Gemini 2.5 Flash...'
+                          : 'Tap microphone to speak',
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: _isRecording ? LedgifyColors.creditRed : LedgifyColors.secondarySlate,
+                    color: _isRecording ? AppColors.creditRed : AppColors.textSecondary,
                   ),
                 ),
               ),
               const SizedBox(height: 20),
 
-              // Central Microphone Button (72x72 dp)
+              // Central Microphone Button (76x76 dp)
               Center(
                 child: InkWell(
                   onTap: _isProcessing ? null : _toggleRecording,
@@ -369,17 +369,17 @@ class _VoiceVoucherScreenState extends State<VoiceVoucherScreen> {
                     height: 76,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: _isRecording ? LedgifyColors.creditRed : LedgifyColors.primaryBlue,
+                      color: _isRecording ? AppColors.creditRed : AppColors.primary,
                       boxShadow: [
                         BoxShadow(
-                          color: (_isRecording ? LedgifyColors.creditRed : LedgifyColors.primaryBlue).withOpacity(0.35),
+                          color: (_isRecording ? AppColors.creditRed : AppColors.primary).withOpacity(0.3),
                           blurRadius: 16,
                           spreadRadius: 4,
                         ),
                       ],
                     ),
                     child: Icon(
-                      _isRecording ? Icons.stop : Icons.mic,
+                      _isRecording ? Icons.stop_rounded : Icons.mic_rounded,
                       color: Colors.white,
                       size: 38,
                     ),
@@ -391,12 +391,12 @@ class _VoiceVoucherScreenState extends State<VoiceVoucherScreen> {
               // Extracted AI Confirmation Review Card
               if (_extractedVoiceVoucher != null) ...[
                 Card(
-                  elevation: 2,
+                  elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(LedgifyColors.cardBorderRadius),
-                    side: const BorderSide(color: LedgifyColors.primaryBlue, width: 1.2),
+                    borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
+                    side: const BorderSide(color: AppColors.primary, width: 1.2),
                   ),
-                  color: LedgifyColors.surfaceCard,
+                  color: AppColors.surfaceCard,
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
@@ -408,18 +408,18 @@ class _VoiceVoucherScreenState extends State<VoiceVoucherScreen> {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(
-                                color: LedgifyColors.primaryContainer,
+                                color: AppColors.primaryLight,
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
                                 '${_extractedVoiceVoucher!['voucher_type']} (${_extractedVoiceVoucher!['payment_mode']})',
-                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: LedgifyColors.primaryBlue),
+                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary),
                               ),
                             ),
                             Text(
                               '₹${(_extractedVoiceVoucher!['total_amount'] as num).toStringAsFixed(2)}',
-                              style: LedgifyTypography.financialAmount.copyWith(
-                                color: LedgifyColors.debitGreen,
+                              style: AppTypography.currencyText.copyWith(
+                                color: AppColors.debitGreen,
                                 fontSize: 18,
                               ),
                             ),
@@ -427,16 +427,16 @@ class _VoiceVoucherScreenState extends State<VoiceVoucherScreen> {
                         ),
                         const Divider(height: 20),
 
-                        Text('Party / पक्ष: ${_extractedVoiceVoucher!['party_name']}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+                        Text('Party: ${_extractedVoiceVoucher!['party_name']}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
                         const SizedBox(height: 4),
-                        Text('Narration: ${_extractedVoiceVoucher!['narration']}', style: const TextStyle(fontSize: 12, color: LedgifyColors.secondarySlate)),
+                        Text('Narration: ${_extractedVoiceVoucher!['narration']}', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
                         const SizedBox(height: 16),
 
                         // Debit / Credit Ledger Mapping Selectors
                         DropdownButtonFormField<String>(
                           value: _selectedDebitAccountId,
                           decoration: const InputDecoration(
-                            labelText: 'Debit Ledger (नाम खाता) *',
+                            labelText: 'Debit Ledger (Account Dr) *',
                             border: OutlineInputBorder(),
                             isDense: true,
                           ),
@@ -450,7 +450,7 @@ class _VoiceVoucherScreenState extends State<VoiceVoucherScreen> {
                         DropdownButtonFormField<String>(
                           value: _selectedCreditAccountId,
                           decoration: const InputDecoration(
-                            labelText: 'Credit Ledger (जमा खाता) *',
+                            labelText: 'Credit Ledger (Account Cr) *',
                             border: OutlineInputBorder(),
                             isDense: true,
                           ),
@@ -471,14 +471,12 @@ class _VoiceVoucherScreenState extends State<VoiceVoucherScreen> {
                   children: [
                     ActionChip(
                       avatar: const Icon(Icons.currency_rupee, size: 14),
-                      label: const Text('Edit Amount / राशि बदलें'),
-                      onPressed: () {
-                        // Quick amount adjustment helper
-                      },
+                      label: const Text('Edit Amount'),
+                      onPressed: () {},
                     ),
                     ActionChip(
                       avatar: const Icon(Icons.swap_horiz, size: 14),
-                      label: const Text('Switch Dr/Cr / खाता बदलें'),
+                      label: const Text('Switch Dr/Cr'),
                       onPressed: () {
                         setState(() {
                           final temp = _selectedDebitAccountId;
@@ -493,10 +491,10 @@ class _VoiceVoucherScreenState extends State<VoiceVoucherScreen> {
 
                 // Post Button (48dp Touch Target)
                 SizedBox(
-                  height: LedgifyColors.minTouchTargetSize,
+                  height: AppColors.minTouchTargetSize,
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: LedgifyColors.primaryBlue,
+                      backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
@@ -508,7 +506,7 @@ class _VoiceVoucherScreenState extends State<VoiceVoucherScreen> {
                           )
                         : const Icon(Icons.check_circle_outline),
                     label: Text(
-                      _isCommitting ? 'Posting Transaction...' : 'Confirm & Post Voucher / वाउचर दर्ज करें',
+                      _isCommitting ? 'Posting Transaction...' : 'Confirm & Post Voucher',
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                     ),
                     onPressed: _isCommitting ? null : _commitVoiceVoucher,

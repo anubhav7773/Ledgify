@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/errors/failures.dart';
+import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/color_tokens.dart';
 import '../../../../core/theme/typography_tokens.dart';
 import '../../services/auth_service.dart';

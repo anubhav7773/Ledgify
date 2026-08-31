@@ -7,7 +7,7 @@ import 'package:ledgify/features/ai_intake/data/repositories/ai_intake_repositor
 import 'package:ledgify/features/ai_intake/data/services/image_capture_service.dart';
 import 'ai_invoice_review_screen.dart';
 
-/// Screen for capturing or picking bill photos for Gemini 2.5 Flash Multimodal OCR.
+/// Screen for capturing or picking bill photos for Gemini 2.5 Flash Multimodal OCR (Google Stitch Design).
 /// Includes DPDP statutory consent prompt modal and document framing guides.
 class DocumentScannerScreen extends StatefulWidget {
   final AiIntakeRepository? repository;
@@ -101,7 +101,7 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen> {
       context: context,
       barrierDismissible: false,
       builder: (ctx) => AlertDialog(
-        title: const Text('DPDP Act Consent / डेटा सहमति'),
+        title: const Text('DPDP Act Statutory Consent'),
         content: const Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -120,7 +120,7 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Decline / अस्वीकार करें'),
+            child: const Text('Decline'),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -128,7 +128,7 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen> {
               foregroundColor: Colors.white,
             ),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Agree & Continue / सहमत हैं'),
+            child: const Text('Agree & Continue'),
           ),
         ],
       ),
@@ -147,7 +147,7 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        title: const Text('Scan Bill / बिल स्कैन करें', style: TextStyle(color: Colors.white)),
+        title: const Text('Scan Bill / Receipt', style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w600)),
         backgroundColor: Colors.transparent,
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
@@ -167,7 +167,7 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen> {
                           Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: Colors.white.withOpacity(0.4), width: 1.5),
+                              border: Border.all(color: Colors.white.withOpacity(0.35), width: 1.5),
                             ),
                           ),
                           // Corner brackets
@@ -195,10 +195,10 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen> {
                           const Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.document_scanner, size: 64, color: Colors.white54),
+                              Icon(Icons.document_scanner_rounded, size: 64, color: Colors.white54),
                               SizedBox(height: 16),
                               Text(
-                                'Align bill/invoice within the frame\nबिल को फ्रेम में सीधा रखें',
+                                'Align bill or invoice within the frame\nfor instant AI extraction',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(color: Colors.white70, fontSize: 14),
                               ),
@@ -213,7 +213,7 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                     decoration: const BoxDecoration(
-                      color: Colors.black87,
+                      color: Color(0xFF0F172A), // Slate 900
                       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
                     ),
                     child: Row(
@@ -221,9 +221,9 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen> {
                       children: [
                         // Pick from Gallery
                         IconButton(
-                          iconSize: 32,
+                          iconSize: 30,
                           icon: const Icon(Icons.photo_library_outlined, color: Colors.white),
-                          tooltip: 'Gallery / गैलरी',
+                          tooltip: 'Choose from Gallery',
                           onPressed: _handleGalleryPick,
                         ),
 
@@ -232,8 +232,8 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen> {
                           onTap: _handleCapture,
                           borderRadius: BorderRadius.circular(40),
                           child: Container(
-                            width: 72,
-                            height: 72,
+                            width: 74,
+                            height: 74,
                             padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
@@ -244,19 +244,19 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen> {
                                 shape: BoxShape.circle,
                                 color: LedgifyColors.primaryBlue,
                               ),
-                              child: const Icon(Icons.camera_alt, color: Colors.white, size: 30),
+                              child: const Icon(Icons.camera_alt_rounded, color: Colors.white, size: 30),
                             ),
                           ),
                         ),
 
-                        // Document Guide Toggle
+                        // Instructions
                         IconButton(
-                          iconSize: 32,
-                          icon: const Icon(Icons.help_outline, color: Colors.white),
-                          tooltip: 'Instructions',
+                          iconSize: 30,
+                          icon: const Icon(Icons.info_outline_rounded, color: Colors.white),
+                          tooltip: 'Scanning Tips',
                           onPressed: () {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Ensure good lighting and avoid shadows on bill.')),
+                              const SnackBar(content: Text('Ensure good lighting and avoid shadows on the bill.')),
                             );
                           },
                         ),
@@ -277,18 +277,18 @@ class _DocumentScannerScreenState extends State<DocumentScannerScreen> {
           const SizedBox(
             width: 64,
             height: 64,
-            child: CircularProgressIndicator(strokeWidth: 3, color: LedgifyColors.primaryBlue),
+            child: CircularProgressIndicator(strokeWidth: 3.5, color: LedgifyColors.primaryBlue),
           ),
           const SizedBox(height: 24),
           const Text(
-            'Analyzing bill via Gemini AI...\nबिल का विश्लेषण किया जा रहा है...',
+            'Analyzing invoice via Gemini AI...',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+            style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
           const Text(
-            'Extracting GSTIN, HSN, Tax splits & Ledgers',
-            style: TextStyle(color: Colors.white54, fontSize: 12),
+            'Extracting GSTIN, HSN, Line Items & Tax splits',
+            style: TextStyle(color: Colors.white54, fontSize: 12.5),
           ),
         ],
       ),

@@ -6,7 +6,7 @@ import '../../../masters/data/repositories/account_repository.dart';
 import '../../../masters/domain/models/account_model.dart';
 import '../../../masters/presentation/widgets/quick_create_ledger_bottom_sheet.dart';
 
-/// Modal bottom sheet for changing or re-assigning the extracted vendor/customer party ledger.
+/// Modal bottom sheet for changing or re-assigning the extracted vendor/customer party ledger (Google Stitch UI).
 class EditPartyBottomSheet extends StatefulWidget {
   final String currentPartyName;
   final String? currentPartyGstin;
@@ -27,8 +27,9 @@ class EditPartyBottomSheet extends StatefulWidget {
     return showModalBottomSheet<AccountModel>(
       context: context,
       isScrollControlled: true,
+      backgroundColor: AppColors.surfaceCard,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (ctx) => EditPartyBottomSheet(
         currentPartyName: currentPartyName,
@@ -91,87 +92,114 @@ class _EditPartyBottomSheetState extends State<EditPartyBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-        top: 20,
-        left: 16,
-        right: 16,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Select Party Ledger / व्यापारी चुनें', style: AppTypography.cardHeader),
-              IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () => Navigator.pop(context),
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+          top: 12,
+          left: 20,
+          right: 20,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Drag handle pill
+            Center(
+              child: Container(
+                width: 36,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: AppColors.border,
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
-            ],
-          ),
-          const SizedBox(height: 12),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Select Party Ledger', style: AppTypography.cardHeader),
+                IconButton(
+                  icon: const Icon(Icons.close_rounded, size: 20),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
 
-          // Search Field
-          AppTextField(
-            controller: _searchController,
-            label: 'Search Party Name / GSTIN',
-            hint: 'Type to filter ledgers...',
-            prefixIcon: const Icon(Icons.search),
-            onChanged: (val) {
-              setState(() => _filterAccounts(val));
-            },
-          ),
-          const SizedBox(height: 16),
-          Container(
-            constraints: const BoxConstraints(maxHeight: 280),
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
-                : _filteredAccounts.isEmpty
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text('No matching ledger found in Chart of Accounts.'),
-                            const SizedBox(height: 8),
-                            ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
-                              icon: const Icon(Icons.add),
-                              label: const Text('Create New Ledger / नया लेजर बनाएं'),
-                              onPressed: () async {
-                                final created = await QuickCreateLedgerBottomSheet.show(
-                                  context,
-                                  initialName: _searchController.text.trim(),
-                                  initialGstin: widget.currentPartyGstin,
-                                );
-                                if (created != null && mounted) {
-                                  Navigator.pop(context, created);
-                                }
-                              },
-                            ),
-                          ],
+            // Search Field
+            AppTextField(
+              controller: _searchController,
+              label: 'Search Party Name or GSTIN',
+              hint: 'Type to filter ledgers...',
+              prefixIcon: const Icon(Icons.search_rounded),
+              onChanged: (val) {
+                setState(() => _filterAccounts(val));
+              },
+            ),
+            const SizedBox(height: 16),
+            Container(
+              constraints: const BoxConstraints(maxHeight: 280),
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+                  : _filteredAccounts.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text('No matching ledger found in Chart of Accounts.', style: TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                              const SizedBox(height: 12),
+                              ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primary,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                ),
+                                icon: const Icon(Icons.add_rounded),
+                                label: const Text('Create New Ledger'),
+                                onPressed: () async {
+                                  final created = await QuickCreateLedgerBottomSheet.show(
+                                    context,
+                                    initialName: _searchController.text.trim(),
+                                    initialGstin: widget.currentPartyGstin,
+                                  );
+                                  if (created != null && mounted) {
+                                    Navigator.pop(context, created);
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                        )
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: _filteredAccounts.length,
+                          itemBuilder: (context, index) {
+                            final acc = _filteredAccounts[index];
+
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 6),
+                              decoration: BoxDecoration(
+                                color: AppColors.surfaceVariant.withOpacity(0.35),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: AppColors.border.withOpacity(0.5)),
+                              ),
+                              child: ListTile(
+                                dense: true,
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+                                title: Text(acc.name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                                subtitle: Text('${acc.groupName} • ${acc.gstin ?? "Unregistered"}', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                                trailing: const Icon(Icons.check_circle_outline_rounded, color: AppColors.primary, size: 20),
+                                onTap: () => Navigator.pop(context, acc),
+                              ),
+                            );
+                          },
                         ),
-                      )
-                    : ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: _filteredAccounts.length,
-                        itemBuilder: (context, index) {
-                          final acc = _filteredAccounts[index];
-
-                          return ListTile(
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                            title: Text(acc.name, style: const TextStyle(fontWeight: FontWeight.w700)),
-                            subtitle: Text('${acc.groupName} • ${acc.gstin ?? "Unregistered"}', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
-                            trailing: const Icon(Icons.check, color: AppColors.primary),
-                            onTap: () => Navigator.pop(context, acc),
-                          );
-                        },
-                      ),
-          ),
-          const SizedBox(height: 16),
-        ],
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
       ),
     );
   }

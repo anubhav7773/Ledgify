@@ -13,7 +13,7 @@ import '../widgets/edit_amount_bottom_sheet.dart';
 import '../widgets/edit_party_bottom_sheet.dart';
 import '../widgets/edit_voucher_type_bottom_sheet.dart';
 
-/// Screen displaying the High-Trust AI Confirmation Card with tap-to-edit controls and repair chips.
+/// Screen displaying the High-Trust AI Confirmation Card with tap-to-edit controls and repair chips (Google Stitch UI).
 class AiInvoiceReviewScreen extends StatefulWidget {
   final ExtractedInvoicePayload extractedPayload;
   final Uint8List? imageBytes;
@@ -174,7 +174,7 @@ class _AiInvoiceReviewScreenState extends State<AiInvoiceReviewScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Voucher $_invoiceNumber created & balanced successfully!'),
+            content: Text('Voucher $_invoiceNumber created & posted successfully!'),
             backgroundColor: AppColors.debitGreen,
           ),
         );
@@ -199,7 +199,7 @@ class _AiInvoiceReviewScreenState extends State<AiInvoiceReviewScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Review Bill / बिल समीक्षा', style: AppTypography.cardHeader),
+        title: Text('Review OCR Results', style: AppTypography.cardHeader),
         backgroundColor: AppColors.surfaceCard,
       ),
       body: _isLoadingMasters
@@ -236,7 +236,7 @@ class _AiInvoiceReviewScreenState extends State<AiInvoiceReviewScreen> {
                     const SizedBox(height: 16),
 
                     // Conversational AI Repair & Adjustment Chips
-                    const Text('Quick Adjustments / तुरंत बदलाव', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+                    const Text('Quick Adjustments', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.textPrimary)),
                     const SizedBox(height: 8),
 
                     AiSuggestionChips(
