@@ -1,5 +1,14 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import ai_intake, auth, gst, health, masters, reports, vouchers
+from app.api.v1.endpoints import (
+    ai_intake,
+    auth,
+    banking_payroll,
+    gst,
+    health,
+    masters,
+    reports,
+    vouchers,
+)
 
 api_router = APIRouter()
 
@@ -10,3 +19,4 @@ api_router.include_router(masters.router, prefix="/masters", tags=["Chart of Acc
 api_router.include_router(reports.router, prefix="/reports", tags=["Financial & Statutory Reports"])
 api_router.include_router(ai_intake.router, prefix="/ai", tags=["Gemini AI Multimodal & Fuzzy Matching"])
 api_router.include_router(gst.router, prefix="/gst", tags=["Indian GST Compliance, E-Invoice & E-Way Bills"])
+api_router.include_router(banking_payroll.router, prefix="", tags=["Banking BRS, Payroll & Direct Tax"])
