@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/color_tokens.dart';
-import '../../../../core/theme/typography_tokens.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../data/repositories/payroll_repository.dart';
 import '../domain/models/employee_model.dart';
 import 'monthly_payroll_run_screen.dart';
 
-/// Screen listing employee master profiles with quick addition and status controls.
+/// Screen listing employee master profiles with quick addition and status controls (Google Stitch UI).
 class EmployeeDirectoryScreen extends StatefulWidget {
   final PayrollRepository? repository;
 
@@ -45,9 +45,10 @@ class _EmployeeDirectoryScreenState extends State<EmployeeDirectoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        title: const Text('Employees & Payroll / कर्मचारी सूची', style: LedgifyTypography.cardHeader),
-        backgroundColor: LedgifyColors.surfaceLight,
+        title: Text('Employee Directory', style: AppTypography.cardHeader),
+        backgroundColor: AppColors.surfaceCard,
         actions: [
           IconButton(
             icon: const Icon(Icons.calculate_outlined),
@@ -62,31 +63,39 @@ class _EmployeeDirectoryScreenState extends State<EmployeeDirectoryScreen> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
+            tooltip: 'Refresh Employee List',
             onPressed: _loadEmployees,
           ),
         ],
       ),
       body: SafeArea(
         child: _isLoading
-            ? const Center(child: CircularProgressIndicator(color: LedgifyColors.primaryBlue))
+            ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
             : _employees.isEmpty
                 ? Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.badge_outlined, size: 48, color: LedgifyColors.secondarySlate),
-                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryLight,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.badge_outlined, size: 48, color: AppColors.primary),
+                        ),
+                        const SizedBox(height: 16),
                         const Text(
-                          'No employee records found.\nकर्मचारी जोड़ने के लिए नीचे दिए गए बटन पर टैप करें',
+                          'No employee records found.\nTap the button below to add staff.',
                           textAlign: TextAlign.center,
-                          style: LedgifyTypography.bilingualLabel,
+                          style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
                         ),
                       ],
                     ),
                   )
                 : ListView.builder(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(AppColors.standardPadding),
                     itemCount: _employees.length,
                     itemBuilder: (context, index) {
                       final emp = _employees[index];
@@ -94,27 +103,37 @@ class _EmployeeDirectoryScreenState extends State<EmployeeDirectoryScreen> {
                       return Card(
                         margin: const EdgeInsets.only(bottom: 12),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: const BorderSide(color: LedgifyColors.surfaceVariant),
+                          borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
+                          side: const BorderSide(color: AppColors.border),
                         ),
                         child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                           leading: CircleAvatar(
-                            backgroundColor: LedgifyColors.primaryContainer,
+                            backgroundColor: AppColors.primaryLight,
                             child: Text(
                               emp.fullName.isNotEmpty ? emp.fullName[0].toUpperCase() : 'E',
-                              style: const TextStyle(fontWeight: FontWeight.w700, color: LedgifyColors.primaryBlue),
+                              style: const TextStyle(fontWeight: FontWeight.w700, color: AppColors.primary),
                             ),
                           ),
-                          title: Text(emp.fullName, style: const TextStyle(fontWeight: FontWeight.w700)),
-                          subtitle: Text(
-                            '${emp.employeeCode} • ${emp.designation ?? 'Staff'} • Gross: ₹${emp.grossSalary.toStringAsFixed(0)}',
-                            style: const TextStyle(fontSize: 12, color: LedgifyColors.secondarySlate),
+                          title: Text(emp.fullName, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: AppColors.textPrimary)),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 2),
+                              Text(
+                                '${emp.employeeCode} • ${emp.designation ?? 'Staff'}',
+                                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                              ),
+                              Text(
+                                'Gross Salary: ₹${emp.grossSalary.toStringAsFixed(0)}',
+                                style: AppTypography.currencyText.copyWith(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.primary),
+                              ),
+                            ],
                           ),
                           trailing: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
-                              color: emp.isActive ? LedgifyColors.debitGreenBg : LedgifyColors.surfaceVariant,
+                              color: emp.isActive ? AppColors.debitGreenLight : AppColors.surfaceVariant,
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
@@ -122,7 +141,7 @@ class _EmployeeDirectoryScreenState extends State<EmployeeDirectoryScreen> {
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
-                                color: emp.isActive ? LedgifyColors.debitGreen : LedgifyColors.secondarySlate,
+                                color: emp.isActive ? AppColors.debitGreen : AppColors.textSecondary,
                               ),
                             ),
                           ),
@@ -132,10 +151,10 @@ class _EmployeeDirectoryScreenState extends State<EmployeeDirectoryScreen> {
                   ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: LedgifyColors.primaryBlue,
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
-        icon: const Icon(Icons.person_add),
-        label: const Text('Add Employee / कर्मचारी जोड़ें'),
+        icon: const Icon(Icons.person_add_rounded),
+        label: const Text('Add Employee', style: TextStyle(fontWeight: FontWeight.w700)),
         onPressed: () {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Employee creation form opened.')),

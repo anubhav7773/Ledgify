@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:ledgify/core/theme/color_tokens.dart';
-import 'package:ledgify/core/theme/typography_tokens.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import 'package:ledgify/features/masters/data/repositories/account_repository.dart';
 import 'package:ledgify/features/masters/domain/models/account_model.dart';
 import 'package:ledgify/features/banking/data/repositories/banking_repository.dart';
 import 'package:ledgify/features/banking/domain/models/bank_account_model.dart';
 import 'package:ledgify/features/banking/domain/models/bank_statement_entry_model.dart';
 
-/// Screen for interactive and automated Bank Reconciliation Statement (BRS) workflows.
-/// Adheres strictly to docs/08_banking_brs_payroll_direct_tax.md and docs/10_ui_ux_design_system_tokens.md.
+/// Screen for interactive and automated Bank Reconciliation Statement (BRS) workflows (Google Stitch UI).
 class BankReconciliationScreen extends StatefulWidget {
   final BankAccountModel bankAccount;
   final BankingRepository? repository;
@@ -77,7 +76,7 @@ class _BankReconciliationScreenState extends State<BankReconciliationScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('BRS Match Complete: $autoCount Auto-Reconciled, $suggestCount Suggested!'),
-            backgroundColor: LedgifyColors.debitGreen,
+            backgroundColor: AppColors.debitGreen,
           ),
         );
         _loadData();
@@ -85,7 +84,7 @@ class _BankReconciliationScreenState extends State<BankReconciliationScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Auto-reconciliation error: $e'), backgroundColor: LedgifyColors.creditRed),
+          SnackBar(content: Text('Auto-reconciliation error: $e'), backgroundColor: AppColors.creditRed),
         );
       }
     } finally {
@@ -112,7 +111,7 @@ class _BankReconciliationScreenState extends State<BankReconciliationScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Posted $voucherType for ${entry.description} to ${targetAcc.name}!'),
-            backgroundColor: LedgifyColors.debitGreen,
+            backgroundColor: AppColors.debitGreen,
           ),
         );
         _loadData();
@@ -120,7 +119,7 @@ class _BankReconciliationScreenState extends State<BankReconciliationScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to post voucher: $e'), backgroundColor: LedgifyColors.creditRed),
+          SnackBar(content: Text('Failed to post voucher: $e'), backgroundColor: AppColors.creditRed),
         );
       }
     }
@@ -129,12 +128,14 @@ class _BankReconciliationScreenState extends State<BankReconciliationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        title: Text('BRS: ${widget.bankAccount.bankName}', style: LedgifyTypography.cardHeader),
-        backgroundColor: LedgifyColors.surfaceLight,
+        title: Text('BRS: ${widget.bankAccount.bankName}', style: AppTypography.cardHeader),
+        backgroundColor: AppColors.surfaceCard,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
+            tooltip: 'Refresh Statement',
             onPressed: _loadData,
           ),
         ],
@@ -163,16 +164,16 @@ class _BankReconciliationScreenState extends State<BankReconciliationScreen> {
 
                   // Auto Reconcile Button (48dp Touch Target)
                   SizedBox(
-                    height: LedgifyColors.minTouchTargetSize,
+                    height: AppColors.minTouchTargetSize,
                     child: ElevatedButton.icon(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: LedgifyColors.primaryBlue,
+                        backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
                       icon: _isAutoReconciling
                           ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                          : const Icon(Icons.auto_awesome, size: 18),
+                          : const Icon(Icons.auto_awesome_rounded, size: 18),
                       label: const Text('Auto-BRS', style: TextStyle(fontWeight: FontWeight.w700)),
                       onPressed: _isAutoReconciling ? null : _runAutoReconcile,
                     ),
@@ -184,10 +185,10 @@ class _BankReconciliationScreenState extends State<BankReconciliationScreen> {
 
             Expanded(
               child: _isLoading
-                  ? const Center(child: CircularProgressIndicator(color: LedgifyColors.primaryBlue))
+                  ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
                   : _statementLines.isEmpty
                       ? const Center(
-                          child: Text('No statement transactions found in this view.', style: LedgifyTypography.bilingualLabel),
+                          child: Text('No statement transactions found in this view.', style: TextStyle(color: AppColors.textSecondary)),
                         )
                       : ListView.builder(
                           padding: const EdgeInsets.all(16),
@@ -199,13 +200,13 @@ class _BankReconciliationScreenState extends State<BankReconciliationScreen> {
                             return Card(
                               margin: const EdgeInsets.only(bottom: 12),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
                                 side: BorderSide(
                                   color: item.isReconciled
-                                      ? LedgifyColors.debitGreen.withOpacity(0.5)
+                                      ? AppColors.debitGreen.withOpacity(0.5)
                                       : (item.trgmSimilarityScore != null && item.trgmSimilarityScore! >= 0.60
-                                          ? LedgifyColors.warningOrange.withOpacity(0.5)
-                                          : LedgifyColors.surfaceVariant),
+                                          ? AppColors.warningAmber.withOpacity(0.5)
+                                          : AppColors.border),
                                 ),
                               ),
                               child: Padding(
@@ -217,8 +218,8 @@ class _BankReconciliationScreenState extends State<BankReconciliationScreen> {
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
-                                          '${item.transactionDate.day}/${item.transactionDate.month}/${item.transactionDate.year}',
-                                          style: const TextStyle(fontSize: 12, color: LedgifyColors.secondarySlate),
+                                          '${item.transactionDate.day.toString().padLeft(2, '0')}/${item.transactionDate.month.toString().padLeft(2, '0')}/${item.transactionDate.year}',
+                                          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                                         ),
                                         Text(
                                           item.reconciliationStatusText,
@@ -226,8 +227,8 @@ class _BankReconciliationScreenState extends State<BankReconciliationScreen> {
                                             fontSize: 11,
                                             fontWeight: FontWeight.w700,
                                             color: item.isReconciled
-                                                ? LedgifyColors.debitGreen
-                                                : (item.trgmSimilarityScore != null ? LedgifyColors.warningOrange : LedgifyColors.secondarySlate),
+                                                ? AppColors.debitGreen
+                                                : (item.trgmSimilarityScore != null ? AppColors.warningAmber : AppColors.textSecondary),
                                           ),
                                         ),
                                       ],
@@ -240,14 +241,15 @@ class _BankReconciliationScreenState extends State<BankReconciliationScreen> {
                                         Expanded(
                                           child: Text(
                                             item.description,
-                                            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                                            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: AppColors.textPrimary),
                                           ),
                                         ),
                                         Text(
                                           '${isWithdrawal ? '-' : '+'}₹${item.amount.toStringAsFixed(2)}',
-                                          style: LedgifyTypography.financialAmount.copyWith(
-                                            color: isWithdrawal ? LedgifyColors.creditRed : LedgifyColors.debitGreen,
+                                          style: AppTypography.currencyText.copyWith(
+                                            color: isWithdrawal ? AppColors.creditRed : AppColors.debitGreen,
                                             fontSize: 16,
+                                            fontWeight: FontWeight.w700,
                                           ),
                                         ),
                                       ],
@@ -255,7 +257,7 @@ class _BankReconciliationScreenState extends State<BankReconciliationScreen> {
 
                                     if (item.chequeReferenceNo != null) ...[
                                       const SizedBox(height: 4),
-                                      Text('Ref/Cheque: ${item.chequeReferenceNo}', style: const TextStyle(fontSize: 11, fontFamily: 'monospace')),
+                                      Text('Ref/Cheque: ${item.chequeReferenceNo}', style: const TextStyle(fontSize: 11.5, fontFamily: 'monospace', color: AppColors.textSecondary)),
                                     ],
 
                                     // Quick Action Chips if un-reconciled
@@ -266,19 +268,19 @@ class _BankReconciliationScreenState extends State<BankReconciliationScreen> {
                                         children: [
                                           if (isWithdrawal)
                                             ActionChip(
-                                              avatar: const Icon(Icons.receipt_long, size: 14),
-                                              label: const Text('Bank Charges / शुल्क'),
+                                              avatar: const Icon(Icons.receipt_long_outlined, size: 14),
+                                              label: const Text('Bank Charges'),
                                               onPressed: () => _post1ClickVoucher(item, 'Bank Charges', 'Payment'),
                                             )
                                           else
                                             ActionChip(
                                               avatar: const Icon(Icons.savings_outlined, size: 14),
-                                              label: const Text('Interest / ब्याज'),
+                                              label: const Text('Interest Received'),
                                               onPressed: () => _post1ClickVoucher(item, 'Interest Received', 'Receipt'),
                                             ),
                                           ActionChip(
-                                            avatar: const Icon(Icons.link, size: 14),
-                                            label: const Text('Link Ledger / लेजर जोड़ें'),
+                                            avatar: const Icon(Icons.link_rounded, size: 14),
+                                            label: const Text('Link Ledger'),
                                             onPressed: () => _post1ClickVoucher(item, isWithdrawal ? 'Sundry Creditors' : 'Sundry Debtors', isWithdrawal ? 'Payment' : 'Receipt'),
                                           ),
                                         ],

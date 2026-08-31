@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/color_tokens.dart';
-import '../../../../core/theme/typography_tokens.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../data/repositories/payroll_repository.dart';
 import '../domain/services/payroll_service.dart';
 import 'payslip_view_screen.dart';
 
-/// Screen executing monthly payroll calculation, dry-run previews, and double-entry salary journal postings.
+/// Screen executing monthly payroll calculation, dry-run previews, and double-entry salary journal postings (Google Stitch UI).
 class MonthlyPayrollRunScreen extends StatefulWidget {
   final PayrollRepository? repository;
   final String? initialMonthYear;
@@ -58,7 +58,7 @@ class _MonthlyPayrollRunScreenState extends State<MonthlyPayrollRunScreen> {
       if (mounted) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Payroll preview error: $e'), backgroundColor: LedgifyColors.creditRed),
+          SnackBar(content: Text('Payroll preview error: $e'), backgroundColor: AppColors.creditRed),
         );
       }
     }
@@ -77,7 +77,7 @@ class _MonthlyPayrollRunScreenState extends State<MonthlyPayrollRunScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Salary Journal posted successfully (ID: ${voucherId.substring(0, 8)})!'),
-            backgroundColor: LedgifyColors.debitGreen,
+            backgroundColor: AppColors.debitGreen,
           ),
         );
         Navigator.pop(context);
@@ -85,7 +85,7 @@ class _MonthlyPayrollRunScreenState extends State<MonthlyPayrollRunScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to post payroll voucher: $e'), backgroundColor: LedgifyColors.creditRed),
+          SnackBar(content: Text('Failed to post payroll voucher: $e'), backgroundColor: AppColors.creditRed),
         );
       }
     } finally {
@@ -98,12 +98,14 @@ class _MonthlyPayrollRunScreenState extends State<MonthlyPayrollRunScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        title: const Text('Monthly Payroll / मासिक वेतन गणना', style: LedgifyTypography.cardHeader),
-        backgroundColor: LedgifyColors.surfaceLight,
+        title: Text('Monthly Payroll Execution', style: AppTypography.cardHeader),
+        backgroundColor: AppColors.surfaceCard,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
+            tooltip: 'Refresh Payroll Preview',
             onPressed: _loadPayrollPreview,
           ),
         ],
@@ -117,12 +119,12 @@ class _MonthlyPayrollRunScreenState extends State<MonthlyPayrollRunScreen> {
               child: DropdownButtonFormField<String>(
                 value: _selectedMonthYear,
                 decoration: const InputDecoration(
-                  labelText: 'Salary Month / वेतन माह *',
+                  labelText: 'Payroll Period (Month-Year) *',
                   border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.calendar_month),
+                  prefixIcon: Icon(Icons.calendar_month_outlined),
                 ),
                 items: _months.map((m) {
-                  return DropdownMenuItem(value: m, child: Text(m));
+                  return DropdownMenuItem(value: m, child: Text('Month: $m'));
                 }).toList(),
                 onChanged: (val) {
                   if (val != null) {
@@ -134,11 +136,11 @@ class _MonthlyPayrollRunScreenState extends State<MonthlyPayrollRunScreen> {
             ),
 
             if (_isLoading)
-              const Expanded(child: Center(child: CircularProgressIndicator(color: LedgifyColors.primaryBlue)))
+              const Expanded(child: Center(child: CircularProgressIndicator(color: AppColors.primary)))
             else if (_preview == null || _preview!.employeeCount == 0)
               const Expanded(
                 child: Center(
-                  child: Text('No active employees for this payroll month.', style: LedgifyTypography.bilingualLabel),
+                  child: Text('No active employees for this payroll month.', style: TextStyle(color: AppColors.textSecondary)),
                 ),
               )
             else ...[
@@ -148,15 +150,15 @@ class _MonthlyPayrollRunScreenState extends State<MonthlyPayrollRunScreen> {
                 child: Row(
                   children: [
                     Expanded(
-                      child: _buildMetricCard('Total Gross / कुल आय', '₹${_preview!.totalGross.toStringAsFixed(0)}', LedgifyColors.debitGreen),
+                      child: _buildMetricCard('Total Gross', '₹${_preview!.totalGross.toStringAsFixed(0)}', AppColors.debitGreen),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: _buildMetricCard('Statutory Dues (PF/ESI)', '₹${(_preview!.totalEpfEmployee + _preview!.totalEsiEmployee).toStringAsFixed(0)}', LedgifyColors.creditRed),
+                      child: _buildMetricCard('Statutory Dues', '₹${(_preview!.totalEpfEmployee + _preview!.totalEsiEmployee).toStringAsFixed(0)}', AppColors.creditRed),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: _buildMetricCard('Net Payout / शुद्ध देय', '₹${_preview!.totalNetPayable.toStringAsFixed(0)}', LedgifyColors.primaryBlue),
+                      child: _buildMetricCard('Net Payout', '₹${_preview!.totalNetPayable.toStringAsFixed(0)}', AppColors.primary),
                     ),
                   ],
                 ),
@@ -174,27 +176,27 @@ class _MonthlyPayrollRunScreenState extends State<MonthlyPayrollRunScreen> {
                     return Card(
                       margin: const EdgeInsets.only(bottom: 10),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        side: const BorderSide(color: LedgifyColors.surfaceVariant),
+                        borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
+                        side: const BorderSide(color: AppColors.border),
                       ),
                       child: ListTile(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         title: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(slip.fullName, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
-                            Text('₹${slip.netPayable.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.w700, color: LedgifyColors.primaryBlue)),
+                            Text(slip.fullName, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: AppColors.textPrimary)),
+                            Text('₹${slip.netPayable.toStringAsFixed(2)}', style: AppTypography.currencyText.copyWith(fontWeight: FontWeight.w700, color: AppColors.primary, fontSize: 15)),
                           ],
                         ),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const SizedBox(height: 2),
-                            Text('Code: ${slip.employeeCode} • Gross: ₹${slip.grossSalary.toStringAsFixed(0)}', style: const TextStyle(fontSize: 12)),
-                            Text('Deductions (PF+ESI+PT+TDS): ₹${slip.totalDeductions.toStringAsFixed(0)}', style: const TextStyle(fontSize: 11, color: LedgifyColors.secondarySlate)),
+                            const SizedBox(height: 3),
+                            Text('Code: ${slip.employeeCode} • Gross: ₹${slip.grossSalary.toStringAsFixed(0)}', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                            Text('Deductions (PF+ESI+PT+TDS): ₹${slip.totalDeductions.toStringAsFixed(0)}', style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary)),
                           ],
                         ),
-                        trailing: const Icon(Icons.chevron_right, color: LedgifyColors.secondarySlate),
+                        trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
                         onTap: () {
                           Navigator.push(
                             context,
@@ -213,19 +215,19 @@ class _MonthlyPayrollRunScreenState extends State<MonthlyPayrollRunScreen> {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: SizedBox(
-                  height: LedgifyColors.minTouchTargetSize,
+                  height: AppColors.minTouchTargetSize,
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: LedgifyColors.primaryBlue,
+                      backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     icon: _isPosting
                         ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                        : const Icon(Icons.check_circle_outline),
+                        : const Icon(Icons.check_circle_outline_rounded),
                     label: Text(
-                      _isPosting ? 'Posting Salary Journal...' : 'Post Salary Voucher & Generate Slips / वेतन दर्ज करें',
+                      _isPosting ? 'Posting Salary Journal...' : 'Post Salary Journal & Issue Slips',
                       style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
                     ),
                     onPressed: _isPosting ? null : _postSalaryJournal,
@@ -241,18 +243,18 @@ class _MonthlyPayrollRunScreenState extends State<MonthlyPayrollRunScreen> {
 
   Widget _buildMetricCard(String label, String value, Color color) {
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: LedgifyColors.surfaceCard,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: LedgifyColors.surfaceVariant),
+        color: AppColors.surfaceCard,
+        borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
+        side: const BorderSide(color: AppColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontSize: 10.5, color: LedgifyColors.secondarySlate, fontWeight: FontWeight.w600)),
+          Text(label, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
           const SizedBox(height: 4),
-          Text(value, style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w700, color: color)),
+          Text(value, style: AppTypography.currencyText.copyWith(fontSize: 15, fontWeight: FontWeight.w800, color: color)),
         ],
       ),
     );

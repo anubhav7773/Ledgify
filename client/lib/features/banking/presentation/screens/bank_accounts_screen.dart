@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import '../../../../core/theme/color_tokens.dart';
-import '../../../../core/theme/typography_tokens.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import 'package:ledgify/features/banking/data/repositories/banking_repository.dart';
 import 'package:ledgify/features/banking/domain/models/bank_account_model.dart';
 import 'package:ledgify/features/banking/domain/services/bank_statement_parser_service.dart';
 import 'bank_reconciliation_screen.dart';
 
-/// Screen listing company bank accounts and providing 1-tap statement import and reconciliation entry.
+/// Screen listing company bank accounts and providing 1-tap statement import and reconciliation entry (Google Stitch UI).
 class BankAccountsScreen extends StatefulWidget {
   final BankingRepository? repository;
 
@@ -79,7 +79,7 @@ class _BankAccountsScreenState extends State<BankAccountsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Imported ${entries.length} statement rows successfully!'),
-            backgroundColor: LedgifyColors.debitGreen,
+            backgroundColor: AppColors.debitGreen,
           ),
         );
         _loadAccounts();
@@ -87,7 +87,7 @@ class _BankAccountsScreenState extends State<BankAccountsScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to import statement: $e'), backgroundColor: LedgifyColors.creditRed),
+          SnackBar(content: Text('Failed to import statement: $e'), backgroundColor: AppColors.creditRed),
         );
       }
     }
@@ -96,45 +96,54 @@ class _BankAccountsScreenState extends State<BankAccountsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        title: const Text('Bank Accounts & BRS / बैंक खाते', style: LedgifyTypography.cardHeader),
-        backgroundColor: LedgifyColors.surfaceLight,
+        title: Text('Bank Accounts Management', style: AppTypography.cardHeader),
+        backgroundColor: AppColors.surfaceCard,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
+            tooltip: 'Refresh Accounts',
             onPressed: _loadAccounts,
           ),
         ],
       ),
       body: SafeArea(
         child: _isLoading
-            ? const Center(child: CircularProgressIndicator(color: LedgifyColors.primaryBlue))
+            ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
             : _accounts.isEmpty
                 ? Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.account_balance, size: 48, color: LedgifyColors.secondarySlate),
-                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryLight,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(Icons.account_balance_rounded, size: 48, color: AppColors.primary),
+                        ),
+                        const SizedBox(height: 16),
                         const Text(
-                          'No bank accounts configured.\nखाता जोड़ने के लिए लेजर बनाएं',
+                          'No bank accounts configured yet.',
                           textAlign: TextAlign.center,
-                          style: LedgifyTypography.bilingualLabel,
+                          style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
                         ),
                       ],
                     ),
                   )
                 : ListView.builder(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(AppColors.standardPadding),
                     itemCount: _accounts.length,
                     itemBuilder: (context, index) {
                       final bank = _accounts[index];
 
                       return Card(
-                        margin: const EdgeInsets.only(bottom: 16),
+                        margin: const EdgeInsets.only(bottom: 14),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(LedgifyColors.cardBorderRadius),
-                          side: const BorderSide(color: LedgifyColors.surfaceVariant),
+                          borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
+                          side: const BorderSide(color: AppColors.border),
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(16),
@@ -148,15 +157,16 @@ class _BankAccountsScreenState extends State<BankAccountsScreen> {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text(bank.bankName, style: LedgifyTypography.cardHeader.copyWith(fontSize: 17)),
-                                        Text(bank.ledgerName ?? 'Bank Ledger', style: const TextStyle(fontSize: 12, color: LedgifyColors.secondarySlate)),
+                                        Text(bank.bankName, style: AppTypography.cardHeader.copyWith(fontSize: 16)),
+                                        const SizedBox(height: 2),
+                                        Text(bank.ledgerName ?? 'Bank Ledger Account', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
                                       ],
                                     ),
                                   ),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: bank.isConnected ? LedgifyColors.debitGreenBg : LedgifyColors.surfaceVariant,
+                                      color: bank.isConnected ? AppColors.debitGreenLight : AppColors.surfaceVariant,
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(
@@ -164,7 +174,7 @@ class _BankAccountsScreenState extends State<BankAccountsScreen> {
                                       style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w700,
-                                        color: bank.isConnected ? LedgifyColors.debitGreen : LedgifyColors.secondarySlate,
+                                        color: bank.isConnected ? AppColors.debitGreen : AppColors.textSecondary,
                                       ),
                                     ),
                                   ),
@@ -172,7 +182,7 @@ class _BankAccountsScreenState extends State<BankAccountsScreen> {
                               ),
                               const SizedBox(height: 12),
 
-                              Text('A/C: ${bank.maskedAccountNumber} • IFSC: ${bank.ifscCode}', style: const TextStyle(fontSize: 13, fontFamily: 'monospace')),
+                              Text('A/C: ${bank.maskedAccountNumber} • IFSC: ${bank.ifscCode}', style: const TextStyle(fontSize: 13, fontFamily: 'monospace', color: AppColors.textPrimary)),
                               const Divider(height: 20),
 
                               // Actions Row (48dp Touch Targets)
@@ -180,13 +190,14 @@ class _BankAccountsScreenState extends State<BankAccountsScreen> {
                                 children: [
                                   Expanded(
                                     child: SizedBox(
-                                      height: LedgifyColors.minTouchTargetSize,
+                                      height: AppColors.minTouchTargetSize,
                                       child: OutlinedButton.icon(
                                         style: OutlinedButton.styleFrom(
-                                          foregroundColor: LedgifyColors.primaryBlue,
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                          foregroundColor: AppColors.primary,
+                                          side: const BorderSide(color: AppColors.primaryLight),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                         ),
-                                        icon: const Icon(Icons.upload_file, size: 18),
+                                        icon: const Icon(Icons.upload_file_outlined, size: 18),
                                         label: const Text('Import CSV', style: TextStyle(fontWeight: FontWeight.w700)),
                                         onPressed: () => _importStatement(bank),
                                       ),
@@ -196,14 +207,14 @@ class _BankAccountsScreenState extends State<BankAccountsScreen> {
 
                                   Expanded(
                                     child: SizedBox(
-                                      height: LedgifyColors.minTouchTargetSize,
+                                      height: AppColors.minTouchTargetSize,
                                       child: ElevatedButton.icon(
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: LedgifyColors.primaryBlue,
+                                          backgroundColor: AppColors.primary,
                                           foregroundColor: Colors.white,
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                         ),
-                                        icon: const Icon(Icons.rule, size: 18),
+                                        icon: const Icon(Icons.rule_folder_rounded, size: 18),
                                         label: const Text('Reconcile (BRS)', style: TextStyle(fontWeight: FontWeight.w700)),
                                         onPressed: () {
                                           Navigator.push(

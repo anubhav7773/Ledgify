@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import '../../../../core/theme/color_tokens.dart';
-import '../../../../core/theme/typography_tokens.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../data/repositories/direct_tax_repository.dart';
 import '../domain/models/tds_tcs_entry_model.dart';
 import 'record_challan_payment_dialog.dart';
 
-/// Screen managing TDS Section 194Q & TCS Section 206C register, Challan tracking, and Form 26Q export.
+/// Screen managing TDS Section 194Q & TCS Section 206C register, Challan tracking, and Form 26Q export (Google Stitch UI).
 class TdsTcsRegisterScreen extends StatefulWidget {
   final DirectTaxRepository? repository;
   final String? businessId;
@@ -74,14 +74,14 @@ class _TdsTcsRegisterScreenState extends State<TdsTcsRegisterScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Form 26Q exported successfully with ${payload['total_entries']} deductee rows!'),
-            backgroundColor: LedgifyColors.debitGreen,
+            backgroundColor: AppColors.debitGreen,
           ),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Export failed: $e'), backgroundColor: LedgifyColors.creditRed),
+          SnackBar(content: Text('Export failed: $e'), backgroundColor: AppColors.creditRed),
         );
       }
     }
@@ -92,9 +92,10 @@ class _TdsTcsRegisterScreenState extends State<TdsTcsRegisterScreen> {
     final displayedEntries = _selectedTab == 'PENDING' ? _pendingEntries : _depositedEntries;
 
     return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        title: const Text('Direct Tax (TDS / TCS) / आयकर टीडीएस', style: LedgifyTypography.cardHeader),
-        backgroundColor: LedgifyColors.surfaceLight,
+        title: Text('Direct Tax (TDS / TCS) Register', style: AppTypography.cardHeader),
+        backgroundColor: AppColors.surfaceCard,
         actions: [
           IconButton(
             icon: const Icon(Icons.download_outlined),
@@ -102,7 +103,8 @@ class _TdsTcsRegisterScreenState extends State<TdsTcsRegisterScreen> {
             onPressed: _exportForm26Q,
           ),
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
+            tooltip: 'Refresh Tax Register',
             onPressed: _loadEntries,
           ),
         ],
@@ -118,11 +120,11 @@ class _TdsTcsRegisterScreenState extends State<TdsTcsRegisterScreen> {
                   Row(
                     children: [
                       Expanded(
-                        child: _buildMetricTile('TDS Sec 194Q', '₹${_totalTds194Q.toStringAsFixed(2)}', LedgifyColors.creditRed),
+                        child: _buildMetricTile('TDS Sec 194Q', '₹${_totalTds194Q.toStringAsFixed(2)}', AppColors.creditRed),
                       ),
                       const SizedBox(width: 8),
                       Expanded(
-                        child: _buildMetricTile('TCS Sec 206C', '₹${_totalTcs206C.toStringAsFixed(2)}', LedgifyColors.primaryBlue),
+                        child: _buildMetricTile('TCS Sec 206C', '₹${_totalTcs206C.toStringAsFixed(2)}', AppColors.primary),
                       ),
                     ],
                   ),
@@ -130,11 +132,11 @@ class _TdsTcsRegisterScreenState extends State<TdsTcsRegisterScreen> {
 
                   // Due Date Warning Card
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: LedgifyColors.primaryContainer.withOpacity(0.4),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: LedgifyColors.primaryBlue.withOpacity(0.3)),
+                      color: AppColors.primaryContainer.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
+                      border: Border.all(color: AppColors.primaryLight),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -142,13 +144,14 @@ class _TdsTcsRegisterScreenState extends State<TdsTcsRegisterScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('TDS Deposit Due Date / जमा अंतिम तिथि', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
-                            Text('Due by 7th of next month ($_daysRemainingForDeposit days left)', style: const TextStyle(fontSize: 11, color: LedgifyColors.secondarySlate)),
+                            const Text('TDS Deposit Due Date', style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: AppColors.primaryDark)),
+                            const SizedBox(height: 2),
+                            Text('Due by 7th of next month ($_daysRemainingForDeposit days remaining)', style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary)),
                           ],
                         ),
                         Text(
                           '₹${_totalPendingTax.toStringAsFixed(2)}',
-                          style: LedgifyTypography.financialAmount.copyWith(fontSize: 16, color: LedgifyColors.creditRed),
+                          style: AppTypography.currencyText.copyWith(fontSize: 16, fontWeight: FontWeight.w800, color: AppColors.creditRed),
                         ),
                       ],
                     ),
@@ -181,10 +184,10 @@ class _TdsTcsRegisterScreenState extends State<TdsTcsRegisterScreen> {
             // Entries List
             Expanded(
               child: _isLoading
-                  ? const Center(child: CircularProgressIndicator(color: LedgifyColors.primaryBlue))
+                  ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
                   : displayedEntries.isEmpty
                       ? const Center(
-                          child: Text('No tax records found in this category.', style: LedgifyTypography.bilingualLabel),
+                          child: Text('No tax records found in this category.', style: TextStyle(color: AppColors.textSecondary)),
                         )
                       : ListView.builder(
                           padding: const EdgeInsets.all(16),
@@ -195,26 +198,28 @@ class _TdsTcsRegisterScreenState extends State<TdsTcsRegisterScreen> {
                             return Card(
                               margin: const EdgeInsets.only(bottom: 10),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                side: const BorderSide(color: LedgifyColors.surfaceVariant),
+                                borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
+                                side: const BorderSide(color: AppColors.border),
                               ),
                               child: ListTile(
-                                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                                 title: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text('Section ${item.sectionCode}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
-                                    Text('₹${item.taxAmount.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.w700, color: LedgifyColors.creditRed)),
+                                    Text('Section ${item.sectionCode}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14.5, color: AppColors.textPrimary)),
+                                    Text('₹${item.taxAmount.toStringAsFixed(2)}', style: AppTypography.currencyText.copyWith(fontWeight: FontWeight.w800, color: AppColors.creditRed, fontSize: 15)),
                                   ],
                                 ),
                                 subtitle: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const SizedBox(height: 2),
-                                    Text('PAN: ${item.partyPan} • Rate: ${item.taxRatePercentage}%', style: const TextStyle(fontSize: 12, fontFamily: 'monospace')),
-                                    Text('Assessable Value: ₹${item.assessedAmount.toStringAsFixed(2)}', style: const TextStyle(fontSize: 11, color: LedgifyColors.secondarySlate)),
-                                    if (item.isDeposited)
-                                      Text('Challan Ref: ${item.challanNumber}', style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: LedgifyColors.debitGreen)),
+                                    const SizedBox(height: 3),
+                                    Text('PAN: ${item.partyPan} • Tax Rate: ${item.taxRatePercentage}%', style: const TextStyle(fontSize: 12, fontFamily: 'monospace', color: AppColors.textSecondary)),
+                                    Text('Assessable Value: ₹${item.assessedAmount.toStringAsFixed(2)}', style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary)),
+                                    if (item.isDeposited) ...[
+                                      const SizedBox(height: 2),
+                                      Text('Challan Ref: ${item.challanNumber}', style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: AppColors.debitGreen)),
+                                    ],
                                   ],
                                 ),
                               ),
@@ -228,16 +233,16 @@ class _TdsTcsRegisterScreenState extends State<TdsTcsRegisterScreen> {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: SizedBox(
-                  height: LedgifyColors.minTouchTargetSize,
+                  height: AppColors.minTouchTargetSize,
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: LedgifyColors.primaryBlue,
+                      backgroundColor: AppColors.primary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    icon: const Icon(Icons.payment),
-                    label: const Text('Record Challan Payment / चालान भुगतान दर्ज करें', style: TextStyle(fontWeight: FontWeight.w700)),
+                    icon: const Icon(Icons.payment_rounded),
+                    label: const Text('Record Challan Payment', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
                     onPressed: () async {
                       final updated = await RecordChallanPaymentDialog.show(
                         context,
@@ -259,16 +264,16 @@ class _TdsTcsRegisterScreenState extends State<TdsTcsRegisterScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: LedgifyColors.surfaceCard,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: LedgifyColors.surfaceVariant),
+        color: AppColors.surfaceCard,
+        borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
+        side: const BorderSide(color: AppColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontSize: 11, color: LedgifyColors.secondarySlate, fontWeight: FontWeight.w600)),
+          Text(label, style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
           const SizedBox(height: 4),
-          Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: color)),
+          Text(value, style: AppTypography.currencyText.copyWith(fontSize: 16, fontWeight: FontWeight.w800, color: color)),
         ],
       ),
     );
