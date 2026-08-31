@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import '../../../core/errors/failures.dart';
 import '../../../core/utils/safe_executor.dart';
@@ -14,7 +15,11 @@ class AuthService {
     FirebaseAuth? firebaseAuth,
     GoogleSignIn? googleSignIn,
   })  : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
-        _googleSignIn = googleSignIn ?? GoogleSignIn();
+        _googleSignIn = googleSignIn ??
+            GoogleSignIn(
+              serverClientId: dotenv.env['FIREBASE_WEB_CLIENT_ID'] ??
+                  '656833575476-ajgi5u5a0o7e1d994cgnpienre0rf3ol.apps.googleusercontent.com',
+            );
 
   /// Stream of user authentication state changes
   Stream<User?> authStateChanges() => _firebaseAuth.authStateChanges();
