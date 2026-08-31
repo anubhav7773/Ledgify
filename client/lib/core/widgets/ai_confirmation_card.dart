@@ -57,14 +57,14 @@ class AiConfirmationCard extends StatelessWidget {
             : 'Low Confidence ($confidencePercent%)');
 
     return Card(
-      elevation: 2,
+      elevation: 3,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
-        side: const BorderSide(color: AppColors.surfaceVariant),
+        side: const BorderSide(color: AppColors.border),
       ),
-      color: AppColors.surfaceCard,
+      color: Colors.white,
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(18.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -73,24 +73,27 @@ class AiConfirmationCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryLight,
+                    color: AppColors.primaryContainer,
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.auto_awesome, size: 13, color: AppColors.primary),
-                      const SizedBox(width: 4),
+                      const Icon(Icons.auto_awesome, size: 14, color: AppColors.primary),
+                      const SizedBox(width: 5),
                       Text(
                         'Gemini 2.5 Flash',
-                        style: AppTypography.labelSmall.copyWith(color: AppColors.primary),
+                        style: AppTypography.labelSmall.copyWith(
+                          color: AppColors.primary,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ],
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: confidenceColor.withOpacity(0.12),
                     borderRadius: BorderRadius.circular(6),
@@ -98,25 +101,25 @@ class AiConfirmationCard extends StatelessWidget {
                   child: Text(
                     confidenceLabel,
                     style: TextStyle(
-                      fontSize: 10.5,
-                      fontWeight: FontWeight.w700,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
                       color: confidenceColor,
                     ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 16),
 
             // Document Header & Voucher Type (Tap to Edit)
             InkWell(
               onTap: onEditVoucherType,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(10),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                 decoration: BoxDecoration(
-                  color: AppColors.surfaceVariant.withOpacity(0.4),
-                  borderRadius: BorderRadius.circular(8),
+                  color: const Color(0xFFF1F5F9),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -128,21 +131,33 @@ class AiConfirmationCard extends StatelessWidget {
                           children: [
                             Text(
                               voucherType.toUpperCase(),
-                              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13, color: AppColors.primary),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 13.5,
+                                color: AppColors.primary,
+                              ),
                             ),
                             const SizedBox(width: 4),
                             const Icon(Icons.edit_outlined, size: 14, color: AppColors.primary),
                           ],
                         ),
-                        Text('Doc: #$voucherNumber • Date: $voucherDate', style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Doc: #$voucherNumber • Date: $voucherDate',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF475569),
+                          ),
+                        ),
                       ],
                     ),
-                    const Icon(Icons.chevron_right, size: 18, color: AppColors.textSecondary),
+                    const Icon(Icons.chevron_right, size: 20, color: Color(0xFF475569)),
                   ],
                 ),
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 14),
 
             // Party Details Row (Tap to Edit)
             InkWell(
@@ -159,13 +174,30 @@ class AiConfirmationCard extends StatelessWidget {
                         children: [
                           Row(
                             children: [
-                              Text(partyName, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+                              Text(
+                                partyName,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 16,
+                                  color: Color(0xFF0F172A),
+                                ),
+                              ),
                               const SizedBox(width: 6),
-                              const Icon(Icons.edit_outlined, size: 14, color: AppColors.textSecondary),
+                              const Icon(Icons.edit_outlined, size: 15, color: Color(0xFF475569)),
                             ],
                           ),
-                          if (partyGstin != null && partyGstin!.isNotEmpty)
-                            Text('GSTIN: $partyGstin', style: const TextStyle(fontSize: 11.5, fontFamily: 'monospace', color: AppColors.textSecondary)),
+                          if (partyGstin != null && partyGstin!.isNotEmpty) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              'GSTIN: $partyGstin',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontFamily: 'monospace',
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF475569),
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
@@ -173,34 +205,49 @@ class AiConfirmationCard extends StatelessWidget {
                 ),
               ),
             ),
-            const Divider(height: 18),
+            const Divider(height: 20, color: AppColors.divider),
 
             // Line Items Mini-Preview
             if (lineItems != null && lineItems!.isNotEmpty) ...[
-              const Text('Line Items', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.textSecondary)),
-              const SizedBox(height: 6),
-              ...lineItems!.take(3).map((item) {
+              const Text(
+                'Line Items',
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 13,
+                  color: Color(0xFF0F172A),
+                ),
+              ),
+              const SizedBox(height: 8),
+              ...lineItems!.take(4).map((item) {
                 return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 2.0),
+                  padding: const EdgeInsets.symmetric(vertical: 3.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
                         child: Text(
                           item['description'] ?? 'Item',
-                          style: const TextStyle(fontSize: 12),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF0F172A),
+                          ),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       Text(
-                        '₹${((item['total'] ?? item['amount'] ?? 0) as num).toStringAsFixed(2)}',
-                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                        '₹${((item['total_amount'] ?? item['total'] ?? item['amount'] ?? 0) as num).toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF0F172A),
+                        ),
                       ),
                     ],
                   ),
                 );
               }),
-              const Divider(height: 18),
+              const Divider(height: 20, color: AppColors.divider),
             ],
 
             // Amount & Tax Breakdown (Tap to Edit)
@@ -215,25 +262,44 @@ class AiConfirmationCard extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Total Invoice Amount', style: TextStyle(fontSize: 11.5, color: AppColors.textSecondary)),
-                        Text('Taxable: ₹${taxableAmount.toStringAsFixed(2)} • Tax: ₹${taxAmount.toStringAsFixed(2)}', style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
+                        const Text(
+                          'Total Invoice Amount',
+                          style: TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF475569),
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Taxable: ₹${taxableAmount.toStringAsFixed(2)} • Tax: ₹${taxAmount.toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF64748B),
+                          ),
+                        ),
                       ],
                     ),
                     Row(
                       children: [
                         Text(
                           CurrencyFormatter.formatInr(totalAmount),
-                          style: AppTypography.currencyText.copyWith(fontSize: 20, color: AppColors.primary),
+                          style: AppTypography.currencyText.copyWith(
+                            fontSize: 21,
+                            fontWeight: FontWeight.w900,
+                            color: AppColors.primary,
+                          ),
                         ),
                         const SizedBox(width: 4),
-                        const Icon(Icons.edit_outlined, size: 16, color: AppColors.textSecondary),
+                        const Icon(Icons.edit_outlined, size: 16, color: Color(0xFF475569)),
                       ],
                     ),
                   ],
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 22),
 
             // Action Buttons (48dp Touch Targets)
             SizedBox(
@@ -243,10 +309,11 @@ class AiConfirmationCard extends StatelessWidget {
                   backgroundColor: AppColors.primary,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  elevation: 2,
                 ),
                 icon: isSubmitting
                     ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                    : const Icon(Icons.check_circle_outline),
+                    : const Icon(Icons.check_circle_outline, size: 20),
                 label: Text(
                   isSubmitting ? 'Posting Voucher...' : 'Confirm & Post Voucher',
                   style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
@@ -254,7 +321,7 @@ class AiConfirmationCard extends StatelessWidget {
                 onPressed: isSubmitting ? null : onConfirm,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
 
             if (onEditFullVoucher != null)
               SizedBox(
@@ -262,10 +329,11 @@ class AiConfirmationCard extends StatelessWidget {
                 child: OutlinedButton(
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.primary,
+                    side: const BorderSide(color: AppColors.primary, width: 1.5),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   onPressed: onEditFullVoucher,
-                  child: const Text('Edit Full Voucher', style: TextStyle(fontWeight: FontWeight.w600)),
+                  child: const Text('Edit Full Voucher', style: TextStyle(fontWeight: FontWeight.w700)),
                 ),
               ),
           ],
