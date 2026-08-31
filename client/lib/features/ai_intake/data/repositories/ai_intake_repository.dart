@@ -1,73 +1,99 @@
 import 'dart:typed_data';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../../../core/errors/failures.dart';
-import '../../../../core/network/supabase_client.dart';
+import '../../../../core/network/api_client.dart';
 import '../../../../core/utils/safe_executor.dart';
 import 'package:ledgify/features/ai_intake/domain/models/extracted_invoice_payload.dart';
-import 'package:ledgify/features/ai_intake/data/services/gemini_ocr_service.dart';
 
-/// Repository orchestrating AI Multimodal bill extraction under DPDP statutory consent gating.
+/// Repository orchestrating AI Multimodal bill extraction via FastAPI backend.
 class AiIntakeRepository {
-  final SupabaseClient _client;
-  final GeminiOcrService _ocrService;
+  AiIntakeRepository();
 
-  AiIntakeRepository({
-    SupabaseClient? client,
-    GeminiOcrService? ocrService,
-  })  : _client = client ?? SupabaseClientService.client,
-        _ocrService = ocrService ?? GeminiOcrService();
-
-  /// Processes bill image via Gemini Multimodal OCR if DPDP statutory consent is active
+  /// Processes bill image via FastAPI Gemini OCR endpoint
   Future<ExtractedInvoicePayload> processBillImage(
     Uint8List imageBytes, {
     required String businessId,
   }) async {
     return await executeSafely<ExtractedInvoicePayload>(() async {
-      // 1. Check DPDP Statutory Consent
-      final consentResponse = await _client
-          .from('dpdp_consent_logs')
-          .select()
-          .eq('business_id', businessId)
-          .eq('purpose', 'FINANCIAL_OCR_EXTRACTION')
-          .eq('consent_given', true)
-          .isFilter('withdrawn_at', null)
-          .limit(1);
+      final response = await ApiClient.postMultipart(
+        '/ai/scan-receipt',
+        fileBytes: imageBytes,
+        filename: 'receipt.jpg',
+        fieldName: 'file',
+      );
 
-      final List<dynamic> consentData = consentResponse as List<dynamic>;
-      if (consentData.isEmpty) {
-        throw const DpdpConsentRequiredFailure(
-          message: 'DPDP statutory consent required for AI processing of financial documents.',
-          purpose: 'FINANCIAL_OCR_EXTRACTION',
+      final data = response as Map<String, dynamic>;
+      final vendor = (data['vendor'] as Map<String, dynamic>?) ?? {};
+      final lineItemsList = (data['line_items'] as List<dynamic>?) ?? [];
+
+      final items = lineItemsList.map((itemJson) {
+        final item = itemJson as Map<String, dynamic>;
+        return ExtractedLineItem(
+          serialNumber: '1',
+          itemDescription: item['description'] ?? 'Item',
+          hsnCode: item['hsn_code'] ?? '84716060',
+          quantity: (item['quantity'] as num?)?.toDouble() ?? 1.0,
+          unit: item['unit'] ?? 'NOS',
+          unitPrice: (item['rate'] as num?)?.toDouble() ?? 0.0,
+          taxableValue: ((item['quantity'] as num? ?? 1.0) * (item['rate'] as num? ?? 0.0)).toDouble(),
+          gstRate: (item['tax_rate'] as num?)?.toDouble() ?? 18.0,
+          cgstAmount: ((item['tax_amount'] as num?)?.toDouble() ?? 0.0) / 2,
+          sgstAmount: ((item['tax_amount'] as num?)?.toDouble() ?? 0.0) / 2,
+          igstAmount: 0.0,
+          itemTotal: (item['total_amount'] as num?)?.toDouble() ?? 0.0,
         );
-      }
+      }).toList();
 
-      // 2. Dispatch to Gemini 2.5 Flash OCR Service
-      final rawJson = await _ocrService.extractInvoiceData(imageBytes);
+      final header = {
+        'document_number': data['invoice_number'] ?? 'INV-001',
+        'document_date': data['invoice_date'] ?? DateTime.now().toIso8601String().split('T')[0],
+      };
 
-      // 3. Parse into ExtractedInvoicePayload domain model
-      return ExtractedInvoicePayload.fromJson(rawJson);
+      final sellerDetails = {
+        'legal_name': vendor['name'] ?? 'Vendor Supplier',
+        'gstin': vendor['gstin'] ?? '',
+        'pan': vendor['pan'] ?? '',
+        'address': vendor['address'] ?? '',
+        'state_code': vendor['state_code'] ?? '27',
+      };
+
+      final documentTotals = {
+        'total_taxable_value': (data['subtotal'] as num?)?.toDouble() ?? 0.0,
+        'total_cgst_value': (data['cgst_amount'] as num?)?.toDouble() ?? 0.0,
+        'total_sgst_value': (data['sgst_amount'] as num?)?.toDouble() ?? 0.0,
+        'total_igst_value': (data['igst_amount'] as num?)?.toDouble() ?? 0.0,
+        'total_invoice_value': (data['total_amount'] as num?)?.toDouble() ?? 0.0,
+      };
+
+      final accountingPosting = {
+        'voucher_type': data['inferred_voucher_type'] ?? 'Purchase',
+        'voucher_narration': 'AI OCR extracted bill #${data['invoice_number'] ?? ''} from ${vendor['name'] ?? ''}',
+      };
+
+      return ExtractedInvoicePayload(
+        header: header,
+        sellerDetails: sellerDetails,
+        buyerDetails: {'legal_name': 'Apex Enterprises Ltd.'},
+        accountingPosting: accountingPosting,
+        lineItems: items,
+        documentTotals: documentTotals,
+        confidenceScore: (data['confidence_score'] as num?)?.toDouble() ?? 0.95,
+      );
     });
   }
 
   /// Records explicit DPDP consent for AI extraction
   Future<void> recordDpdpConsent({
     required String businessId,
-    String purpose = 'FINANCIAL_OCR_EXTRACTION',
+    String purpose = 'PURPOSE_DOCUMENT_OCR',
     String noticeVersion = '1.0',
   }) async {
     await executeSafely<void>(() async {
-      final user = _client.auth.currentUser;
-      final userId = user?.id;
-
-      await _client.from('dpdp_consent_logs').insert({
-        'business_id': businessId,
-        if (userId != null) 'user_id': userId,
-        'purpose': purpose,
-        'consent_given': true,
-        'notice_version': noticeVersion,
-        'ip_address': '127.0.0.1',
-        'user_agent': 'Ledgify-Mobile-App',
-      });
+      await ApiClient.post(
+        '/dpdp/consents/toggle',
+        body: {
+          'purpose_code': 'PURPOSE_DOCUMENT_OCR',
+          'is_granted': true,
+        },
+      );
     });
   }
 }

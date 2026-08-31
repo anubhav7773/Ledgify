@@ -8,6 +8,18 @@ import '../../domain/models/voucher_model.dart';
 class VoucherRepository {
   VoucherRepository();
 
+  /// Fetches default voucher types supported by Tally/Ledgify
+  Future<List<VoucherTypeModel>> fetchVoucherTypes() async {
+    return [
+      VoucherTypeModel(id: 'vt-payment', businessId: 'BIZ-DEFAULT-01', name: 'Payment', category: 'Payment', isDefault: true),
+      VoucherTypeModel(id: 'vt-receipt', businessId: 'BIZ-DEFAULT-01', name: 'Receipt', category: 'Receipt', isDefault: true),
+      VoucherTypeModel(id: 'vt-sales', businessId: 'BIZ-DEFAULT-01', name: 'Sales', category: 'Sales', isDefault: true),
+      VoucherTypeModel(id: 'vt-purchase', businessId: 'BIZ-DEFAULT-01', name: 'Purchase', category: 'Purchase', isDefault: true),
+      VoucherTypeModel(id: 'vt-contra', businessId: 'BIZ-DEFAULT-01', name: 'Contra', category: 'Contra', isDefault: true),
+      VoucherTypeModel(id: 'vt-journal', businessId: 'BIZ-DEFAULT-01', name: 'Journal', category: 'Journal', isDefault: true),
+    ];
+  }
+
   /// Creates a double-entry balanced voucher via FastAPI backend
   Future<Map<String, dynamic>> createVoucher(VoucherModel voucher) async {
     return await executeSafely<Map<String, dynamic>>(() async {
