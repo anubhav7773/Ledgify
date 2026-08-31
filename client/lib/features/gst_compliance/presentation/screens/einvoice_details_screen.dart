@@ -4,8 +4,8 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../vouchers/domain/models/voucher_model.dart';
-import '../domain/models/einvoice_log_model.dart';
+import 'package:ledgify/features/vouchers/domain/models/voucher_model.dart';
+import 'package:ledgify/features/gst_compliance/domain/models/einvoice_log_model.dart';
 
 /// Screen displaying the official E-Invoice with 64-char IRN, 2D QR Code, and statutory tax breakdown (Google Stitch UI).
 class EInvoiceDetailsScreen extends StatelessWidget {

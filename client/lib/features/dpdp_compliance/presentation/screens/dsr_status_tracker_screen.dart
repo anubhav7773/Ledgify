@@ -42,7 +42,7 @@ class _DsrStatusTrackerScreenState extends State<DsrStatusTrackerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('DSR Request Tracker / अनुरोध स्थिति', style: AppTypography.cardHeader),
+        title: Text('DSR Request Status Tracker', style: AppTypography.cardHeader),
         backgroundColor: AppColors.surfaceCard,
       ),
       body: _isLoading

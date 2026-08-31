@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../banking/presentation/screens/bank_accounts_screen.dart';
-import '../../gst_compliance/presentation/screens/gst_compliance_dashboard_screen.dart';
+import 'package:ledgify/features/banking/presentation/screens/bank_accounts_screen.dart';
+import 'package:ledgify/features/gst_compliance/presentation/screens/gst_compliance_dashboard_screen.dart';
 import 'balance_sheet_screen.dart';
 import 'day_book_screen.dart';
 import 'profit_and_loss_screen.dart';
@@ -117,7 +117,7 @@ class ReportsHubScreen extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const BankAccountsScreen()),
+                  MaterialPageRoute(builder: (context) => BankAccountsScreen()),
                 );
               },
             ),
@@ -136,7 +136,7 @@ class ReportsHubScreen extends StatelessWidget {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const GstComplianceDashboardScreen()),
+                  MaterialPageRoute(builder: (context) => GstComplianceDashboardScreen()),
                 );
               },
             ),

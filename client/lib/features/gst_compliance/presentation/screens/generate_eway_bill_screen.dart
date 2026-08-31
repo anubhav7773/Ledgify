@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/color_tokens.dart';
-import '../../../../core/theme/typography_tokens.dart';
-import '../../../vouchers/data/repositories/voucher_repository.dart';
-import '../../../vouchers/domain/models/voucher_model.dart';
-import '../data/repositories/eway_bill_repository.dart';
-import '../domain/models/eway_bill_model.dart';
-import '../domain/services/ewb_validity_calculator.dart';
-import '../domain/services/eway_bill_service.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
+import 'package:ledgify/features/vouchers/data/repositories/voucher_repository.dart';
+import 'package:ledgify/features/vouchers/domain/models/voucher_model.dart';
+import 'package:ledgify/features/gst_compliance/data/repositories/eway_bill_repository.dart';
+import 'package:ledgify/features/gst_compliance/domain/models/eway_bill_model.dart';
+import 'package:ledgify/features/gst_compliance/domain/services/ewb_validity_calculator.dart';
+import 'package:ledgify/features/gst_compliance/domain/services/eway_bill_service.dart';
 
-/// Screen for generating statutory E-Way Bills (FORM GST EWB-01).
-/// Enforces Rule 138(10) distance validity calculations and <10 km intra-state exemptions.
+/// Screen for generating statutory E-Way Bills (FORM GST EWB-01) with Rule 138(10) distance calculations (Google Stitch UI).
 class GenerateEWayBillScreen extends StatefulWidget {
   final EWayBillRepository? ewbRepository;
   final VoucherRepository? voucherRepository;
@@ -64,21 +63,22 @@ class _GenerateEWayBillScreenState extends State<GenerateEWayBillScreen> {
   }
 
   Future<void> _loadSalesVouchers() async {
+    setState(() => _isLoading = true);
     try {
-      final vouchers = await _voucherRepository.fetchVouchers(limit: 50);
+      final vouchers = await _voucherRepository.fetchVouchers();
+      final sales = vouchers.where((v) => v.voucherTypeId.toLowerCase().contains('sales') || v.voucherNumber.startsWith('INV') || v.voucherNumber.startsWith('SAL')).toList();
+
       if (mounted) {
         setState(() {
-          _salesVouchers = vouchers;
-          if (_selectedVoucherId == null && vouchers.isNotEmpty) {
-            _selectedVoucherId = vouchers.first.id;
+          _salesVouchers = sales.isNotEmpty ? sales : vouchers;
+          if (_selectedVoucherId == null && _salesVouchers.isNotEmpty) {
+            _selectedVoucherId = _salesVouchers.first.id;
           }
           _isLoading = false;
         });
       }
-    } catch (e) {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+    } catch (_) {
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -87,15 +87,11 @@ class _GenerateEWayBillScreenState extends State<GenerateEWayBillScreen> {
     return EwbValidityCalculator.calculateValidityDays(distance, isOdc: _isOdc);
   }
 
-  Future<void> _generateEwb() async {
+  Future<void> _submitEwb() async {
     if (!_formKey.currentState!.validate()) return;
-
-    if (!_isUnder10KmExempt && _vehicleNumberController.text.trim().isEmpty) {
+    if (_selectedVoucherId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Vehicle number is mandatory for Part B (or check <10km exemption).'),
-          backgroundColor: LedgifyColors.creditRed,
-        ),
+        const SnackBar(content: Text('Please select an invoice voucher.')),
       );
       return;
     }
@@ -103,31 +99,32 @@ class _GenerateEWayBillScreenState extends State<GenerateEWayBillScreen> {
     setState(() => _isSaving = true);
 
     try {
-      final distance = double.tryParse(_distanceController.text.trim()) ?? 0.0;
-      final ewbNumber = EWayBillService.generateMockEwbNumber();
+      final double distance = double.tryParse(_distanceController.text.trim()) ?? 100.0;
       final now = DateTime.now();
+      final ewbNumber = EWayBillService.generateMockEwbNumber();
       final validUpto = EwbValidityCalculator.computeExpiryDate(now, _calculatedValidityDays);
 
       final ewb = EWayBillModel(
         id: '',
-        businessId: widget.businessId ?? '',
+        businessId: widget.businessId ?? 'BIZ-DEFAULT-01',
         voucherId: _selectedVoucherId!,
         ewbNumber: ewbNumber,
         ewbDate: now,
         validUpto: validUpto,
+        transporterPartyId: _transporterIdController.text.trim().isEmpty ? null : _transporterIdController.text.trim(),
+        transporterName: _transporterNameController.text.trim().isEmpty ? null : _transporterNameController.text.trim(),
         vehicleNumber: _isUnder10KmExempt ? 'DEF_INTRA_10KM' : _vehicleNumberController.text.trim().toUpperCase(),
-        transporterName: _transporterNameController.text.trim().isNotEmpty ? _transporterNameController.text.trim() : null,
         distanceKm: distance,
         partAData: {
-          'transDistance': distance,
+          'docNo': _selectedVoucherId,
+          'distance': distance,
           'transporterId': _transporterIdController.text.trim(),
-          'transporterName': _transporterNameController.text.trim(),
         },
         partBData: {
           'vehicleNo': _isUnder10KmExempt ? 'DEF_INTRA_10KM' : _vehicleNumberController.text.trim().toUpperCase(),
           'isOdc': _isOdc,
-          'transportMode': '1',
         },
+        status: 'ACTIVE',
       );
 
       await _ewbRepository.createEWayBill(ewb, isOdc: _isOdc);
@@ -135,8 +132,8 @@ class _GenerateEWayBillScreenState extends State<GenerateEWayBillScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('E-Way Bill $ewbNumber generated! Valid for $_calculatedValidityDays days.'),
-            backgroundColor: LedgifyColors.debitGreen,
+            content: Text('E-Way Bill $ewbNumber Generated Successfully!'),
+            backgroundColor: AppColors.debitGreen,
           ),
         );
         Navigator.pop(context, true);
@@ -144,76 +141,106 @@ class _GenerateEWayBillScreenState extends State<GenerateEWayBillScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to generate EWB: $e'), backgroundColor: LedgifyColors.creditRed),
+          SnackBar(content: Text('Failed to generate EWB: $e'), backgroundColor: AppColors.creditRed),
         );
       }
     } finally {
-      if (mounted) {
-        setState(() => _isSaving = false);
-      }
+      if (mounted) setState(() => _isSaving = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        title: const Text('Generate E-Way Bill / नया ई-वे बिल', style: LedgifyTypography.cardHeader),
-        backgroundColor: LedgifyColors.surfaceLight,
+        title: Text('Generate E-Way Bill', style: AppTypography.cardHeader),
+        backgroundColor: AppColors.surfaceCard,
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: LedgifyColors.primaryBlue))
-          : SafeArea(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(LedgifyColors.standardPadding),
+      body: SafeArea(
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(AppColors.standardPadding),
                 child: Form(
                   key: _formKey,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Select Parent Voucher
+                      // Voucher Selector Dropdown
                       DropdownButtonFormField<String>(
                         value: _selectedVoucherId,
-                        isExpanded: true,
                         decoration: const InputDecoration(
-                          labelText: 'Select Sales Voucher / वाउचर चुनें *',
+                          labelText: 'Select Invoice / Sales Voucher *',
                           border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.receipt_long_outlined),
+                          prefixIcon: Icon(Icons.receipt_outlined),
                         ),
                         items: _salesVouchers.map((v) {
-                          final amt = v.totalCreditAmount > 0 ? v.totalCreditAmount : v.totalDebitAmount;
                           return DropdownMenuItem(
                             value: v.id,
-                            child: Text('${v.voucherNumber} (₹${amt.toStringAsFixed(2)})'),
+                            child: Text('${v.voucherNumber} (₹${v.totalDebitAmount > 0 ? v.totalDebitAmount.toStringAsFixed(0) : v.totalCreditAmount.toStringAsFixed(0)})'),
                           );
                         }).toList(),
-                        validator: (val) => val == null ? 'Please select a voucher' : null,
-                        onChanged: (newId) => setState(() => _selectedVoucherId = newId),
+                        onChanged: (val) => setState(() => _selectedVoucherId = val),
                       ),
                       const SizedBox(height: 16),
 
-                      // Distance & Validity Live Preview Card
+                      // Distance & Rule 138 Preview Card
                       Card(
-                        color: LedgifyColors.primaryContainer.withOpacity(0.4),
+                        elevation: 0,
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: const BorderSide(color: LedgifyColors.primaryBlue, width: 0.8),
+                          borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
+                          side: const BorderSide(color: AppColors.border),
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.all(14.0),
-                          child: Row(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Icon(Icons.speed, color: LedgifyColors.primaryBlue, size: 28),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                              Text('Distance & Statutory Validity', style: AppTypography.cardHeader),
+                              const SizedBox(height: 12),
+                              TextFormField(
+                                controller: _distanceController,
+                                keyboardType: TextInputType.number,
+                                decoration: const InputDecoration(
+                                  labelText: 'Road Distance (in KM) *',
+                                  hintText: 'e.g., 250',
+                                  border: OutlineInputBorder(),
+                                  prefixIcon: Icon(Icons.route_outlined),
+                                  suffixText: 'KM',
+                                ),
+                                onChanged: (_) => setState(() {}),
+                                validator: (val) {
+                                  if (val == null || val.trim().isEmpty) return 'Please enter distance';
+                                  if (double.tryParse(val) == null) return 'Enter a valid number';
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 12),
+
+                              // Live Validity Preview
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryContainer.withOpacity(0.5),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: AppColors.primaryLight),
+                                ),
+                                child: Row(
                                   children: [
-                                    const Text('Statutory Rule 138(10) Validity Preview', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: LedgifyColors.secondarySlate)),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      'Valid for $_calculatedValidityDays Day(s) / $_calculatedValidityDays दिन वैध (${_isOdc ? "20km/day (ODC)" : "200km/day"})',
-                                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: LedgifyColors.primaryBlue),
+                                    const Icon(Icons.speed_rounded, color: AppColors.primary, size: 24),
+                                    const SizedBox(width: 10),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          const Text('Rule 138(10) Validity Calculation', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.textSecondary)),
+                                          Text(
+                                            'Valid for $_calculatedValidityDays Day${_calculatedValidityDays > 1 ? "s" : ""} (${_isOdc ? "20 km/day for ODC" : "200 km/day standard"})',
+                                            style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: AppColors.primaryDark),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -224,105 +251,102 @@ class _GenerateEWayBillScreenState extends State<GenerateEWayBillScreen> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Distance in KM & ODC Switch
-                      Row(
-                        children: [
-                          Expanded(
-                            flex: 3,
-                            child: TextFormField(
-                              controller: _distanceController,
-                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                              decoration: const InputDecoration(
-                                labelText: 'Distance (KM) / दूरी *',
-                                suffixText: 'KM',
-                                border: OutlineInputBorder(),
-                                prefixIcon: Icon(Icons.straighten_outlined),
+                      // Part B: Transport & Vehicle Details
+                      Card(
+                        elevation: 0,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
+                          side: const BorderSide(color: AppColors.border),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Part B: Transport & Vehicle', style: AppTypography.cardHeader),
+                              const SizedBox(height: 12),
+
+                              SwitchListTile(
+                                contentPadding: EdgeInsets.zero,
+                                title: const Text('Under 10 KM Intra-State Exemption', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13.5)),
+                                subtitle: const Text('Part B vehicle number not mandatory for transit under 10 km to transporter yard', style: TextStyle(fontSize: 11.5)),
+                                value: _isUnder10KmExempt,
+                                activeColor: AppColors.primary,
+                                onChanged: (val) => setState(() => _isUnder10KmExempt = val),
                               ),
-                              validator: (val) {
-                                final numVal = double.tryParse(val ?? '');
-                                if (numVal == null || numVal <= 0) return 'Enter valid KM';
-                                return null;
-                              },
-                              onChanged: (_) => setState(() {}),
-                            ),
+
+                              if (!_isUnder10KmExempt) ...[
+                                const SizedBox(height: 8),
+                                TextFormField(
+                                  controller: _vehicleNumberController,
+                                  textCapitalization: TextCapitalization.characters,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Vehicle Registration Number *',
+                                    hintText: 'e.g., MH04AB1234',
+                                    border: OutlineInputBorder(),
+                                    prefixIcon: Icon(Icons.local_shipping_outlined),
+                                  ),
+                                  validator: (val) {
+                                    if (!_isUnder10KmExempt && (val == null || val.trim().isEmpty)) {
+                                      return 'Vehicle number is required';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ],
+                              const SizedBox(height: 12),
+
+                              TextFormField(
+                                controller: _transporterIdController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Transporter GSTIN / TRANSIN ID',
+                                  hintText: 'e.g., 27AABCT1234F1Z1',
+                                  border: OutlineInputBorder(),
+                                  prefixIcon: Icon(Icons.badge_outlined),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+
+                              TextFormField(
+                                controller: _transporterNameController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Transporter Name',
+                                  hintText: 'e.g., VRL Logistics Ltd.',
+                                  border: OutlineInputBorder(),
+                                  prefixIcon: Icon(Icons.business_outlined),
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            flex: 2,
-                            child: FilterChip(
-                              label: const Text('ODC Cargo'),
-                              selected: _isOdc,
-                              onSelected: (val) => setState(() => _isOdc = val),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Transporter Name & ID
-                      TextFormField(
-                        controller: _transporterNameController,
-                        decoration: const InputDecoration(
-                          labelText: 'Transporter Name / ट्रांसपोर्टर नाम (Optional)',
-                          hintText: 'e.g., VRL Logistics',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.business_outlined),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Part B: Road Vehicle Number
-                      TextFormField(
-                        controller: _vehicleNumberController,
-                        textCapitalization: TextCapitalization.characters,
-                        enabled: !_isUnder10KmExempt,
-                        decoration: const InputDecoration(
-                          labelText: 'Vehicle Number (Part B) / वाहन संख्या *',
-                          hintText: 'e.g., MH04AB1234',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.local_shipping_outlined),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-
-                      // <10 km Exemption Checkbox
-                      CheckboxListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: const Text('Distance < 10 km intra-state / 10 किमी से कम', style: TextStyle(fontSize: 14)),
-                        subtitle: const Text('Exempts vehicle details (Part B) for short intra-state transit to transport hub'),
-                        value: _isUnder10KmExempt,
-                        onChanged: (val) => setState(() => _isUnder10KmExempt = val ?? false),
                       ),
                       const SizedBox(height: 24),
 
-                      // Submit Button (48dp Touch Target)
+                      // Generate EWB CTA (48dp Touch Target)
                       SizedBox(
-                        height: LedgifyColors.minTouchTargetSize,
+                        height: AppColors.minTouchTargetSize,
                         child: ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: LedgifyColors.primaryBlue,
+                            backgroundColor: AppColors.primary,
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           ),
                           icon: _isSaving
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                                )
-                              : const Icon(Icons.add_road),
+                              ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                              : const Icon(Icons.add_road_rounded),
                           label: Text(
-                            _isSaving ? 'Generating...' : 'Generate E-Way Bill / ई-वे बिल बनाएं',
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                            _isSaving ? 'Registering on NIC Gateway...' : 'Generate E-Way Bill (FORM GST EWB-01)',
+                            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
                           ),
-                          onPressed: _isSaving ? null : _generateEwb,
+                          onPressed: _isSaving ? null : _submitEwb,
                         ),
                       ),
+                      const SizedBox(height: 20),
                     ],
                   ),
                 ),
               ),
-            ),
+      ),
     );
   }
 }

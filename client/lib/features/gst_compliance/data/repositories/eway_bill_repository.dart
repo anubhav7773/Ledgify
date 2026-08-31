@@ -1,7 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/network/supabase_client.dart';
 import '../../../../core/utils/safe_executor.dart';
-import '../domain/models/eway_bill_model.dart';
+import 'package:ledgify/features/gst_compliance/domain/models/eway_bill_model.dart';
 
 /// Repository managing E-Way Bill lifecycle, statutory validity calculations, and Part B vehicle updates.
 class EWayBillRepository {

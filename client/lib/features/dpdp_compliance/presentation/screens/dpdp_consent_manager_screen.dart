@@ -83,7 +83,7 @@ class _DpdpConsentManagerScreenState extends State<DpdpConsentManagerScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Privacy & Consent / गोपनीयता प्रबंधन', style: AppTypography.cardHeader),
+        title: Text('Privacy & Consent Manager', style: AppTypography.cardHeader),
         backgroundColor: AppColors.surfaceCard,
       ),
       body: _isLoading

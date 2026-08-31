@@ -157,6 +157,7 @@ class _AppShellState extends State<AppShell> {
                           fontWeight: FontWeight.w700,
                           color: sub.isProOrEnterprise ? const Color(0xFFB45309) : AppColors.textSecondary,
                         ),
+                      ),
                     ],
                   ),
                 ),

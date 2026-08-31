@@ -305,7 +305,7 @@ class _GstComplianceDashboardScreenState extends State<GstComplianceDashboardScr
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const EInvoiceDetailScreen(invoiceId: 'INV-DEMO-001')),
+                      MaterialPageRoute(builder: (context) => const EInvoiceDetailsScreen(invoiceId: 'INV-DEMO-001')),
                     );
                   },
                 ),
@@ -329,7 +329,7 @@ class _GstComplianceDashboardScreenState extends State<GstComplianceDashboardScr
       decoration: BoxDecoration(
         color: AppColors.surfaceCard,
         borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
-        side: const BorderSide(color: AppColors.border),
+        border: Border.all(color: AppColors.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

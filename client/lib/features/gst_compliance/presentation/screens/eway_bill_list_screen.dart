@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../data/repositories/eway_bill_repository.dart';
-import '../domain/models/eway_bill_model.dart';
+import 'package:ledgify/features/gst_compliance/data/repositories/eway_bill_repository.dart';
+import 'package:ledgify/features/gst_compliance/domain/models/eway_bill_model.dart';
 import 'generate_eway_bill_screen.dart';
 
 /// Screen listing generated E-Way Bills with real-time validity countdowns and Part B vehicle tracking (Google Stitch UI).
@@ -168,11 +168,11 @@ class _EWayBillListScreenState extends State<EWayBillListScreen> {
                   children: [
                     _buildFilterChip('ALL', 'All Bills (${_bills.length})'),
                     const SizedBox(width: 8),
-                    _buildFilterChip('ACTIVE', 'Active (${_bills.where((b) => b.status == "ACTIVE" && !b.isExpired).length})'),
+                    _buildFilterChip('ACTIVE', 'Active (${_bills.where((EWayBillModel b) => b.status == "ACTIVE" && !b.isExpired).length})'),
                     const SizedBox(width: 8),
-                    _buildFilterChip('EXPIRING', 'Expiring Soon (${_bills.where((b) => b.status == "ACTIVE" && !b.isExpired && b.remainingHours <= 8).length})'),
+                    _buildFilterChip('EXPIRING', 'Expiring Soon (${_bills.where((EWayBillModel b) => b.status == "ACTIVE" && !b.isExpired && b.remainingHours <= 8).length})'),
                     const SizedBox(width: 8),
-                    _buildFilterChip('CANCELLED', 'Cancelled (${_bills.where((b) => b.status == "CANCELLED").length})'),
+                    _buildFilterChip('CANCELLED', 'Cancelled (${_bills.where((EWayBillModel b) => b.status == "CANCELLED").length})'),
                   ],
                 ),
               ),
