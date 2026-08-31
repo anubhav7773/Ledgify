@@ -38,46 +38,42 @@ class GstrRepository {
       final list = response as List<dynamic>;
 
       return list
-          .map((data) => ImsEntryModel(
-                id: data['id'] ?? '',
-                supplierGstin: data['supplier_gstin'] ?? '',
-                supplierTradeName: data['supplier_name'] ?? '',
-                invoiceNumber: data['invoice_number'] ?? '',
-                invoiceDate: DateTime.tryParse(data['invoice_date'] ?? '') ?? DateTime.now(),
-                taxableValue: (data['taxable_value'] as num?)?.toDouble() ?? 0.0,
-                integratedTax: (data['igst'] as num?)?.toDouble() ?? 0.0,
-                centralTax: (data['cgst'] as num?)?.toDouble() ?? 0.0,
-                stateTax: (data['sgst'] as num?)?.toDouble() ?? 0.0,
-                cess: 0.0,
-                itcEligibility: data['itc_eligibility'] == true,
-                recipientAction: _mapAction(data['action_status']),
-                rawPayload: Map<String, dynamic>.from(data),
-              ))
+          .map((json) {
+            final data = json as Map<String, dynamic>;
+            return ImsEntryModel(
+              id: data['id'] ?? '',
+              businessId: 'BIZ-DEFAULT-01',
+              supplierGstin: data['supplier_gstin'] ?? '',
+              supplierName: data['supplier_name'] ?? '',
+              invoiceNumber: data['invoice_number'] ?? '',
+              invoiceDate: DateTime.tryParse(data['invoice_date'] ?? '') ?? DateTime.now(),
+              invoiceValue: (data['total_value'] as num?)?.toDouble() ?? 0.0,
+              taxableValue: (data['taxable_value'] as num?)?.toDouble() ?? 0.0,
+              igst: (data['igst'] as num?)?.toDouble() ?? 0.0,
+              cgst: (data['cgst'] as num?)?.toDouble() ?? 0.0,
+              sgst: (data['sgst'] as num?)?.toDouble() ?? 0.0,
+              cess: 0.0,
+              imsStatus: data['action_status'] ?? 'PENDING',
+              createdAt: DateTime.now(),
+            );
+          })
           .toList();
     });
   }
 
-  static ImsRecipientAction _mapAction(dynamic status) {
-    if (status == 'ACCEPTED') return ImsRecipientAction.accepted;
-    if (status == 'REJECTED') return ImsRecipientAction.rejected;
-    return ImsRecipientAction.pending;
-  }
-
   /// Updates recipient action on IMS inward invoice via FastAPI backend
-  Future<void> updateImsAction({
-    required String imsEntryId,
-    required ImsRecipientAction action,
-  }) async {
+  Future<void> updateImsStatus(
+    String imsEntryId,
+    String action,
+    String? remarks,
+  ) async {
     await executeSafely<void>(() async {
-      final actionStr = action == ImsRecipientAction.accepted
-          ? 'ACCEPTED'
-          : (action == ImsRecipientAction.rejected ? 'REJECTED' : 'PENDING');
-
       await ApiClient.post(
         '/gst/ims-portal/action',
         body: {
           'invoice_id': imsEntryId,
-          'action_status': actionStr,
+          'action_status': action,
+          if (remarks != null) 'remarks': remarks,
         },
       );
     });

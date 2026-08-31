@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/utils/safe_executor.dart';
 import '../models/dpdp_consent_log_model.dart';
-import '../models/dpdp_failures.dart';
 import '../models/dpdp_purpose.dart';
 import '../../presentation/dialogs/dpdp_consent_modal_dialog.dart';
 
@@ -66,14 +65,19 @@ class DpdpConsentService {
           id: data['id'] ?? '',
           businessId: businessId ?? 'BIZ-DEFAULT-01',
           userId: 'dev-user-01',
-          purpose: data['purpose_code'] ?? '',
-          status: data['consent_status'] ?? 'GRANTED',
-          noticeVersion: 'v1.0',
-          payloadHash: data['consent_payload_hash'] ?? '',
-          createdAt: DateTime.tryParse(data['granted_at'] ?? '') ?? DateTime.now(),
+          purpose: DpdpPurposeExtension.fromCode(data['purpose_code'] ?? 'PURPOSE_DOCUMENT_OCR'),
+          consentStatus: data['consent_status'] ?? 'GRANTED',
+          consentVersion: 'v1.0',
+          consentPayloadHash: data['consent_payload_hash'] ?? '',
+          grantedAt: DateTime.tryParse(data['granted_at'] ?? '') ?? DateTime.now(),
         );
       }).toList();
     });
+  }
+
+  /// Alias for backward compatibility with UI screens
+  Future<List<DpdpConsentLogModel>> fetchConsentAuditHistory() async {
+    return fetchConsentLogs();
   }
 
   /// Interactive UI Guard: prompts consent modal if not granted

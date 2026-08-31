@@ -34,7 +34,7 @@ class EWayBillRepository {
         validUpto: DateTime.tryParse(data['valid_upto'] ?? '') ?? DateTime.now().add(const Duration(days: 2)),
         vehicleNumber: data['vehicle_number'],
         distanceKm: (data['distance_km'] as num?)?.toDouble() ?? ewb.distanceKm,
-        status: data['status'] == 'ACTIVE' ? EwbStatus.active : EwbStatus.cancelled,
+        status: data['status'] ?? 'ACTIVE',
         partAData: ewb.partAData,
         partBData: ewb.partBData,
         createdAt: DateTime.now(),
@@ -52,19 +52,24 @@ class EWayBillRepository {
       final list = response as List<dynamic>;
 
       return list
-          .map((data) => EWayBillModel(
-                id: data['id'] ?? '',
-                businessId: data['business_id'] ?? 'BIZ-DEFAULT-01',
-                voucherId: data['voucher_id'] ?? '',
-                voucherNumber: 'VCH-${data['voucher_id'] ?? 'INV'}',
-                ewbNumber: data['ewb_number'] ?? '',
-                ewbDate: DateTime.tryParse(data['ewb_date'] ?? '') ?? DateTime.now(),
-                validUpto: DateTime.tryParse(data['valid_upto'] ?? '') ?? DateTime.now().add(const Duration(days: 2)),
-                vehicleNumber: data['vehicle_number'],
-                distanceKm: (data['distance_km'] as num?)?.toDouble() ?? 100.0,
-                status: data['status'] == 'ACTIVE' ? EwbStatus.active : EwbStatus.cancelled,
-                createdAt: DateTime.now(),
-              ))
+          .map((json) {
+            final data = json as Map<String, dynamic>;
+            return EWayBillModel(
+              id: data['id'] ?? '',
+              businessId: data['business_id'] ?? 'BIZ-DEFAULT-01',
+              voucherId: data['voucher_id'] ?? '',
+              voucherNumber: 'VCH-${data['voucher_id'] ?? 'INV'}',
+              ewbNumber: data['ewb_number'] ?? '',
+              ewbDate: DateTime.tryParse(data['ewb_date'] ?? '') ?? DateTime.now(),
+              validUpto: DateTime.tryParse(data['valid_upto'] ?? '') ?? DateTime.now().add(const Duration(days: 2)),
+              vehicleNumber: data['vehicle_number'],
+              distanceKm: (data['distance_km'] as num?)?.toDouble() ?? 100.0,
+              partAData: const {},
+              partBData: const {},
+              status: data['status'] ?? 'ACTIVE',
+              createdAt: DateTime.now(),
+            );
+          })
           .toList();
     });
   }

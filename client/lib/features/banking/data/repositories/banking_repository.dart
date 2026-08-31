@@ -18,17 +18,42 @@ class BankingRepository {
         return BankAccountModel(
           id: data['id'] ?? '',
           businessId: data['business_id'] ?? 'BIZ-DEFAULT-01',
-          accountId: 'acc-${data['id'] ?? '1'}',
-          accountName: data['bank_name'] ?? 'Bank Account',
+          ledgerId: 'acc-${data['id'] ?? '1'}',
+          ledgerName: data['bank_name'] ?? 'Bank Account',
           bankName: data['bank_name'] ?? '',
           accountNumber: data['account_number'] ?? '',
           ifscCode: data['ifsc_code'] ?? '',
-          accountType: data['account_type'] ?? 'CURRENT',
-          bookBalance: (data['book_balance'] as num?)?.toDouble() ?? 0.0,
-          statementBalance: (data['bank_statement_balance'] as num?)?.toDouble() ?? 0.0,
+          currentBalance: (data['book_balance'] as num?)?.toDouble() ?? 0.0,
           unreconciledCount: data['unreconciled_count'] as int? ?? 0,
-          isLiveSync: data['is_live_sync'] == true,
-          createdAt: DateTime.now(),
+          isConnected: data['is_live_sync'] == true,
+        );
+      }).toList();
+    });
+  }
+
+  /// Fetches statement entries for BRS workspace
+  Future<List<BankStatementEntryModel>> fetchStatementEntries(
+    String bankAccountId, {
+    bool? isReconciled,
+  }) async {
+    return await executeSafely<List<BankStatementEntryModel>>(() async {
+      final response = await ApiClient.get('/banking/accounts/$bankAccountId/transactions');
+      final list = response as List<dynamic>;
+
+      return list.map((json) {
+        final data = json as Map<String, dynamic>;
+        return BankStatementEntryModel(
+          id: data['id'] ?? '',
+          businessId: 'BIZ-DEFAULT-01',
+          bankAccountId: bankAccountId,
+          transactionDate: DateTime.tryParse(data['transaction_date'] ?? '') ?? DateTime.now(),
+          description: data['description'] ?? '',
+          chequeReferenceNo: data['reference_number'],
+          withdrawalAmount: (data['withdrawal_amount'] as num?)?.toDouble() ?? 0.0,
+          depositAmount: (data['deposit_amount'] as num?)?.toDouble() ?? 0.0,
+          balance: (data['balance_after_transaction'] as num?)?.toDouble() ?? 0.0,
+          isReconciled: data['is_reconciled'] == true,
+          trgmSimilarityScore: (data['ai_match_confidence'] as num?)?.toDouble() ?? 0.95,
         );
       }).toList();
     });
@@ -40,7 +65,7 @@ class BankingRepository {
     List<BankStatementEntryModel> entries,
   ) async {
     await executeSafely<void>(() async {
-      // Backend automatically processes statement lines
+      // Backend processes statement lines
     });
   }
 
@@ -55,15 +80,15 @@ class BankingRepository {
 
   /// Generates a 1-click double-entry voucher from an un-reconciled statement line
   Future<String> createVoucherFromStatementLine({
-    required String statementEntryId,
-    required String counterLedgerId,
-    required String voucherTypeName,
+    required String statementId,
+    required String contraAccountId,
+    required String voucherType,
   }) async {
     return await executeSafely<String>(() async {
       await ApiClient.post(
         '/banking/reconcile-match',
         body: {
-          'transaction_id': statementEntryId,
+          'transaction_id': statementId,
           'action_type': 'MATCH',
         },
       );

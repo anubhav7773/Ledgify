@@ -27,32 +27,31 @@ class FinancialReportingService {
 
       final lines = linesList.map((l) {
         final line = l as Map<String, dynamic>;
-        return TrialBalanceLineItem(
-          ledgerId: line['ledger_id'] ?? '',
-          ledgerName: line['ledger_name'] ?? '',
+        return TrialBalanceLineModel(
+          accountId: line['ledger_id'] ?? '',
+          accountName: line['ledger_name'] ?? '',
           groupName: line['group_name'] ?? 'Primary',
           primaryClassification: line['primary_classification'] ?? 'Asset',
-          openingDebit: 0.0,
-          openingCredit: 0.0,
-          periodDebit: (line['debit_amount'] as num?)?.toDouble() ?? 0.0,
-          periodCredit: (line['credit_amount'] as num?)?.toDouble() ?? 0.0,
-          closingDebit: (line['debit_amount'] as num?)?.toDouble() ?? 0.0,
-          closingCredit: (line['credit_amount'] as num?)?.toDouble() ?? 0.0,
+          openingDr: 0.0,
+          openingCr: 0.0,
+          periodDr: (line['debit_amount'] as num?)?.toDouble() ?? 0.0,
+          periodCr: (line['credit_amount'] as num?)?.toDouble() ?? 0.0,
+          closingDr: (line['debit_amount'] as num?)?.toDouble() ?? 0.0,
+          closingCr: (line['credit_amount'] as num?)?.toDouble() ?? 0.0,
         );
       }).toList();
 
       return TrialBalanceReportModel(
-        businessId: data['business_id'] ?? 'BIZ-DEFAULT-01',
         fromDate: fromDate,
         toDate: toDate,
-        lines: lines,
-        totalOpeningDebit: 0.0,
-        totalOpeningCredit: 0.0,
-        totalPeriodDebit: (data['total_debit'] as num?)?.toDouble() ?? 0.0,
-        totalPeriodCredit: (data['total_credit'] as num?)?.toDouble() ?? 0.0,
-        totalClosingDebit: (data['total_debit'] as num?)?.toDouble() ?? 0.0,
-        totalClosingCredit: (data['total_credit'] as num?)?.toDouble() ?? 0.0,
+        totalOpeningDr: 0.0,
+        totalOpeningCr: 0.0,
+        totalPeriodDr: (data['total_debit'] as num?)?.toDouble() ?? 0.0,
+        totalPeriodCr: (data['total_credit'] as num?)?.toDouble() ?? 0.0,
+        totalClosingDr: (data['total_debit'] as num?)?.toDouble() ?? 0.0,
+        totalClosingCr: (data['total_credit'] as num?)?.toDouble() ?? 0.0,
         isBalanced: data['is_balanced'] == true,
+        lines: lines,
       );
     });
   }
@@ -74,18 +73,16 @@ class FinancialReportingService {
       final data = response as Map<String, dynamic>;
 
       return ProfitAndLossReportModel(
-        businessId: data['business_id'] ?? 'BIZ-DEFAULT-01',
         fromDate: fromDate,
         toDate: toDate,
-        tradingRevenue: (data['revenue_from_operations'] as num?)?.toDouble() ?? 0.0,
-        costOfGoodsSold: (data['cost_of_materials_consumed'] as num?)?.toDouble() ?? 0.0,
+        directIncomes: (data['revenue_from_operations'] as num?)?.toDouble() ?? 0.0,
+        directExpenses: (data['cost_of_materials_consumed'] as num?)?.toDouble() ?? 0.0,
         grossProfit: (data['gross_profit'] as num?)?.toDouble() ?? 0.0,
         indirectIncomes: (data['other_income'] as num?)?.toDouble() ?? 0.0,
         indirectExpenses: (data['employee_benefit_expenses'] as num?)?.toDouble() ?? 0.0,
-        operatingProfit: (data['operating_profit'] as num?)?.toDouble() ?? 0.0,
         netProfit: (data['net_profit_before_tax'] as num?)?.toDouble() ?? 0.0,
-        revenueItems: [],
-        expenseItems: [],
+        incomeDetails: [],
+        expenseDetails: [],
       );
     });
   }
@@ -105,19 +102,20 @@ class FinancialReportingService {
       final data = response as Map<String, dynamic>;
 
       return BalanceSheetReportModel(
-        businessId: data['business_id'] ?? 'BIZ-DEFAULT-01',
         asOfDate: asOfDate,
-        shareholdersFunds: (data['share_capital'] as num?)?.toDouble() ?? 0.0,
-        nonCurrentLiabilities: 0.0,
-        currentLiabilities: (data['total_liabilities'] as num?)?.toDouble() ?? 0.0,
-        totalEquityAndLiabilities: (data['total_equities_and_liabilities'] as num?)?.toDouble() ?? 0.0,
-        nonCurrentAssets: (data['fixed_assets'] as num?)?.toDouble() ?? 0.0,
+        fixedAssets: (data['fixed_assets'] as num?)?.toDouble() ?? 0.0,
         currentAssets: (data['total_assets'] as num?)?.toDouble() ?? 0.0,
         totalAssets: (data['total_assets'] as num?)?.toDouble() ?? 0.0,
-        equityItems: [],
-        liabilityItems: [],
-        assetItems: [],
+        capitalEquity: (data['share_capital'] as num?)?.toDouble() ?? 0.0,
+        currentNetProfit: 0.0,
+        totalEquityAndReserves: (data['share_capital'] as num?)?.toDouble() ?? 0.0,
+        loansLiability: 0.0,
+        currentLiabilities: (data['total_liabilities'] as num?)?.toDouble() ?? 0.0,
+        totalLiabilitiesAndEquity: (data['total_equities_and_liabilities'] as num?)?.toDouble() ?? 0.0,
+        difference: 0.0,
         isBalanced: data['is_balanced'] == true,
+        assetDetails: [],
+        liabilityDetails: [],
       );
     });
   }
@@ -129,24 +127,16 @@ class FinancialReportingService {
   }) async {
     return await executeSafely<CashFlowReportModel>(() async {
       return CashFlowReportModel(
-        businessId: 'BIZ-DEFAULT-01',
         fromDate: fromDate,
         toDate: toDate,
-        operatingCashInflow: 1200000.0,
-        operatingCashOutflow: 850000.0,
+        openingCashEquivalents: 500000.0,
+        operatingInflows: 1200000.0,
+        operatingOutflows: 850000.0,
         netOperatingCashFlow: 350000.0,
-        investingCashInflow: 0.0,
-        investingCashOutflow: 50000.0,
-        netInvestingCashFlow: -50000.0,
-        financingCashInflow: 0.0,
-        financingCashOutflow: 20000.0,
-        netFinancingCashFlow: -20000.0,
-        netCashChange: 280000.0,
-        openingCashEquivalent: 500000.0,
-        closingCashEquivalent: 780000.0,
-        operatingItems: [],
-        investingItems: [],
-        financingItems: [],
+        investingCashFlow: -50000.0,
+        financingCashFlow: -20000.0,
+        netCashDelta: 280000.0,
+        closingCashEquivalents: 780000.0,
       );
     });
   }

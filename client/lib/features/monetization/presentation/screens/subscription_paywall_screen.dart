@@ -78,11 +78,25 @@ class _SubscriptionPaywallScreenState extends State<SubscriptionPaywallScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? const Color(0xFF1E293B) : Colors.white;
+    final textColor = isDark ? Colors.white : AppColors.textPrimary;
+    final subtextColor = isDark ? const Color(0xFF94A3B8) : AppColors.textSecondary;
+
     return Scaffold(
-      backgroundColor: AppColors.backgroundLight,
+      backgroundColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: Text('Upgrade to Pro', style: AppTypography.cardHeader),
-        backgroundColor: AppColors.surfaceCard,
+        title: Text(
+          'Upgrade to Pro',
+          style: TextStyle(
+            color: textColor,
+            fontWeight: FontWeight.w700,
+            fontSize: 18,
+          ),
+        ),
+        backgroundColor: cardBg,
+        elevation: 0,
+        iconTheme: IconThemeData(color: textColor),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -102,7 +116,7 @@ class _SubscriptionPaywallScreenState extends State<SubscriptionPaywallScreen> {
                   borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withOpacity(0.25),
+                      color: AppColors.primary.withOpacity(0.3),
                       blurRadius: 16,
                       offset: const Offset(0, 4),
                     ),
@@ -110,42 +124,77 @@ class _SubscriptionPaywallScreenState extends State<SubscriptionPaywallScreen> {
                 ),
                 child: Column(
                   children: const [
-                    Icon(Icons.workspace_premium_rounded, color: Color(0xFFFBBF24), size: 44),
+                    Icon(Icons.workspace_premium_rounded, color: Color(0xFFFBBF24), size: 48),
                     SizedBox(height: 12),
                     Text(
                       'Automate Your Entire Accounting',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 19),
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 20),
                     ),
                     SizedBox(height: 6),
                     Text(
                       'AI Bill Scans, E-Invoicing, BRS, Multi-GSTIN & Direct Tax',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white70, fontSize: 12.5),
+                      style: TextStyle(color: Color(0xFFE2E8F0), fontSize: 13),
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 20),
 
-              // Billing Cycle Toggle
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ChoiceChip(
-                    label: const Text('Monthly Billing'),
-                    selected: !_isAnnual,
-                    onSelected: (val) => setState(() => _isAnnual = false),
-                    selectedColor: AppColors.primaryLight,
-                  ),
-                  const SizedBox(width: 12),
-                  ChoiceChip(
-                    label: const Text('Annual Billing (Save 20%)'),
-                    selected: _isAnnual,
-                    onSelected: (val) => setState(() => _isAnnual = true),
-                    selectedColor: AppColors.primaryLight,
-                  ),
-                ],
+              // Billing Cycle Toggle (High Contrast)
+              Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => _isAnnual = false),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          decoration: BoxDecoration(
+                            color: !_isAnnual ? AppColors.primary : Colors.transparent,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            'Monthly Billing',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: !_isAnnual ? Colors.white : subtextColor,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => _isAnnual = true),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          decoration: BoxDecoration(
+                            color: _isAnnual ? AppColors.primary : Colors.transparent,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            'Annual (Save 20%)',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: _isAnnual ? Colors.white : subtextColor,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 16),
 
@@ -159,6 +208,7 @@ class _SubscriptionPaywallScreenState extends State<SubscriptionPaywallScreen> {
                       price: _isAnnual ? '₹4,999/yr' : '₹499/mo',
                       badge: 'MOST POPULAR',
                       isHighlight: true,
+                      isDark: isDark,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -169,6 +219,7 @@ class _SubscriptionPaywallScreenState extends State<SubscriptionPaywallScreen> {
                       price: _isAnnual ? '₹9,999/yr' : '₹999/mo',
                       badge: 'ALL-IN-ONE',
                       isHighlight: false,
+                      isDark: isDark,
                     ),
                   ),
                 ],
@@ -176,46 +227,63 @@ class _SubscriptionPaywallScreenState extends State<SubscriptionPaywallScreen> {
               const SizedBox(height: 20),
 
               // Feature Comparison Table
-              Card(
-                elevation: 0,
-                shape: RoundedRectangleBorder(
+              Container(
+                decoration: BoxDecoration(
+                  color: cardBg,
                   borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
-                  side: const BorderSide(color: AppColors.border),
+                  border: Border.all(color: isDark ? const Color(0xFF334155) : AppColors.border),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.04),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Plan Capabilities', style: AppTypography.cardHeader),
-                      const Divider(height: 16),
-                      _buildFeatureRow('AI Bill OCR & Voice Scans', '30 / mo', '500 / mo', 'Unlimited'),
-                      _buildFeatureRow('Statutory E-Invoice & EWB', '✕', '✓', '✓'),
-                      _buildFeatureRow('Trigram BRS Reconciliation', 'Manual', 'Automated', 'Automated'),
-                      _buildFeatureRow('Form 24Q & Form 16 Payroll', 'Basic', 'Full e-TDS', 'Full e-TDS'),
-                      _buildFeatureRow('Multi-Business / GSTIN Sync', '1 Company', '1 Company', 'Unlimited'),
-                      _buildFeatureRow('Ad-Free Premium Mode', 'With Ads', 'Ad-Free', 'Ad-Free'),
-                    ],
-                  ),
+                padding: const EdgeInsets.all(18.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Plan Capabilities',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: textColor,
+                      ),
+                    ),
+                    Divider(height: 20, color: isDark ? const Color(0xFF334155) : AppColors.divider),
+                    _buildFeatureRow('AI Bill OCR & Voice Scans', '500 / mo', isDark),
+                    _buildFeatureRow('Statutory E-Invoice & EWB', 'Automated', isDark),
+                    _buildFeatureRow('Trigram BRS Reconciliation', 'Automated', isDark),
+                    _buildFeatureRow('Form 24Q & Form 16 Payroll', 'Full e-TDS', isDark),
+                    _buildFeatureRow('Multi-Business / GSTIN Sync', '1 Company', isDark),
+                    _buildFeatureRow('Ad-Free Premium Experience', 'Ad-Free', isDark),
+                  ],
                 ),
               ),
               const SizedBox(height: 24),
 
               // Primary Action CTA (48dp Touch Target)
               SizedBox(
-                height: AppColors.minTouchTargetSize,
+                height: 52,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     foregroundColor: Colors.white,
+                    elevation: 2,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   onPressed: _isProcessing ? null : _handleUpgrade,
                   child: _isProcessing
-                      ? const CircularProgressIndicator(color: Colors.white)
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                        )
                       : Text(
                           'Upgrade to $_selectedTier',
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, letterSpacing: 0.5),
                         ),
                 ),
               ),
@@ -225,9 +293,9 @@ class _SubscriptionPaywallScreenState extends State<SubscriptionPaywallScreen> {
               Center(
                 child: TextButton(
                   onPressed: _isProcessing ? null : _restorePurchases,
-                  child: const Text(
+                  child: Text(
                     'Restore Previous Purchases',
-                    style: TextStyle(color: AppColors.textSecondary, fontSize: 12.5),
+                    style: TextStyle(color: subtextColor, fontSize: 13, fontWeight: FontWeight.w500),
                   ),
                 ),
               ),
@@ -244,8 +312,12 @@ class _SubscriptionPaywallScreenState extends State<SubscriptionPaywallScreen> {
     required String price,
     required String badge,
     required bool isHighlight,
+    required bool isDark,
   }) {
     final isSelected = _selectedTier == tierId;
+    final cardBg = isDark
+        ? (isSelected ? const Color(0xFF1E3A8A).withOpacity(0.3) : const Color(0xFF1E293B))
+        : (isSelected ? const Color(0xFFEFF6FF) : Colors.white);
 
     return InkWell(
       onTap: () => setState(() => _selectedTier = tierId),
@@ -253,11 +325,11 @@ class _SubscriptionPaywallScreenState extends State<SubscriptionPaywallScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primaryContainer.withOpacity(0.5) : AppColors.surfaceCard,
+          color: cardBg,
           borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
           border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.border,
-            width: isSelected ? 2 : 1,
+            color: isSelected ? AppColors.primary : (isDark ? const Color(0xFF334155) : AppColors.border),
+            width: isSelected ? 2.5 : 1,
           ),
         ),
         child: Column(
@@ -266,38 +338,70 @@ class _SubscriptionPaywallScreenState extends State<SubscriptionPaywallScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
               decoration: BoxDecoration(
-                color: isHighlight ? const Color(0xFFFEF3C7) : AppColors.surfaceVariant,
+                color: isHighlight ? const Color(0xFFFEF3C7) : (isDark ? const Color(0xFF334155) : const Color(0xFFF1F5F9)),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
                 badge,
                 style: TextStyle(
                   fontSize: 9.5,
-                  fontWeight: FontWeight.w700,
-                  color: isHighlight ? const Color(0xFFB45309) : AppColors.textSecondary,
+                  fontWeight: FontWeight.w800,
+                  color: isHighlight ? const Color(0xFFB45309) : (isDark ? const Color(0xFFE2E8F0) : AppColors.textSecondary),
                 ),
               ),
             ),
             const SizedBox(height: 10),
 
-            Text(name, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: AppColors.textPrimary)),
+            Text(
+              name,
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                fontSize: 15,
+                color: isDark ? Colors.white : AppColors.textPrimary,
+              ),
+            ),
             const SizedBox(height: 6),
 
-            Text(price, style: AppTypography.currencyText.copyWith(fontWeight: FontWeight.w800, fontSize: 16, color: AppColors.primary)),
+            Text(
+              price,
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: 17,
+                color: isDark ? const Color(0xFF60A5FA) : AppColors.primary,
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildFeatureRow(String feature, String freeVal, String proVal, String entVal) {
+  Widget _buildFeatureRow(String feature, String proVal, bool isDark) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(flex: 3, child: Text(feature, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w500, color: AppColors.textPrimary))),
-          Expanded(flex: 2, child: Text(proVal, textAlign: TextAlign.right, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primary))),
+          Expanded(
+            flex: 3,
+            child: Text(
+              feature,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+                color: isDark ? const Color(0xFFE2E8F0) : AppColors.textPrimary,
+              ),
+            ),
+          ),
+          Text(
+            proVal,
+            textAlign: TextAlign.right,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w800,
+              color: isDark ? const Color(0xFF60A5FA) : AppColors.primary,
+            ),
+          ),
         ],
       ),
     );

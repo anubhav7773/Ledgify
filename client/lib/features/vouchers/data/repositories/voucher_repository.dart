@@ -2,6 +2,7 @@ import '../../../../core/errors/failures.dart';
 import '../../../../core/network/api_client.dart';
 import '../../../../core/utils/safe_executor.dart';
 import 'package:ledgify/features/masters/domain/models/voucher_type_model.dart';
+import '../../domain/models/voucher_line_item_model.dart';
 import '../../domain/models/voucher_model.dart';
 
 /// Repository managing Double-Entry Voucher operations via FastAPI backend.
@@ -10,13 +11,13 @@ class VoucherRepository {
 
   /// Fetches default voucher types supported by Tally/Ledgify
   Future<List<VoucherTypeModel>> fetchVoucherTypes() async {
-    return [
-      VoucherTypeModel(id: 'vt-payment', businessId: 'BIZ-DEFAULT-01', name: 'Payment', category: 'Payment', isDefault: true),
-      VoucherTypeModel(id: 'vt-receipt', businessId: 'BIZ-DEFAULT-01', name: 'Receipt', category: 'Receipt', isDefault: true),
-      VoucherTypeModel(id: 'vt-sales', businessId: 'BIZ-DEFAULT-01', name: 'Sales', category: 'Sales', isDefault: true),
-      VoucherTypeModel(id: 'vt-purchase', businessId: 'BIZ-DEFAULT-01', name: 'Purchase', category: 'Purchase', isDefault: true),
-      VoucherTypeModel(id: 'vt-contra', businessId: 'BIZ-DEFAULT-01', name: 'Contra', category: 'Contra', isDefault: true),
-      VoucherTypeModel(id: 'vt-journal', businessId: 'BIZ-DEFAULT-01', name: 'Journal', category: 'Journal', isDefault: true),
+    return const [
+      VoucherTypeModel(id: 'vt-payment', businessId: 'BIZ-DEFAULT-01', name: 'Payment', category: 'Payment', isSystemDefault: true),
+      VoucherTypeModel(id: 'vt-receipt', businessId: 'BIZ-DEFAULT-01', name: 'Receipt', category: 'Receipt', isSystemDefault: true),
+      VoucherTypeModel(id: 'vt-sales', businessId: 'BIZ-DEFAULT-01', name: 'Sales', category: 'Sales', isSystemDefault: true),
+      VoucherTypeModel(id: 'vt-purchase', businessId: 'BIZ-DEFAULT-01', name: 'Purchase', category: 'Purchase', isSystemDefault: true),
+      VoucherTypeModel(id: 'vt-contra', businessId: 'BIZ-DEFAULT-01', name: 'Contra', category: 'Contra', isSystemDefault: true),
+      VoucherTypeModel(id: 'vt-journal', businessId: 'BIZ-DEFAULT-01', name: 'Journal', category: 'Journal', isSystemDefault: true),
     ];
   }
 
@@ -31,20 +32,20 @@ class VoucherRepository {
         );
       }
 
-      final itemsPayload = voucher.items.map((i) {
+      final itemsPayload = voucher.lineItems.map((i) {
         return {
-          'ledger_id': i.ledgerId,
-          'ledger_name': i.ledgerName ?? 'Ledger ${i.ledgerId}',
-          'is_debit': i.isDebit,
+          'ledger_id': i.accountId,
+          'ledger_name': 'Ledger ${i.accountId}',
+          'is_debit': i.entryType == 'Dr',
           'amount': i.amount,
-          'particulars': i.narration,
+          'particulars': i.itemDescription,
         };
       }).toList();
 
       final payload = {
-        'voucher_type': _mapCategory(voucher.voucherType),
+        'voucher_type': _mapCategory(voucher.voucherTypeName),
         'voucher_number': voucher.voucherNumber,
-        'voucher_date': voucher.date.toIso8601String().split('T')[0],
+        'voucher_date': voucher.voucherDate.toIso8601String().split('T')[0],
         'narration': voucher.narration,
         'items': itemsPayload,
       };
@@ -54,9 +55,9 @@ class VoucherRepository {
     });
   }
 
-  static String _mapCategory(VoucherTypeModel? type) {
+  static String _mapCategory(String? type) {
     if (type == null) return 'Payment';
-    final name = type.name.toLowerCase();
+    final name = type.toLowerCase();
     if (name.contains('sales') || name.contains('sale')) return 'Sales';
     if (name.contains('purchase')) return 'Purchase';
     if (name.contains('receipt')) return 'Receipt';
@@ -94,14 +95,14 @@ class VoucherRepository {
 
         final items = itemsList.map((itemJson) {
           final item = itemJson as Map<String, dynamic>;
-          return VoucherItemModel(
+          return VoucherLineItemModel(
             id: item['id'] ?? '',
+            businessId: data['business_id'] ?? 'BIZ-DEFAULT-01',
             voucherId: data['id'] ?? '',
-            ledgerId: item['ledger_id'] ?? '',
-            ledgerName: item['ledger_name'] ?? 'Ledger',
-            isDebit: item['is_debit'] == true,
+            accountId: item['ledger_id'] ?? '',
+            entryType: (item['is_debit'] == true) ? 'Dr' : 'Cr',
             amount: (item['amount'] as num?)?.toDouble() ?? 0.0,
-            narration: item['particulars'],
+            itemDescription: item['particulars'],
           );
         }).toList();
 
@@ -109,11 +110,11 @@ class VoucherRepository {
           id: data['id'] ?? '',
           businessId: data['business_id'] ?? 'BIZ-DEFAULT-01',
           voucherTypeId: 'vt-${data['voucher_type'] ?? 'Payment'}',
+          voucherTypeName: data['voucher_type'] ?? 'Payment',
           voucherNumber: data['voucher_number'] ?? 'VCH-001',
-          date: DateTime.tryParse(data['voucher_date'] ?? '') ?? DateTime.now(),
+          voucherDate: DateTime.tryParse(data['voucher_date'] ?? '') ?? DateTime.now(),
           narration: data['narration'],
-          items: items,
-          isPosted: data['is_posted'] == true,
+          lineItems: items,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
         );
@@ -130,14 +131,14 @@ class VoucherRepository {
 
       final items = itemsList.map((itemJson) {
         final item = itemJson as Map<String, dynamic>;
-        return VoucherItemModel(
+        return VoucherLineItemModel(
           id: item['id'] ?? '',
+          businessId: data['business_id'] ?? 'BIZ-DEFAULT-01',
           voucherId: data['id'] ?? '',
-          ledgerId: item['ledger_id'] ?? '',
-          ledgerName: item['ledger_name'] ?? 'Ledger',
-          isDebit: item['is_debit'] == true,
+          accountId: item['ledger_id'] ?? '',
+          entryType: (item['is_debit'] == true) ? 'Dr' : 'Cr',
           amount: (item['amount'] as num?)?.toDouble() ?? 0.0,
-          narration: item['particulars'],
+          itemDescription: item['particulars'],
         );
       }).toList();
 
@@ -145,11 +146,11 @@ class VoucherRepository {
         id: data['id'] ?? '',
         businessId: data['business_id'] ?? 'BIZ-DEFAULT-01',
         voucherTypeId: 'vt-${data['voucher_type'] ?? 'Payment'}',
+        voucherTypeName: data['voucher_type'] ?? 'Payment',
         voucherNumber: data['voucher_number'] ?? 'VCH-001',
-        date: DateTime.tryParse(data['voucher_date'] ?? '') ?? DateTime.now(),
+        voucherDate: DateTime.tryParse(data['voucher_date'] ?? '') ?? DateTime.now(),
         narration: data['narration'],
-        items: items,
-        isPosted: data['is_posted'] == true,
+        lineItems: items,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );

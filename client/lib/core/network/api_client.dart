@@ -69,7 +69,7 @@ class ApiClient {
           }
         }
       } catch (_) {}
-      throw ServerFailure(message: errorMessage, statusCode: response.statusCode);
+      throw ServerFailure(message: errorMessage, code: response.statusCode.toString());
     }
   }
 

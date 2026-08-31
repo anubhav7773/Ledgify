@@ -28,10 +28,9 @@ class AccountRepository {
           groupName: data['parent_group_name'] ?? 'General',
           primaryClassification: _inferClassification(data['parent_group_name'] ?? ''),
           openingBalance: (data['opening_balance'] as num?)?.toDouble() ?? 0.0,
-          currentBalance: (data['current_balance'] as num?)?.toDouble() ?? 0.0,
-          isDebit: (data['opening_balance_type'] ?? 'Dr') == 'Dr',
-          gstin: data['gstin'],
-          pan: data['pan'],
+          openingBalanceType: data['opening_balance_type'] ?? 'Dr',
+          partyGstin: data['gstin'],
+          partyPan: data['pan'],
           isActive: data['is_active'] == true,
           createdAt: DateTime.now(),
           updatedAt: DateTime.now(),
@@ -94,9 +93,9 @@ class AccountRepository {
         'name': account.name,
         'parent_group_name': account.groupName,
         'opening_balance': account.openingBalance,
-        'opening_balance_type': account.isDebit ? 'Dr' : 'Cr',
-        'gstin': account.gstin,
-        'pan': account.pan,
+        'opening_balance_type': account.openingBalanceType,
+        'gstin': account.partyGstin,
+        'pan': account.partyPan,
         'is_active': account.isActive,
       };
 
@@ -110,14 +109,16 @@ class AccountRepository {
         groupName: data['parent_group_name'] ?? account.groupName,
         primaryClassification: account.primaryClassification,
         openingBalance: (data['opening_balance'] as num?)?.toDouble() ?? account.openingBalance,
-        currentBalance: (data['current_balance'] as num?)?.toDouble() ?? account.currentBalance,
-        isDebit: (data['opening_balance_type'] ?? 'Dr') == 'Dr',
-        gstin: data['gstin'] ?? account.gstin,
-        pan: data['pan'] ?? account.pan,
+        openingBalanceType: data['opening_balance_type'] ?? account.openingBalanceType,
+        partyGstin: data['gstin'] ?? account.partyGstin,
+        partyPan: data['pan'] ?? account.partyPan,
         isActive: data['is_active'] == true,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
     });
   }
+
+  /// Alias for createAccount
+  Future<AccountModel> createLedger(AccountModel account) => createAccount(account);
 }

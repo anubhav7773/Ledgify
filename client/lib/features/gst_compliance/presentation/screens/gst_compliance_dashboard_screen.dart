@@ -108,24 +108,53 @@ class _GstComplianceDashboardScreenState extends State<GstComplianceDashboardScr
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Period Selector Dropdown
-              DropdownButtonFormField<String>(
-                value: _selectedPeriod,
-                isExpanded: true,
-                decoration: const InputDecoration(
-                  labelText: 'Return Filing Period *',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.calendar_month_outlined),
+              // Period Selector Dropdown (High Contrast)
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.border),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.03),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
-                items: _availablePeriods.map((p) {
-                  return DropdownMenuItem(value: p, child: Text(_formatPeriodLabel(p)));
-                }).toList(),
-                onChanged: (newPeriod) {
-                  if (newPeriod != null) {
-                    setState(() => _selectedPeriod = newPeriod);
-                    _loadComplianceData();
-                  }
-                },
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: _selectedPeriod,
+                    isExpanded: true,
+                    icon: const Icon(Icons.keyboard_arrow_down_rounded, color: AppColors.primary),
+                    items: _availablePeriods.map((p) {
+                      return DropdownMenuItem(
+                        value: p,
+                        child: Row(
+                          children: [
+                            const Icon(Icons.calendar_month_rounded, size: 20, color: AppColors.primary),
+                            const SizedBox(width: 10),
+                            Text(
+                              _formatPeriodLabel(p),
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (newPeriod) {
+                      if (newPeriod != null) {
+                        setState(() => _selectedPeriod = newPeriod);
+                        _loadComplianceData();
+                      }
+                    },
+                  ),
+                ),
               ),
               const SizedBox(height: 16),
 
