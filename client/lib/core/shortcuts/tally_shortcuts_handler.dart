@@ -59,33 +59,33 @@ class TallyShortcutsHandler {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Gateway Shortcuts / त्वरित नेविगेशन', style: AppTypography.cardHeader),
+                  Text('Gateway Shortcuts', style: AppTypography.cardHeader),
                   IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
                 ],
               ),
               const SizedBox(height: 12),
 
-              _buildShortcutTile(ctx, 'V', 'Voucher Entry / वाउचर प्रविष्टि', Icons.edit_note, () {
+              _buildShortcutTile(ctx, 'V', 'Voucher Entry', Icons.edit_note, () {
                 Navigator.pop(ctx);
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const VoucherEntryScreen()));
               }),
-              _buildShortcutTile(ctx, 'D', 'Day Book / दैनिक बही', Icons.receipt_long_outlined, () {
+              _buildShortcutTile(ctx, 'D', 'Day Book', Icons.receipt_long_outlined, () {
                 Navigator.pop(ctx);
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const DayBookScreen()));
               }),
-              _buildShortcutTile(ctx, 'B', 'Balance Sheet / तुलन पत्र', Icons.account_balance_outlined, () {
+              _buildShortcutTile(ctx, 'B', 'Balance Sheet', Icons.account_balance_outlined, () {
                 Navigator.pop(ctx);
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const BalanceSheetScreen()));
               }),
-              _buildShortcutTile(ctx, 'P', 'Profit & Loss / लाभ-हानि', Icons.trending_up, () {
+              _buildShortcutTile(ctx, 'P', 'Profit & Loss', Icons.trending_up, () {
                 Navigator.pop(ctx);
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfitAndLossScreen()));
               }),
-              _buildShortcutTile(ctx, 'S', 'Stock Summary / स्टॉक सारांश', Icons.inventory_2_outlined, () {
+              _buildShortcutTile(ctx, 'S', 'Stock Summary', Icons.inventory_2_outlined, () {
                 Navigator.pop(ctx);
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const StockSummaryScreen()));
               }),
-              _buildShortcutTile(ctx, 'R', 'Bank Reconciliation / बैंक समाधान (BRS)', Icons.rule, () {
+              _buildShortcutTile(ctx, 'R', 'Bank Reconciliation (BRS)', Icons.rule, () {
                 Navigator.pop(ctx);
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const BankAccountsScreen()));
               }),

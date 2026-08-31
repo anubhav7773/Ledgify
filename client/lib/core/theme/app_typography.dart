@@ -2,23 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
-/// Bilingual typography tokens using Google Fonts Noto Sans & Noto Sans Devanagari.
-/// Adheres strictly to docs/10_ui_ux_design_system_tokens.md.
+/// Clean modern English typography tokens using Google Fonts Inter.
 class AppTypography {
-  static TextStyle get displayLarge => GoogleFonts.notoSans(
+  static TextStyle get displayLarge => GoogleFonts.inter(
         fontSize: 28,
         fontWeight: FontWeight.w700,
         color: AppColors.textPrimary,
         letterSpacing: -0.5,
       );
 
-  static TextStyle get headlineMedium => GoogleFonts.notoSans(
+  static TextStyle get headlineMedium => GoogleFonts.inter(
         fontSize: 20,
         fontWeight: FontWeight.w700,
         color: AppColors.textPrimary,
       );
 
-  static TextStyle get titleLarge => GoogleFonts.notoSans(
+  static TextStyle get titleLarge => GoogleFonts.inter(
         fontSize: 16,
         fontWeight: FontWeight.w700,
         color: AppColors.textPrimary,
@@ -26,19 +25,19 @@ class AppTypography {
 
   static TextStyle get cardHeader => titleLarge;
 
-  static TextStyle get bodyLarge => GoogleFonts.notoSans(
+  static TextStyle get bodyLarge => GoogleFonts.inter(
         fontSize: 14,
         fontWeight: FontWeight.w500,
         color: AppColors.textPrimary,
       );
 
-  static TextStyle get bodyMedium => GoogleFonts.notoSans(
+  static TextStyle get bodyMedium => GoogleFonts.inter(
         fontSize: 13,
         fontWeight: FontWeight.w400,
         color: AppColors.textSecondary,
       );
 
-  static TextStyle get labelSmall => GoogleFonts.notoSans(
+  static TextStyle get labelSmall => GoogleFonts.inter(
         fontSize: 11,
         fontWeight: FontWeight.w600,
         color: AppColors.textSecondary,
@@ -51,35 +50,55 @@ class AppTypography {
         color: AppColors.textPrimary,
       );
 
-  /// Hindi Subtitle Typography
-  static TextStyle get devanagariSubtitle => GoogleFonts.notoSansDevanagari(
-        fontSize: 11.5,
+  /// English subtitle style
+  static TextStyle get subtitleStyle => GoogleFonts.inter(
+        fontSize: 12,
         fontWeight: FontWeight.w400,
         color: AppColors.textSecondary,
       );
 
-  /// Builds a bilingual rich label with English title and Devanagari Hindi translation
-  static Widget bilingualLabel({
-    required String english,
-    required String hindi,
-    TextStyle? englishStyle,
-    TextStyle? hindiStyle,
+  /// Builds a clean English label
+  static Widget label({
+    required String text,
+    String? subtitle,
+    TextStyle? textStyle,
+    TextStyle? subtitleStyle,
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.start,
   }) {
+    if (subtitle == null || subtitle.isEmpty) {
+      return Text(text, style: textStyle ?? bodyLarge);
+    }
     return Column(
       crossAxisAlignment: crossAxisAlignment,
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          english,
-          style: englishStyle ?? bodyLarge,
+          text,
+          style: textStyle ?? bodyLarge,
         ),
-        const SizedBox(height: 1.5),
+        const SizedBox(height: 2),
         Text(
-          hindi,
-          style: hindiStyle ?? devanagariSubtitle,
+          subtitle,
+          style: subtitleStyle ?? AppTypography.subtitleStyle,
         ),
       ],
+    );
+  }
+
+  /// Backward compatibility alias for bilingualLabel
+  static Widget bilingualLabel({
+    required String english,
+    String? hindi,
+    TextStyle? englishStyle,
+    TextStyle? hindiStyle,
+    CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.start,
+  }) {
+    return label(
+      text: english,
+      subtitle: (hindi != null && hindi != english && !hindi.contains('बही') && !hindi.contains('खाता') && !hindi.contains('वाउचर')) ? hindi : null,
+      textStyle: englishStyle,
+      subtitleStyle: hindiStyle,
+      crossAxisAlignment: crossAxisAlignment,
     );
   }
 }

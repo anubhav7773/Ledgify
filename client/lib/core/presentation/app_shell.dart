@@ -186,26 +186,26 @@ class _AppShellState extends State<AppShell> {
             NavigationDestination(
               icon: Icon(Icons.dashboard_outlined),
               selectedIcon: Icon(Icons.dashboard, color: AppColors.primary),
-              label: 'Home / मुख्य',
+              label: 'Home',
             ),
             NavigationDestination(
               icon: Icon(Icons.receipt_long_outlined),
               selectedIcon: Icon(Icons.receipt_long, color: AppColors.primary),
-              label: 'Vouchers / बही',
+              label: 'Vouchers',
             ),
             NavigationDestination(
               icon: Icon(Icons.bolt_outlined),
-              label: 'Shortcuts / मेन्यू',
+              label: 'Shortcuts',
             ),
             NavigationDestination(
               icon: Icon(Icons.analytics_outlined),
               selectedIcon: Icon(Icons.analytics, color: AppColors.primary),
-              label: 'Reports / रिपोर्ट',
+              label: 'Reports',
             ),
             NavigationDestination(
               icon: Icon(Icons.verified_outlined),
               selectedIcon: Icon(Icons.verified, color: AppColors.primary),
-              label: 'GST / नियम',
+              label: 'GST',
             ),
           ],
         ),

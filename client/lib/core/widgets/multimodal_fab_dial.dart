@@ -63,7 +63,7 @@ class _MultimodalFabDialState extends State<MultimodalFabDial> with SingleTicker
           // Option 4: Quick Ledger
           _buildSpeedDialItem(
             icon: Icons.person_add_alt_1_outlined,
-            label: 'New Ledger / नया खाता',
+            label: 'New Ledger',
             color: AppColors.secondary,
             onTap: () {
               _toggle();
@@ -75,7 +75,7 @@ class _MultimodalFabDialState extends State<MultimodalFabDial> with SingleTicker
           // Option 3: Manual Entry
           _buildSpeedDialItem(
             icon: Icons.edit_note_outlined,
-            label: 'Manual Voucher / मैन्युअल वाउचर',
+            label: 'Manual Voucher',
             color: AppColors.primary,
             onTap: () => _navigateTo(const VoucherEntryScreen()),
           ),
@@ -84,7 +84,7 @@ class _MultimodalFabDialState extends State<MultimodalFabDial> with SingleTicker
           // Option 2: Voice Note
           _buildSpeedDialItem(
             icon: Icons.mic_none_outlined,
-            label: 'Voice Voucher / बोलकर दर्ज करें',
+            label: 'Voice Voucher',
             color: const Color(0xFFE11D48), // Rose
             onTap: () => _navigateTo(const VoiceVoucherScreen()),
           ),
@@ -93,7 +93,7 @@ class _MultimodalFabDialState extends State<MultimodalFabDial> with SingleTicker
           // Option 1: Scan Bill (Gemini OCR)
           _buildSpeedDialItem(
             icon: Icons.camera_alt_outlined,
-            label: 'Scan Bill (OCR) / बिल स्कैन करें',
+            label: 'Scan Bill (OCR)',
             color: const Color(0xFF2563EB), // Blue
             onTap: () => _navigateTo(const DocumentScannerScreen()),
           ),

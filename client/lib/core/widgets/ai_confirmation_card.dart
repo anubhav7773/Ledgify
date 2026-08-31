@@ -5,7 +5,6 @@ import '../utils/formatters.dart';
 
 /// High-Trust AI Confirmation Card displaying extracted document details, confidence score badge,
 /// line-items breakdown, and interactive tap-to-edit zones.
-/// Adheres strictly to docs/10_ui_ux_design_system_tokens.md and docs/06_gemini_ai_multimodal_pipeline.md.
 class AiConfirmationCard extends StatelessWidget {
   final String voucherType;
   final String voucherNumber;
@@ -52,10 +51,10 @@ class AiConfirmationCard extends StatelessWidget {
         : (confidenceScore >= 0.60 ? AppColors.warningAmber : AppColors.creditRed);
 
     final String confidenceLabel = confidenceScore >= 0.85
-        ? 'High Accuracy / उच्च सटीकता ($confidencePercent%)'
+        ? 'High Accuracy ($confidencePercent%)'
         : (confidenceScore >= 0.60
-            ? 'Review Suggested / समीक्षा आवश्यक ($confidencePercent%)'
-            : 'Low Confidence / कृपया जांचें ($confidencePercent%)');
+            ? 'Review Suggested ($confidencePercent%)'
+            : 'Low Confidence ($confidencePercent%)');
 
     return Card(
       elevation: 2,
@@ -178,7 +177,7 @@ class AiConfirmationCard extends StatelessWidget {
 
             // Line Items Mini-Preview
             if (lineItems != null && lineItems!.isNotEmpty) ...[
-              const Text('Line Items / वस्तु सूची', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.textSecondary)),
+              const Text('Line Items', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12, color: AppColors.textSecondary)),
               const SizedBox(height: 6),
               ...lineItems!.take(3).map((item) {
                 return Padding(
@@ -216,7 +215,7 @@ class AiConfirmationCard extends StatelessWidget {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Total Invoice Amount / कुल राशि', style: TextStyle(fontSize: 11.5, color: AppColors.textSecondary)),
+                        const Text('Total Invoice Amount', style: TextStyle(fontSize: 11.5, color: AppColors.textSecondary)),
                         Text('Taxable: ₹${taxableAmount.toStringAsFixed(2)} • Tax: ₹${taxAmount.toStringAsFixed(2)}', style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
                       ],
                     ),
@@ -249,7 +248,7 @@ class AiConfirmationCard extends StatelessWidget {
                     ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                     : const Icon(Icons.check_circle_outline),
                 label: Text(
-                  isSubmitting ? 'Posting Voucher...' : 'Confirm & Post Voucher / पुष्टि करें',
+                  isSubmitting ? 'Posting Voucher...' : 'Confirm & Post Voucher',
                   style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
                 ),
                 onPressed: isSubmitting ? null : onConfirm,
@@ -266,7 +265,7 @@ class AiConfirmationCard extends StatelessWidget {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   onPressed: onEditFullVoucher,
-                  child: const Text('Edit Full Voucher / पूरा वाउचर संपादित करें', style: TextStyle(fontWeight: FontWeight.w600)),
+                  child: const Text('Edit Full Voucher', style: TextStyle(fontWeight: FontWeight.w600)),
                 ),
               ),
           ],

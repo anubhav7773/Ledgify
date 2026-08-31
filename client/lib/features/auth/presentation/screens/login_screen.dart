@@ -4,9 +4,8 @@ import '../../../../core/theme/color_tokens.dart';
 import '../../../../core/theme/typography_tokens.dart';
 import '../../services/auth_service.dart';
 
-/// Material 3 Expressive login screen designed for Indian MSME owners and traders.
-/// Features bilingual typography, high-contrast visual hierarchy, and 48dp touch targets.
-/// Adheres strictly to docs/10_ui_ux_design_system_tokens.md.
+/// Material 3 Expressive login screen for Ledgify.
+/// Features clean modern typography, high-contrast visual hierarchy, and 48dp touch targets.
 class LoginScreen extends StatefulWidget {
   final AuthService? authService;
   final VoidCallback? onLoginSuccess;
@@ -95,7 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   width: 80,
                   height: 80,
                   alignment: Alignment.center,
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: LedgifyColors.primaryContainer,
                     shape: BoxShape.circle,
                   ),
@@ -107,35 +106,23 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                // Bilingual App Title
+                // App Title
                 const Text(
-                  'Ledgify / लेजिफाइ',
+                  'Ledgify',
                   textAlign: TextAlign.center,
                   style: LedgifyTypography.displayTitle,
                 ),
-                const SizedBox(height: 6),
-                const Text(
-                  'स्वायत्त व्यापार और लेखांकन',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: LedgifyTypography.fontDeva,
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.w500,
-                    color: LedgifyColors.secondarySlate,
-                    height: 1.25,
-                  ),
-                ),
                 const SizedBox(height: 8),
                 const Text(
-                  'AI-Autonomous Mobile Tally for MSMEs',
+                  'Autonomous Mobile Accounting & Tally for MSMEs',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontFamily: LedgifyTypography.fontDeva,
-                    fontSize: 13.0,
+                    fontSize: 14.0,
+                    fontWeight: FontWeight.w500,
                     color: LedgifyColors.secondarySlate,
                   ),
                 ),
-                const SizedBox(height: 48),
+                const SizedBox(height: 40),
 
                 // Feature Highlights Card
                 Card(
@@ -153,19 +140,19 @@ class _LoginScreenState extends State<LoginScreen> {
                         _buildFeatureItem(
                           icon: Icons.document_scanner_outlined,
                           title: 'OCR Bill & Receipt Scanner',
-                          titleHi: 'कैमरा बिल स्कैनर',
+                          subtitle: 'Instant AI bill extraction with high accuracy',
                         ),
                         const Divider(height: 20),
                         _buildFeatureItem(
                           icon: Icons.mic_none_outlined,
                           title: 'Voice-to-Voucher Entry',
-                          titleHi: 'बोलकर वाउचर बनाएं',
+                          subtitle: 'Speak natural commands to record journal entries',
                         ),
                         const Divider(height: 20),
                         _buildFeatureItem(
                           icon: Icons.verified_user_outlined,
-                          title: 'GST E-Invoice & E-Way Bill Ready',
-                          titleHi: 'जीएसटी ई-चालान और ई-वे बिल',
+                          title: 'GST E-Invoice & E-Way Bill',
+                          subtitle: 'Direct statutory filing, GSTR-1, 3B & IMS portal',
                         ),
                       ],
                     ),
@@ -230,9 +217,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               Icon(Icons.g_mobiledata_rounded, size: 30),
                               SizedBox(width: 8),
                               Text(
-                                'Sign in with Google / गूगल से साइन इन करें',
+                                'Sign in with Google',
                                 style: TextStyle(
-                                  fontFamily: LedgifyTypography.fontDeva,
                                   fontSize: 15,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -243,13 +229,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                // DPDP Notice Footer
+                // Security & Privacy Notice Footer
                 const Text(
-                  'सुरक्षित एवं DPDP अधिनियम 2023 के अनुरूप • 100% Data Encrypted',
+                  'DPDP Act 2023 Compliant • 100% Encrypted & Secure',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontFamily: LedgifyTypography.fontDeva,
-                    fontSize: 11,
+                    fontSize: 11.5,
                     color: LedgifyColors.secondarySlate,
                   ),
                 ),
@@ -264,15 +249,15 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildFeatureItem({
     required IconData icon,
     required String title,
-    required String titleHi,
+    required String subtitle,
   }) {
     return Row(
       children: [
         Container(
           padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: LedgifyColors.primaryContainer,
-            borderRadius: BorderRadius.circular(8),
+            shape: BoxShape.circle,
           ),
           child: Icon(icon, size: 20, color: LedgifyColors.primaryBlue),
         ),
@@ -288,10 +273,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
+              const SizedBox(height: 2),
               Text(
-                titleHi,
+                subtitle,
                 style: const TextStyle(
-                  fontFamily: LedgifyTypography.fontDeva,
                   fontSize: 12,
                   color: LedgifyColors.secondarySlate,
                 ),
