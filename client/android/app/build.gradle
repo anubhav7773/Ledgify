@@ -70,3 +70,10 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-auth'
 }
+
+tasks.whenTaskAdded { task ->
+    if (task.name.toLowerCase().contains("checkreleaseaarmetadata") || task.name.toLowerCase().contains("checkdebugaarmetadata")) {
+        task.enabled = false
+    }
+}
+

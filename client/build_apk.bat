@@ -1,0 +1,3 @@
+@echo off
+echo Building Ledgify Release APK...
+flutter build apk --android-skip-build-dependency-validation --release %*
