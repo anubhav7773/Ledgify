@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../features/ai_intake/presentation/screens/document_scanner_screen.dart';
 import '../../features/ai_intake/presentation/screens/voice_voucher_screen.dart';
-import '../../features/ai_intake/presentation/widgets/quick_create_ledger_bottom_sheet.dart';
+import 'package:ledgify/features/masters/presentation/widgets/quick_create_ledger_bottom_sheet.dart';
 import '../../features/vouchers/presentation/screens/voucher_entry_screen.dart';
 import '../theme/app_colors.dart';
 
@@ -67,7 +67,7 @@ class _MultimodalFabDialState extends State<MultimodalFabDial> with SingleTicker
             color: AppColors.secondary,
             onTap: () {
               _toggle();
-              QuickCreateLedgerBottomSheet.show(context);
+              QuickCreateLedgerBottomSheet.show(context, initialName: '');
             },
           ),
           const SizedBox(height: 12),

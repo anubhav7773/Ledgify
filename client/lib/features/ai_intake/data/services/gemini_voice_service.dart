@@ -145,7 +145,7 @@ class GeminiVoiceService {
           if (attempt == _maxRetries - 1) {
             throw const GeminiRateLimitFailure(
               message: 'Gemini Voice API rate limit exceeded (HTTP 429).',
-              retryAfter: Duration(seconds: 5),
+              retryAfterSeconds: 5,
             );
           }
           final delay = _baseDelayMs * pow(2, attempt) + random.nextInt(500);

@@ -87,7 +87,7 @@ class _EditAmountBottomSheetState extends State<EditAmountBottomSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Edit Invoice Amount / राशि बदलें', style: AppTypography.cardHeader),
+              Text('Edit Invoice Amount / राशि बदलें', style: AppTypography.cardHeader),
               IconButton(
                 icon: const Icon(Icons.close),
                 onPressed: () => Navigator.pop(context),

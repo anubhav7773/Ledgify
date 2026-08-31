@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/color_tokens.dart';
 import '../../../../core/theme/typography_tokens.dart';
-import '../data/repositories/gstr_repository.dart';
-import '../domain/models/gstr_summary_model.dart';
+import 'package:ledgify/features/gst_compliance/data/repositories/gstr_repository.dart';
+import 'package:ledgify/features/gst_compliance/domain/models/gstr_summary_model.dart';
 import 'ims_action_portal_screen.dart';
 
 /// Central dashboard for Indian GST Return Filing (GSTR-1, GSTR-3B) and IMS Inward Supplies.
@@ -117,7 +117,7 @@ class _GstComplianceDashboardScreenState extends State<GstComplianceDashboardScr
                 ),
                 items: _availablePeriods.map((p) {
                   return DropdownMenuItem(value: p, child: Text(_formatPeriodLabel(p)));
-                }).toList>,
+                }).toList(),
                 onChanged: (newPeriod) {
                   if (newPeriod != null) {
                     setState(() => _selectedPeriod = newPeriod);

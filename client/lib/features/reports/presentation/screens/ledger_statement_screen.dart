@@ -4,8 +4,8 @@ import '../../../../core/theme/color_tokens.dart';
 import '../../../../core/theme/typography_tokens.dart';
 import '../../../masters/data/repositories/account_repository.dart';
 import '../../../masters/domain/models/account_model.dart';
-import '../domain/models/ledger_statement_model.dart';
-import '../domain/services/statutory_registers_service.dart';
+import 'package:ledgify/features/reports/domain/models/ledger_statement_model.dart';
+import 'package:ledgify/features/reports/domain/services/statutory_registers_service.dart';
 
 /// Screen presenting the Ledger Account Statement with continuous running balance.
 class LedgerStatementScreen extends StatefulWidget {

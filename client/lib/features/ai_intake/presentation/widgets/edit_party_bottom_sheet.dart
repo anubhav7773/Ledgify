@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/app_text_field.dart';
 import '../../../masters/data/repositories/account_repository.dart';
 import '../../../masters/domain/models/account_model.dart';
 import '../../../masters/presentation/widgets/quick_create_ledger_bottom_sheet.dart';
@@ -104,7 +105,7 @@ class _EditPartyBottomSheetState extends State<EditPartyBottomSheet> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Select Party Ledger / व्यापारी चुनें', style: AppTypography.cardHeader),
+              Text('Select Party Ledger / व्यापारी चुनें', style: AppTypography.cardHeader),
               IconButton(
                 icon: const Icon(Icons.close),
                 onPressed: () => Navigator.pop(context),
@@ -114,28 +115,18 @@ class _EditPartyBottomSheetState extends State<EditPartyBottomSheet> {
           const SizedBox(height: 12),
 
           // Search Field
-          TextField(
+          AppTextField(
             controller: _searchController,
-            decoration: InputDecoration(
-              hintText: 'Search by ledger name or GSTIN...',
-              prefixIcon: const Icon(Icons.search),
-              suffixIcon: _searchController.text.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        _searchController.clear();
-                        setState(() => _filterAccounts(''));
-                      },
-                    )
-                  : null,
-            ),
-            onChanged: (val) => setState(() => _filterAccounts(val)),
+            label: 'Search Party Name / GSTIN',
+            hint: 'Type to filter ledgers...',
+            prefixIcon: const Icon(Icons.search),
+            onChanged: (val) {
+              setState(() => _filterAccounts(val));
+            },
           ),
-          const SizedBox(height: 12),
-
-          // Results List
+          const SizedBox(height: 16),
           Container(
-            constraints: const BoxConstraints(maxHeight: 240),
+            constraints: const BoxConstraints(maxHeight: 280),
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
                 : _filteredAccounts.isEmpty
@@ -152,8 +143,8 @@ class _EditPartyBottomSheetState extends State<EditPartyBottomSheet> {
                               onPressed: () async {
                                 final created = await QuickCreateLedgerBottomSheet.show(
                                   context,
-                                  suggestedName: _searchController.text.trim(),
-                                  suggestedGstin: widget.currentPartyGstin,
+                                  initialName: _searchController.text.trim(),
+                                  initialGstin: widget.currentPartyGstin,
                                 );
                                 if (created != null && mounted) {
                                   Navigator.pop(context, created);

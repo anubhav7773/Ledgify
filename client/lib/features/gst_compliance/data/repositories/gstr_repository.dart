@@ -1,7 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/network/supabase_client.dart';
 import '../../../../core/utils/safe_executor.dart';
-import '../domain/models/ims_entry_model.dart';
+import 'package:ledgify/features/gst_compliance/domain/models/ims_entry_model.dart';
 
 /// Repository managing GSTR-1, GSTR-3B return payload generation and IMS reconciliation records.
 class GstrRepository {

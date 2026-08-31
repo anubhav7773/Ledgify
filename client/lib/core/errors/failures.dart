@@ -18,8 +18,10 @@ class ServerFailure extends Failure {
 
 class GeminiRateLimitFailure extends Failure {
   final int retryAfterSeconds;
-  const GeminiRateLimitFailure({required String message, this.retryAfterSeconds = 5})
-      : super(message: message, code: 'GEMINI_429_RATE_LIMIT');
+  const GeminiRateLimitFailure({
+    required String message,
+    this.retryAfterSeconds = 5,
+  }) : super(message: message, code: 'GEMINI_429_RATE_LIMIT');
 }
 
 class AccountingInvariantFailure extends Failure {
@@ -28,6 +30,17 @@ class AccountingInvariantFailure extends Failure {
 }
 
 class DpdpConsentRequiredFailure extends Failure {
-  const DpdpConsentRequiredFailure({required String message})
+  final String? purpose;
+  const DpdpConsentRequiredFailure({required String message, this.purpose})
       : super(message: message, code: 'DPDP_CONSENT_MISSING');
+}
+
+class ValidationFailure extends Failure {
+  const ValidationFailure({required String message, String? code})
+      : super(message: message, code: code ?? 'VALIDATION_ERROR');
+}
+
+class AiParsingFailure extends Failure {
+  const AiParsingFailure({required String message, String? code})
+      : super(message: message, code: code ?? 'AI_PARSING_ERROR');
 }

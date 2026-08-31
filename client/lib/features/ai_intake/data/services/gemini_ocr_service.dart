@@ -190,9 +190,9 @@ class GeminiOcrService {
         } else if (response.statusCode == 429) {
           // HTTP 429 Rate limit hit -> apply exponential backoff with jitter
           if (attempt == _maxRetries - 1) {
-            throw GeminiRateLimitFailure(
+            throw const GeminiRateLimitFailure(
               message: 'Gemini API rate limit exceeded (HTTP 429). Please try again in a few moments.',
-              retryAfter: const Duration(seconds: 5),
+              retryAfterSeconds: 5,
             );
           }
           final delay = _baseDelayMs * pow(2, attempt) + random.nextInt(500);

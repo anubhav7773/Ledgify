@@ -59,7 +59,7 @@ class TallyShortcutsHandler {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Gateway Shortcuts / त्वरित नेविगेशन', style: AppTypography.cardHeader),
+                  Text('Gateway Shortcuts / त्वरित नेविगेशन', style: AppTypography.cardHeader),
                   IconButton(icon: const Icon(Icons.close), onPressed: () => Navigator.pop(ctx)),
                 ],
               ),

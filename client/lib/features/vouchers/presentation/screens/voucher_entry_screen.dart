@@ -16,12 +16,14 @@ class VoucherEntryScreen extends StatefulWidget {
   final VoucherRepository? voucherRepository;
   final AccountRepository? accountRepository;
   final String? businessId;
+  final String? existingVoucherId;
 
   const VoucherEntryScreen({
     super.key,
     this.voucherRepository,
     this.accountRepository,
     this.businessId,
+    this.existingVoucherId,
   });
 
   @override

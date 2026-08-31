@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/color_tokens.dart';
 import '../../../../core/theme/typography_tokens.dart';
-import '../domain/models/trade_register_model.dart';
-import '../domain/services/statutory_registers_service.dart';
+import 'package:ledgify/features/reports/domain/models/trade_register_model.dart';
+import 'package:ledgify/features/reports/domain/services/statutory_registers_service.dart';
 
 /// Screen presenting statutory Sales Register and Purchase Register.
 class TradeRegisterScreen extends StatefulWidget {

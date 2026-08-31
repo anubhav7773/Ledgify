@@ -1,8 +1,8 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/network/supabase_client.dart';
 import '../../../../core/utils/safe_executor.dart';
-import '../domain/models/bank_account_model.dart';
-import '../domain/models/bank_statement_entry_model.dart';
+import 'package:ledgify/features/banking/domain/models/bank_account_model.dart';
+import 'package:ledgify/features/banking/domain/models/bank_statement_entry_model.dart';
 
 /// Repository managing bank account connections, e-statement uploads, and automated BRS procedures.
 class BankingRepository {

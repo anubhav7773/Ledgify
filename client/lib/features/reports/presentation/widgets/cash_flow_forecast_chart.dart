@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/color_tokens.dart';
-import '../domain/models/cash_flow_forecast_point.dart';
+import 'package:ledgify/features/reports/domain/models/cash_flow_forecast_point.dart';
 
 /// Interactive 30-day forward-looking cash flow forecast line chart using fl_chart.
 class CashFlowForecastChart extends StatelessWidget {
@@ -98,7 +98,7 @@ class CashFlowForecastChart extends StatelessWidget {
                   maxY: maxY * 1.1,
                   lineTouchData: LineTouchData(
                     touchTooltipData: LineTouchTooltipData(
-                      getTooltipColor: (_) => LedgifyColors.primaryDark,
+                      getTooltipColor: (_) => LedgifyColors.primaryBlue,
                       getTooltipItems: (touchedSpots) {
                         return touchedSpots.map((spot) {
                           final p = forecastPoints[spot.x.toInt()];

@@ -1,8 +1,8 @@
-import '../domain/models/balance_sheet_model.dart';
-import '../domain/models/cash_flow_model.dart';
-import '../domain/models/profit_and_loss_model.dart';
-import '../domain/models/trial_balance_model.dart';
-import '../domain/services/financial_reporting_service.dart';
+import 'package:ledgify/features/reports/domain/models/balance_sheet_model.dart';
+import 'package:ledgify/features/reports/domain/models/cash_flow_model.dart';
+import 'package:ledgify/features/reports/domain/models/profit_and_loss_model.dart';
+import 'package:ledgify/features/reports/domain/models/trial_balance_model.dart';
+import 'package:ledgify/features/reports/domain/services/financial_reporting_service.dart';
 
 /// Repository managing financial reports with caching support.
 class ReportsRepository {

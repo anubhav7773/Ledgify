@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/color_tokens.dart';
 import '../../../../core/theme/typography_tokens.dart';
-import '../data/repositories/reports_repository.dart';
-import '../domain/models/balance_sheet_model.dart';
+import 'package:ledgify/features/reports/data/repositories/reports_repository.dart';
+import 'package:ledgify/features/reports/domain/models/balance_sheet_model.dart';
 
 /// Screen presenting Schedule III compliant Balance Sheet statement.
 class BalanceSheetScreen extends StatefulWidget {

@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/theme/color_tokens.dart';
 import '../../../../core/theme/typography_tokens.dart';
-import '../data/repositories/ai_intake_repository.dart';
-import '../data/services/image_capture_service.dart';
+import 'package:ledgify/features/ai_intake/data/repositories/ai_intake_repository.dart';
+import 'package:ledgify/features/ai_intake/data/services/image_capture_service.dart';
 import 'ai_invoice_review_screen.dart';
 
 /// Screen for capturing or picking bill photos for Gemini 2.5 Flash Multimodal OCR.

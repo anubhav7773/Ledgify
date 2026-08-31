@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/color_tokens.dart';
 import '../../../../core/theme/typography_tokens.dart';
 import '../../../vouchers/presentation/screens/voucher_entry_screen.dart';
-import '../domain/models/day_book_model.dart';
-import '../domain/services/statutory_registers_service.dart';
+import 'package:ledgify/features/reports/domain/models/day_book_model.dart';
+import 'package:ledgify/features/reports/domain/services/statutory_registers_service.dart';
 
 /// Screen presenting the Day Book daily transaction register with day stepping and drill-down capabilities.
 class DayBookScreen extends StatefulWidget {

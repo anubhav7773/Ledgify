@@ -3,8 +3,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/network/supabase_client.dart';
 import '../../../../core/utils/safe_executor.dart';
-import '../domain/models/extracted_invoice_payload.dart';
-import '../data/services/gemini_ocr_service.dart';
+import 'package:ledgify/features/ai_intake/domain/models/extracted_invoice_payload.dart';
+import 'package:ledgify/features/ai_intake/data/services/gemini_ocr_service.dart';
 
 /// Repository orchestrating AI Multimodal bill extraction under DPDP statutory consent gating.
 class AiIntakeRepository {

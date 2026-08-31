@@ -199,7 +199,7 @@ class _AiInvoiceReviewScreenState extends State<AiInvoiceReviewScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Review Bill / बिल समीक्षा', style: AppTypography.cardHeader),
+        title: Text('Review Bill / बिल समीक्षा', style: AppTypography.cardHeader),
         backgroundColor: AppColors.surfaceCard,
       ),
       body: _isLoadingMasters

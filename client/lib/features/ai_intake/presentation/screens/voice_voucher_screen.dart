@@ -8,8 +8,8 @@ import '../../../masters/domain/models/account_model.dart';
 import '../../../vouchers/data/repositories/voucher_repository.dart';
 import '../../../vouchers/domain/models/voucher_line_item_model.dart';
 import '../../../vouchers/domain/models/voucher_model.dart';
-import '../data/repositories/voice_intake_repository.dart';
-import '../data/services/audio_recording_service.dart';
+import 'package:ledgify/features/ai_intake/data/repositories/voice_intake_repository.dart';
+import 'package:ledgify/features/ai_intake/data/services/audio_recording_service.dart';
 import '../widgets/audio_waveform_visualizer.dart';
 
 /// Screen for recording code-switched Hindi/Hinglish Voice Vouchers and auto-generating double-entry postings.

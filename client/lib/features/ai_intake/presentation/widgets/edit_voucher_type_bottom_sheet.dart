@@ -44,7 +44,7 @@ class EditVoucherTypeBottomSheet extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Select Voucher Type / प्रकार चुनें', style: AppTypography.cardHeader),
+              Text('Select Voucher Type / प्रकार चुनें', style: AppTypography.cardHeader),
               IconButton(
                 icon: const Icon(Icons.close),
                 onPressed: () => Navigator.pop(context),

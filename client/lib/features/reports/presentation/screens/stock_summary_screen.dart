@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/color_tokens.dart';
 import '../../../../core/theme/typography_tokens.dart';
-import '../domain/models/stock_summary_model.dart';
-import '../domain/services/statutory_registers_service.dart';
+import 'package:ledgify/features/reports/domain/models/stock_summary_model.dart';
+import 'package:ledgify/features/reports/domain/services/statutory_registers_service.dart';
 
 /// Screen presenting the Inventory Valuation and Stock Summary report.
 class StockSummaryScreen extends StatefulWidget {

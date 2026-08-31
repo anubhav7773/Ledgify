@@ -3,7 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/errors/failures.dart';
 import '../../../../core/network/supabase_client.dart';
 import '../../../../core/utils/safe_executor.dart';
-import '../data/services/gemini_voice_service.dart';
+import 'package:ledgify/features/ai_intake/data/services/gemini_voice_service.dart';
 
 /// Repository managing voice voucher intake under DPDP consent checks.
 class VoiceIntakeRepository {

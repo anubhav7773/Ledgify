@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/color_tokens.dart';
 import '../../../../core/theme/typography_tokens.dart';
-import '../data/repositories/gstr_repository.dart';
-import '../domain/models/ims_entry_model.dart';
+import 'package:ledgify/features/gst_compliance/data/repositories/gstr_repository.dart';
+import 'package:ledgify/features/gst_compliance/domain/models/ims_entry_model.dart';
 
 /// Screen for the Invoice Management System (IMS) Inward Supplies Action Portal.
 /// Enables MSME accountants to Accept, Reject, or Pend supplier invoices before GSTR-2B generation.

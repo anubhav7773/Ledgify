@@ -3,9 +3,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import '../../../../core/theme/color_tokens.dart';
 import '../../../../core/theme/typography_tokens.dart';
-import '../data/repositories/banking_repository.dart';
-import '../domain/models/bank_account_model.dart';
-import '../domain/services/bank_statement_parser_service.dart';
+import 'package:ledgify/features/banking/data/repositories/banking_repository.dart';
+import 'package:ledgify/features/banking/domain/models/bank_account_model.dart';
+import 'package:ledgify/features/banking/domain/services/bank_statement_parser_service.dart';
 import 'bank_reconciliation_screen.dart';
 
 /// Screen listing company bank accounts and providing 1-tap statement import and reconciliation entry.

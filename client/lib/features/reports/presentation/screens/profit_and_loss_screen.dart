@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/color_tokens.dart';
 import '../../../../core/theme/typography_tokens.dart';
-import '../data/repositories/reports_repository.dart';
-import '../domain/models/profit_and_loss_model.dart';
+import 'package:ledgify/features/reports/data/repositories/reports_repository.dart';
+import 'package:ledgify/features/reports/domain/models/profit_and_loss_model.dart';
 
 /// Screen presenting the Trading and Profit & Loss Statement.
 class ProfitAndLossScreen extends StatefulWidget {

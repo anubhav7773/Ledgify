@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../../../core/theme/color_tokens.dart';
 import '../../../../core/theme/typography_tokens.dart';
-import '../domain/models/business_ratios_model.dart';
-import '../domain/models/cash_flow_forecast_point.dart';
-import '../domain/models/dashboard_summary_model.dart';
-import '../domain/services/analytics_dashboard_service.dart';
+import 'package:ledgify/features/reports/domain/models/business_ratios_model.dart';
+import 'package:ledgify/features/reports/domain/models/cash_flow_forecast_point.dart';
+import 'package:ledgify/features/reports/domain/models/dashboard_summary_model.dart';
+import 'package:ledgify/features/reports/domain/services/analytics_dashboard_service.dart';
 import '../widgets/cash_flow_forecast_chart.dart';
 import '../widgets/kpi_metric_card.dart';
 import 'reports_hub_screen.dart';
