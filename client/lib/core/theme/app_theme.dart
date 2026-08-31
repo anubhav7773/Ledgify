@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'app_colors.dart';
 import 'app_typography.dart';
 
-/// Central Material 3 Theme configuration for Ledgify (Light & Dark modes).
+/// Central Material 3 Theme configuration for Ledgify (Google Stitch Fintech System).
 class AppTheme {
   static ThemeData get lightTheme {
     final colorScheme = ColorScheme.fromSeed(
       seedColor: AppColors.primary,
       brightness: Brightness.light,
       primary: AppColors.primary,
+      onPrimary: Colors.white,
+      primaryContainer: AppColors.primaryLight,
+      onPrimaryContainer: AppColors.primaryDark,
       secondary: AppColors.secondary,
       surface: AppColors.surfaceCard,
       background: AppColors.backgroundLight,
@@ -24,7 +27,7 @@ class AppTheme {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
-          side: const BorderSide(color: AppColors.surfaceVariant, width: 1),
+          side: const BorderSide(color: AppColors.border, width: 1),
         ),
       ),
       appBarTheme: AppBarTheme(
@@ -35,24 +38,57 @@ class AppTheme {
         titleTextStyle: AppTypography.titleLarge,
         iconTheme: const IconThemeData(color: AppColors.textPrimary),
       ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: AppColors.surfaceCard,
+        elevation: 0,
+        indicatorColor: AppColors.primaryLight,
+        iconTheme: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.selected)) {
+            return const IconThemeData(color: AppColors.primary, size: 24);
+          }
+          return const IconThemeData(color: AppColors.textSecondary, size: 24);
+        }),
+        labelTextStyle: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.selected)) {
+            return const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: AppColors.primary,
+            );
+          }
+          return const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: AppColors.textSecondary,
+          );
+        }),
+      ),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: AppColors.primary,
+        foregroundColor: Colors.white,
+        elevation: 3,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+      ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.surfaceVariant),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.border),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.surfaceVariant),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.border),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.creditRed),
         ),
       ),
@@ -63,7 +99,7 @@ class AppTheme {
           foregroundColor: Colors.white,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(12),
           ),
           textStyle: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.w700),
         ),
@@ -74,7 +110,7 @@ class AppTheme {
           foregroundColor: AppColors.primary,
           side: const BorderSide(color: AppColors.primary),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(12),
           ),
           textStyle: AppTypography.bodyLarge.copyWith(fontWeight: FontWeight.w700),
         ),
@@ -91,11 +127,11 @@ class AppTheme {
     final colorScheme = ColorScheme.fromSeed(
       seedColor: AppColors.primary,
       brightness: Brightness.dark,
-      primary: const Color(0xFF5C6BC0),
-      secondary: const Color(0xFF26A69A),
+      primary: const Color(0xFF60A5FA),
+      secondary: const Color(0xFF2DD4BF),
       surface: AppColors.surfaceDark,
       background: AppColors.backgroundDark,
-      error: const Color(0xFFEF5350),
+      error: const Color(0xFFF87171),
     );
 
     return ThemeData(
@@ -107,7 +143,7 @@ class AppTheme {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
-          side: const BorderSide(color: Color(0xFF333333), width: 1),
+          side: const BorderSide(color: Color(0xFF1E293B), width: 1),
         ),
       ),
       appBarTheme: AppBarTheme(
@@ -118,11 +154,11 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: const Color(0xFF2C2C2C),
+        fillColor: const Color(0xFF1E293B),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFF444444)),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFF334155)),
         ),
       ),
     );

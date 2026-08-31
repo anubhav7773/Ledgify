@@ -11,7 +11,7 @@
     <application
         android:label="Ledgify"
         android:name="${applicationName}"
-        android:icon="@android:drawable/sym_def_app_icon">
+        android:icon="@mipmap/ic_launcher">
 
         <!-- Google AdMob App ID Meta-Data -->
         <meta-data

@@ -89,22 +89,31 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Branding Logo & Identity
-                Container(
-                  width: 80,
-                  height: 80,
-                  alignment: Alignment.center,
-                  decoration: const BoxDecoration(
-                    color: LedgifyColors.primaryContainer,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.account_balance_wallet_rounded,
-                    size: 44,
-                    color: LedgifyColors.primaryBlue,
+                // Branding Logo & Identity (Google Stitch 3D App Icon)
+                Center(
+                  child: Container(
+                    width: 96,
+                    height: 96,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(22),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withOpacity(0.12),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(22),
+                      child: Image.asset(
+                        'assets/icons/app_icon.png',
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
 
                 // App Title
                 const Text(
