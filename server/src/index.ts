@@ -10,10 +10,29 @@ const port = process.env.PORT || 8080;
 
 app.use(express.json());
 
-// Health Check Endpoints
-app.get(['/health', '/healthz'], (req, res) => {
-  res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
+// -----------------------------------------------------------------------------
+// Keep-Alive & Health Check Endpoints (UptimeRobot / Monitoring)
+// -----------------------------------------------------------------------------
+
+// 1. Root & Ping Keep-Alive (Zero Overhead)
+app.get(['/', '/ping'], (req, res) => {
+  res.status(200).send('pong');
 });
+
+// 2. Comprehensive Health Check
+app.get(['/health', '/healthz'], (req, res) => {
+  res.status(200).json({
+    status: 'healthy',
+    service: 'ledgify-billing-server',
+    uptimeSeconds: Math.floor(process.uptime()),
+    memoryUsageMB: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// -----------------------------------------------------------------------------
+// Billing & API Routes
+// -----------------------------------------------------------------------------
 
 // Google Play RTDN Webhook Endpoint (Cloud Pub/Sub Push)
 app.post('/api/v1/webhooks/google-play-rtdn', handleGooglePlayRtdnWebhook);
