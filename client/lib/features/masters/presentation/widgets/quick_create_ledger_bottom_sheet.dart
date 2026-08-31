@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/color_tokens.dart';
-import '../../../../core/theme/typography_tokens.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../data/repositories/account_repository.dart';
 import '../../domain/models/account_model.dart';
 
-/// Lightweight modal sheet for fast on-the-fly ledger creation directly from AI intake workflows.
+/// Lightweight modal sheet for fast on-the-fly ledger creation directly from AI intake workflows (Google Stitch UI).
 class QuickCreateLedgerBottomSheet extends StatefulWidget {
   final String initialName;
   final String? initialGstin;
@@ -35,7 +35,10 @@ class QuickCreateLedgerBottomSheet extends StatefulWidget {
     return showModalBottomSheet<AccountModel>(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.surfaceCard,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
       builder: (ctx) => QuickCreateLedgerBottomSheet(
         initialName: initialName,
         initialGstin: initialGstin,
@@ -107,7 +110,7 @@ class _QuickCreateLedgerBottomSheetState extends State<QuickCreateLedgerBottomSh
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to create ledger: $e'), backgroundColor: LedgifyColors.creditRed),
+          SnackBar(content: Text('Failed to create ledger: $e'), backgroundColor: AppColors.creditRed),
         );
       }
     } finally {
@@ -119,112 +122,127 @@ class _QuickCreateLedgerBottomSheetState extends State<QuickCreateLedgerBottomSh
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      padding: EdgeInsets.fromLTRB(
-        20,
-        20,
-        20,
-        MediaQuery.of(context).viewInsets.bottom + 20,
-      ),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text('Quick Create Ledger / नया खाता बनाएं', style: LedgifyTypography.cardHeader),
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ],
-            ),
-            const Divider(height: 16),
-
-            // Party Name
-            TextFormField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Party Name / व्यापारी नाम *',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.business_outlined),
-              ),
-              validator: (val) => val == null || val.trim().isEmpty ? 'Required' : null,
-            ),
-            const SizedBox(height: 12),
-
-            // Parent Group Dropdown
-            DropdownButtonFormField<String>(
-              value: _selectedGroup,
-              decoration: const InputDecoration(
-                labelText: 'Under Group / समूह *',
-                border: OutlineInputBorder(),
-              ),
-              items: const [
-                DropdownMenuItem(value: 'Sundry Creditors', child: Text('Sundry Creditors (लेनदार / Supplier)')),
-                DropdownMenuItem(value: 'Sundry Debtors', child: Text('Sundry Debtors (देनदार / Customer)')),
-              ],
-              onChanged: (val) {
-                if (val != null) setState(() => _selectedGroup = val);
-              },
-            ),
-            const SizedBox(height: 12),
-
-            // GSTIN & PAN Row
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _gstinController,
-                    textCapitalization: TextCapitalization.characters,
-                    decoration: const InputDecoration(
-                      labelText: 'GSTIN (Optional)',
-                      border: OutlineInputBorder(),
-                    ),
+    return SafeArea(
+      child: Container(
+        decoration: const BoxDecoration(
+          color: AppColors.surfaceCard,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        padding: EdgeInsets.fromLTRB(
+          20,
+          12,
+          20,
+          MediaQuery.of(context).viewInsets.bottom + 20,
+        ),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Drag handle pill
+              Center(
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: AppColors.border,
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextFormField(
-                    controller: _panController,
-                    textCapitalization: TextCapitalization.characters,
-                    decoration: const InputDecoration(
-                      labelText: 'PAN (Optional)',
-                      border: OutlineInputBorder(),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Quick Create Ledger', style: AppTypography.cardHeader),
+                  IconButton(
+                    icon: const Icon(Icons.close_rounded, size: 20),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              // Party Name
+              TextFormField(
+                controller: _nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Party Name *',
+                  hintText: 'e.g., Apex Distributors',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.business_outlined),
+                ),
+                validator: (val) => val == null || val.trim().isEmpty ? 'Required' : null,
+              ),
+              const SizedBox(height: 12),
+
+              // Parent Group Dropdown
+              DropdownButtonFormField<String>(
+                value: _selectedGroup,
+                decoration: const InputDecoration(
+                  labelText: 'Under Group *',
+                  border: OutlineInputBorder(),
+                ),
+                items: const [
+                  DropdownMenuItem(value: 'Sundry Creditors', child: Text('Sundry Creditors (Supplier / Vendor)')),
+                  DropdownMenuItem(value: 'Sundry Debtors', child: Text('Sundry Debtors (Customer)')),
+                ],
+                onChanged: (val) {
+                  if (val != null) setState(() => _selectedGroup = val);
+                },
+              ),
+              const SizedBox(height: 12),
+
+              // GSTIN & PAN Row
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _gstinController,
+                      textCapitalization: TextCapitalization.characters,
+                      decoration: const InputDecoration(
+                        labelText: 'GSTIN (Optional)',
+                        border: OutlineInputBorder(),
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            // Submit Button (48dp Touch Target)
-            SizedBox(
-              height: LedgifyColors.minTouchTargetSize,
-              child: ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: LedgifyColors.primaryBlue,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                ),
-                icon: _isCreating
-                    ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                    : const Icon(Icons.add_link),
-                label: Text(
-                  _isCreating ? 'Creating...' : 'Create & Link / खाता बनाएं और जोड़ें',
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
-                ),
-                onPressed: _isCreating ? null : _createAndLink,
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _panController,
+                      textCapitalization: TextCapitalization.characters,
+                      decoration: const InputDecoration(
+                        labelText: 'PAN (Optional)',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
+              const SizedBox(height: 20),
+
+              // Submit Button (48dp Touch Target)
+              SizedBox(
+                height: AppColors.minTouchTargetSize,
+                child: ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primary,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  icon: _isCreating
+                      ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                      : const Icon(Icons.add_link_rounded),
+                  label: Text(
+                    _isCreating ? 'Creating Ledger...' : 'Create & Link Ledger',
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                  ),
+                  onPressed: _isCreating ? null : _createAndLink,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

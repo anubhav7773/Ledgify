@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/color_tokens.dart';
-import '../../../../core/theme/typography_tokens.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../data/repositories/account_repository.dart';
 import '../../domain/models/account_model.dart';
 import 'create_ledger_screen.dart';
 
-/// Screen rendering the hierarchical Chart of Accounts (COA) tree.
-/// Supports real-time filtering, group expansion, and balance inspection.
-/// Adheres strictly to docs/10_ui_ux_design_system_tokens.md.
+/// Screen rendering the hierarchical Chart of Accounts (COA) tree (Google Stitch UI).
 class ChartOfAccountsScreen extends StatefulWidget {
   final AccountRepository? repository;
 
@@ -36,14 +34,6 @@ class _ChartOfAccountsScreenState extends State<ChartOfAccountsScreen>
     'Income',
     'Expense',
   ];
-
-  final Map<String, String> _classificationHindi = {
-    'Asset': 'संपत्ति',
-    'Liability': 'देनदारी',
-    'Equity': 'पूंजी',
-    'Income': 'आय',
-    'Expense': 'खर्च',
-  };
 
   @override
   void initState() {
@@ -103,12 +93,13 @@ class _ChartOfAccountsScreenState extends State<ChartOfAccountsScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        title: const Text('Chart of Accounts / खाता बही', style: LedgifyTypography.cardHeader),
-        backgroundColor: LedgifyColors.surfaceLight,
+        title: Text('Chart of Accounts', style: AppTypography.cardHeader),
+        backgroundColor: AppColors.surfaceCard,
         elevation: 0,
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(100),
+          preferredSize: const Size.fromHeight(104),
           child: Column(
             children: [
               // Search Input Bar
@@ -118,11 +109,11 @@ class _ChartOfAccountsScreenState extends State<ChartOfAccountsScreen>
                   controller: _searchController,
                   onChanged: (val) => setState(() => _searchQuery = val),
                   decoration: InputDecoration(
-                    hintText: 'Search ledger, group or alias / खाता खोजें...',
-                    prefixIcon: const Icon(Icons.search, size: 20),
+                    hintText: 'Search ledger, group or alias...',
+                    prefixIcon: const Icon(Icons.search_rounded, size: 20),
                     suffixIcon: _searchQuery.isNotEmpty
                         ? IconButton(
-                            icon: const Icon(Icons.clear, size: 18),
+                            icon: const Icon(Icons.clear_rounded, size: 18),
                             onPressed: () {
                               _searchController.clear();
                               setState(() => _searchQuery = '');
@@ -135,7 +126,7 @@ class _ChartOfAccountsScreenState extends State<ChartOfAccountsScreen>
                     contentPadding: const EdgeInsets.all(12),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: LedgifyColors.surfaceVariant),
+                      borderSide: const BorderSide(color: AppColors.border),
                     ),
                   ),
                 ),
@@ -145,28 +136,25 @@ class _ChartOfAccountsScreenState extends State<ChartOfAccountsScreen>
               TabBar(
                 controller: _tabController,
                 isScrollable: true,
-                labelColor: LedgifyColors.primaryBlue,
-                unselectedLabelColor: LedgifyColors.secondarySlate,
-                indicatorColor: LedgifyColors.primaryBlue,
+                labelColor: AppColors.primary,
+                unselectedLabelColor: AppColors.textSecondary,
+                indicatorColor: AppColors.primary,
                 indicatorWeight: 3,
-                tabs: _classifications.map((c) {
-                  return Tab(
-                    text: '$c / ${_classificationHindi[c]}',
-                  );
-                }).toList(),
+                labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                tabs: _classifications.map((c) => Tab(text: c)).toList(),
               ),
             ],
           ),
         ),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: LedgifyColors.primaryBlue))
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
           : _errorMessage != null
               ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('Error: $_errorMessage', style: const TextStyle(color: LedgifyColors.creditRed)),
+                      Text('Error: $_errorMessage', style: const TextStyle(color: AppColors.creditRed)),
                       const SizedBox(height: 12),
                       ElevatedButton(onPressed: _loadAccounts, child: const Text('Retry')),
                     ],
@@ -180,7 +168,7 @@ class _ChartOfAccountsScreenState extends State<ChartOfAccountsScreen>
                       return Center(
                         child: Text(
                           'No accounts found in $classification',
-                          style: LedgifyTypography.bilingualLabel,
+                          style: const TextStyle(color: AppColors.textSecondary),
                         ),
                       );
                     }
@@ -201,26 +189,32 @@ class _ChartOfAccountsScreenState extends State<ChartOfAccountsScreen>
                         return Card(
                           margin: const EdgeInsets.only(bottom: 12),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: const BorderSide(color: LedgifyColors.surfaceVariant),
+                            borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
+                            side: const BorderSide(color: AppColors.border),
                           ),
                           child: ExpansionTile(
                             initiallyExpanded: true,
-                            title: Text(groupName, style: LedgifyTypography.cardHeader.copyWith(fontSize: 16)),
-                            subtitle: Text('${groupAccounts.length} Ledgers / खाते', style: LedgifyTypography.suggestionChip),
+                            title: Text(groupName, style: AppTypography.cardHeader.copyWith(fontSize: 15)),
+                            subtitle: Text('${groupAccounts.length} Ledgers', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
                             children: groupAccounts.map((acc) {
-                              return ListTile(
-                                dense: true,
-                                title: Text(acc.name, style: const TextStyle(fontWeight: FontWeight.w600)),
-                                subtitle: acc.alias != null && acc.alias!.isNotEmpty
-                                    ? Text('Alias: ${acc.alias}')
-                                    : null,
-                                trailing: Text(
-                                  acc.formattedBalance,
-                                  style: LedgifyTypography.financialAmount.copyWith(
-                                    color: acc.openingBalanceType == 'Dr'
-                                        ? LedgifyColors.debitGreen
-                                        : LedgifyColors.creditRed,
+                              return Container(
+                                decoration: const BoxDecoration(
+                                  border: Border(top: BorderSide(color: AppColors.divider)),
+                                ),
+                                child: ListTile(
+                                  dense: true,
+                                  title: Text(acc.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                                  subtitle: acc.alias != null && acc.alias!.isNotEmpty
+                                      ? Text('Alias: ${acc.alias}', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary))
+                                      : null,
+                                  trailing: Text(
+                                    acc.formattedBalance,
+                                    style: AppTypography.currencyText.copyWith(
+                                      color: acc.openingBalanceType == 'Dr'
+                                          ? AppColors.debitGreen
+                                          : AppColors.creditRed,
+                                      fontSize: 14,
+                                    ),
                                   ),
                                 ),
                               );
@@ -232,10 +226,10 @@ class _ChartOfAccountsScreenState extends State<ChartOfAccountsScreen>
                   }).toList(),
                 ),
       floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: LedgifyColors.primaryBlue,
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
-        icon: const Icon(Icons.add),
-        label: const Text('New Ledger / नया खाता'),
+        icon: const Icon(Icons.add_rounded),
+        label: const Text('New Ledger', style: TextStyle(fontWeight: FontWeight.w700)),
         onPressed: () async {
           final result = await Navigator.push<bool>(
             context,

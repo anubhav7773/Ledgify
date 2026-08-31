@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/color_tokens.dart';
-import '../../../../core/theme/typography_tokens.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../masters/data/repositories/account_repository.dart';
 import '../../../masters/domain/models/account_model.dart';
 import 'package:ledgify/features/masters/domain/models/voucher_type_model.dart';
@@ -9,9 +9,7 @@ import '../../domain/models/voucher_line_item_model.dart';
 import '../../domain/models/voucher_model.dart';
 import '../widgets/debit_credit_balance_bar.dart';
 
-/// Screen for manual creation of Double-Entry balanced accounting vouchers.
-/// Enforces client-side and server-side zero-sum double-entry constraints.
-/// Adheres strictly to docs/10_ui_ux_design_system_tokens.md and docs/04_core_accounting_engine_rules.md.
+/// Screen for manual creation of Double-Entry balanced accounting vouchers (Google Stitch UI).
 class VoucherEntryScreen extends StatefulWidget {
   final VoucherRepository? voucherRepository;
   final AccountRepository? accountRepository;
@@ -167,7 +165,7 @@ class _VoucherEntryScreenState extends State<VoucherEntryScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('A voucher must contain at least 2 line items for double-entry.'),
-          backgroundColor: LedgifyColors.warningOrange,
+          backgroundColor: AppColors.warningAmber,
         ),
       );
       return;
@@ -186,7 +184,7 @@ class _VoucherEntryScreenState extends State<VoucherEntryScreen> {
         SnackBar(
           content: Text('Cannot save: Total Debits (₹${_totalDebit.toStringAsFixed(2)}) '
               'do not equal Total Credits (₹${_totalCredit.toStringAsFixed(2)}).'),
-          backgroundColor: LedgifyColors.creditRed,
+          backgroundColor: AppColors.creditRed,
         ),
       );
       return;
@@ -229,8 +227,8 @@ class _VoucherEntryScreenState extends State<VoucherEntryScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Voucher ${_voucherNumberController.text} saved & balanced successfully!'),
-            backgroundColor: LedgifyColors.debitGreen,
+            content: Text('Voucher ${_voucherNumberController.text} posted & balanced successfully!'),
+            backgroundColor: AppColors.debitGreen,
           ),
         );
         Navigator.pop(context, true);
@@ -240,7 +238,7 @@ class _VoucherEntryScreenState extends State<VoucherEntryScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to post voucher: $e'),
-            backgroundColor: LedgifyColors.creditRed,
+            backgroundColor: AppColors.creditRed,
           ),
         );
       }
@@ -254,12 +252,13 @@ class _VoucherEntryScreenState extends State<VoucherEntryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        title: const Text('Voucher Entry / वाउचर प्रविष्टि', style: LedgifyTypography.cardHeader),
-        backgroundColor: LedgifyColors.surfaceLight,
+        title: Text('Voucher Entry', style: AppTypography.cardHeader),
+        backgroundColor: AppColors.surfaceCard,
       ),
       body: _isLoadingMasters
-          ? const Center(child: CircularProgressIndicator(color: LedgifyColors.primaryBlue))
+          ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
           : SafeArea(
               child: Form(
                 key: _formKey,
@@ -286,7 +285,7 @@ class _VoucherEntryScreenState extends State<VoucherEntryScreen> {
                                 child: DropdownButtonFormField<String>(
                                   value: _selectedVoucherType,
                                   decoration: const InputDecoration(
-                                    labelText: 'Voucher Type / प्रकार *',
+                                    labelText: 'Voucher Type *',
                                     border: OutlineInputBorder(),
                                   ),
                                   items: _voucherTypeNames.map((type) {
@@ -331,10 +330,10 @@ class _VoucherEntryScreenState extends State<VoucherEntryScreen> {
                                 setState(() => _voucherDate = picked);
                               }
                             },
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(12),
                             child: InputDecorator(
                               decoration: const InputDecoration(
-                                labelText: 'Voucher Date / दिनांक *',
+                                labelText: 'Voucher Date *',
                                 border: OutlineInputBorder(),
                                 prefixIcon: Icon(Icons.calendar_today_outlined),
                               ),
@@ -350,10 +349,10 @@ class _VoucherEntryScreenState extends State<VoucherEntryScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('Line Items / प्रविष्टि विवरण', style: LedgifyTypography.cardHeader),
+                              Text('Line Items', style: AppTypography.cardHeader),
                               TextButton.icon(
-                                icon: const Icon(Icons.add_circle_outline, size: 18),
-                                label: const Text('Add Row'),
+                                icon: const Icon(Icons.add_circle_outline_rounded, size: 18),
+                                label: const Text('Add Row', style: TextStyle(fontWeight: FontWeight.w700)),
                                 onPressed: _addLineItem,
                               ),
                             ],
@@ -368,18 +367,18 @@ class _VoucherEntryScreenState extends State<VoucherEntryScreen> {
                             return Card(
                               margin: const EdgeInsets.only(bottom: 12),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                side: const BorderSide(color: LedgifyColors.surfaceVariant),
+                                borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
+                                side: const BorderSide(color: AppColors.border),
                               ),
                               child: Padding(
-                                padding: const EdgeInsets.all(12),
+                                padding: const EdgeInsets.all(14),
                                 child: Column(
                                   children: [
                                     Row(
                                       children: [
                                         // Dr / Cr Selector
                                         SizedBox(
-                                          width: 80,
+                                          width: 78,
                                           child: DropdownButtonFormField<String>(
                                             value: item.entryType,
                                             decoration: const InputDecoration(
@@ -387,8 +386,8 @@ class _VoucherEntryScreenState extends State<VoucherEntryScreen> {
                                               border: OutlineInputBorder(),
                                             ),
                                             items: const [
-                                              DropdownMenuItem(value: 'Dr', child: Text('Dr (नाम)', style: TextStyle(color: LedgifyColors.debitGreen, fontWeight: FontWeight.w700))),
-                                              DropdownMenuItem(value: 'Cr', child: Text('Cr (जमा)', style: TextStyle(color: LedgifyColors.creditRed, fontWeight: FontWeight.w700))),
+                                              DropdownMenuItem(value: 'Dr', child: Text('Dr', style: TextStyle(color: AppColors.debitGreen, fontWeight: FontWeight.w800))),
+                                              DropdownMenuItem(value: 'Cr', child: Text('Cr', style: TextStyle(color: AppColors.creditRed, fontWeight: FontWeight.w800))),
                                             ],
                                             onChanged: (newVal) {
                                               if (newVal != null) {
@@ -403,7 +402,7 @@ class _VoucherEntryScreenState extends State<VoucherEntryScreen> {
                                         Expanded(
                                           child: DropdownButtonFormField<String>(
                                             value: item.accountId,
-                                            hint: const Text('Select Ledger / खाता चुनें *'),
+                                            hint: const Text('Select Ledger *'),
                                             isExpanded: true,
                                             decoration: const InputDecoration(
                                               contentPadding: EdgeInsets.symmetric(horizontal: 10),
@@ -427,13 +426,13 @@ class _VoucherEntryScreenState extends State<VoucherEntryScreen> {
 
                                         // Delete Button
                                         IconButton(
-                                          icon: const Icon(Icons.delete_outline, color: LedgifyColors.creditRed),
+                                          icon: const Icon(Icons.delete_outline_rounded, color: AppColors.creditRed, size: 20),
                                           tooltip: 'Remove Row',
                                           onPressed: () => _removeLineItem(index),
                                         ),
                                       ],
                                     ),
-                                    const SizedBox(height: 8),
+                                    const SizedBox(height: 10),
 
                                     // Amount & Description Row
                                     Row(
@@ -444,7 +443,7 @@ class _VoucherEntryScreenState extends State<VoucherEntryScreen> {
                                             controller: item.amountController,
                                             keyboardType: const TextInputType.numberWithOptions(decimal: true),
                                             decoration: const InputDecoration(
-                                              labelText: 'Amount / राशि (₹) *',
+                                              labelText: 'Amount (₹) *',
                                               prefixText: '₹ ',
                                               border: OutlineInputBorder(),
                                             ),
@@ -463,7 +462,7 @@ class _VoucherEntryScreenState extends State<VoucherEntryScreen> {
                                           child: TextFormField(
                                             controller: item.descController,
                                             decoration: const InputDecoration(
-                                              labelText: 'Description / टिप्पणी (वैकल्पिक)',
+                                              labelText: 'Description (Optional)',
                                               border: OutlineInputBorder(),
                                             ),
                                           ),
@@ -483,7 +482,7 @@ class _VoucherEntryScreenState extends State<VoucherEntryScreen> {
                             controller: _narrationController,
                             maxLines: 2,
                             decoration: const InputDecoration(
-                              labelText: 'Narration / विवरण (वैकल्पिक)',
+                              labelText: 'Narration (Optional)',
                               hintText: 'e.g., Being payment made towards invoice #1024',
                               border: OutlineInputBorder(),
                               prefixIcon: Icon(Icons.notes_outlined),
@@ -499,15 +498,15 @@ class _VoucherEntryScreenState extends State<VoucherEntryScreen> {
                       padding: const EdgeInsets.all(16),
                       decoration: const BoxDecoration(
                         color: Colors.white,
-                        border: Border(top: BorderSide(color: LedgifyColors.surfaceVariant)),
+                        border: Border(top: BorderSide(color: AppColors.border)),
                       ),
                       child: SizedBox(
-                        height: LedgifyColors.minTouchTargetSize,
+                        height: AppColors.minTouchTargetSize,
                         child: ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: _isBalanced
-                                ? LedgifyColors.primaryBlue
-                                : LedgifyColors.secondarySlate,
+                                ? AppColors.primary
+                                : AppColors.textTertiary,
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           ),
@@ -517,12 +516,12 @@ class _VoucherEntryScreenState extends State<VoucherEntryScreen> {
                                   height: 20,
                                   child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                                 )
-                              : const Icon(Icons.check_circle_outline),
+                              : const Icon(Icons.check_circle_outline_rounded),
                           label: Text(
                             _isSaving
                                 ? 'Posting Transaction...'
                                 : _isBalanced
-                                    ? 'Post Voucher / वाउचर दर्ज करें'
+                                    ? 'Post Voucher'
                                     : 'Unbalanced (₹${(_totalDebit - _totalCredit).abs().toStringAsFixed(2)})',
                             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
                           ),

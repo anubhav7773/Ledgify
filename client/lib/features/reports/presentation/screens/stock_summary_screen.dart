@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/color_tokens.dart';
-import '../../../../core/theme/typography_tokens.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import 'package:ledgify/features/reports/domain/models/stock_summary_model.dart';
 import 'package:ledgify/features/reports/domain/services/statutory_registers_service.dart';
 
-/// Screen presenting the Inventory Valuation and Stock Summary report.
+/// Screen presenting the Inventory Valuation and Stock Summary report (Google Stitch UI).
 class StockSummaryScreen extends StatefulWidget {
   final StatutoryRegistersService? service;
 
@@ -45,12 +45,14 @@ class _StockSummaryScreenState extends State<StockSummaryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        title: const Text('Stock Summary / स्टॉक सारांश', style: LedgifyTypography.cardHeader),
-        backgroundColor: LedgifyColors.surfaceLight,
+        title: Text('Stock Summary', style: AppTypography.cardHeader),
+        backgroundColor: AppColors.surfaceCard,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh_rounded),
+            tooltip: 'Refresh Report',
             onPressed: _loadStockSummary,
           ),
         ],
@@ -61,17 +63,17 @@ class _StockSummaryScreenState extends State<StockSummaryScreen> {
             // Date Selector Bar
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              color: LedgifyColors.surfaceCard,
+              color: AppColors.surfaceCard,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'As on: ${_asOfDate.day}/${_asOfDate.month}/${_asOfDate.year}',
-                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                    'As on: ${_asOfDate.day.toString().padLeft(2, '0')}/${_asOfDate.month.toString().padLeft(2, '0')}/${_asOfDate.year}',
+                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                   ),
                   TextButton.icon(
-                    icon: const Icon(Icons.calendar_today, size: 16),
-                    label: const Text('Change Date'),
+                    icon: const Icon(Icons.calendar_today_outlined, size: 16),
+                    label: const Text('Change Date', style: TextStyle(fontWeight: FontWeight.w700)),
                     onPressed: () async {
                       final picked = await showDatePicker(
                         context: context,
@@ -91,21 +93,53 @@ class _StockSummaryScreenState extends State<StockSummaryScreen> {
             const Divider(height: 1),
 
             if (_isLoading)
-              const Expanded(child: Center(child: CircularProgressIndicator(color: LedgifyColors.primaryBlue)))
+              const Expanded(child: Center(child: CircularProgressIndicator(color: AppColors.primary)))
             else if (_report == null || _report!.totalItems == 0)
-              const Expanded(child: Center(child: Text('No stock items found.')))
+              const Expanded(
+                child: Center(
+                  child: Text('No stock items found in inventory.', style: TextStyle(color: AppColors.textSecondary)),
+                ),
+              )
             else ...[
               // Total Inventory Value Banner
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                color: LedgifyColors.primaryContainer.withOpacity(0.4),
+                margin: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.primary.withOpacity(0.15),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Total Stock Items: ${_report!.totalItems}', style: const TextStyle(fontWeight: FontWeight.w700)),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Total Inventory Value',
+                          style: TextStyle(color: Colors.white70, fontSize: 12.5, fontWeight: FontWeight.w500),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${_report!.totalItems} Stock Items',
+                          style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700),
+                        ),
+                      ],
+                    ),
                     Text(
-                      'Valuation: ₹${_report!.totalInventoryValue.toStringAsFixed(2)}',
-                      style: LedgifyTypography.financialAmount.copyWith(fontSize: 15, color: LedgifyColors.primaryBlue),
+                      '₹${_report!.totalInventoryValue.toStringAsFixed(2)}',
+                      style: AppTypography.currencyText.copyWith(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                      ),
                     ),
                   ],
                 ),
@@ -114,7 +148,7 @@ class _StockSummaryScreenState extends State<StockSummaryScreen> {
               // Stock Items List
               Expanded(
                 child: ListView.builder(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   itemCount: _report!.items.length,
                   itemBuilder: (context, index) {
                     final item = _report!.items[index];
@@ -122,8 +156,8 @@ class _StockSummaryScreenState extends State<StockSummaryScreen> {
                     return Card(
                       margin: const EdgeInsets.only(bottom: 12),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: const BorderSide(color: LedgifyColors.surfaceVariant),
+                        borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
+                        side: const BorderSide(color: AppColors.border),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(14.0),
@@ -134,11 +168,14 @@ class _StockSummaryScreenState extends State<StockSummaryScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Expanded(
-                                  child: Text(item.stockItemName, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+                                  child: Text(
+                                    item.stockItemName,
+                                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: AppColors.textPrimary),
+                                  ),
                                 ),
                                 Text(
                                   '₹${item.closingVal.toStringAsFixed(2)}',
-                                  style: LedgifyTypography.financialAmount.copyWith(fontSize: 15, color: LedgifyColors.primaryBlue),
+                                  style: AppTypography.currencyText.copyWith(fontSize: 15, color: AppColors.primary),
                                 ),
                               ],
                             ),
@@ -146,16 +183,22 @@ class _StockSummaryScreenState extends State<StockSummaryScreen> {
 
                             Text(
                               'Group: ${item.groupName ?? "Primary"} • HSN: ${item.hsnOrSacCode ?? "N/A"}',
-                              style: const TextStyle(fontSize: 12, color: LedgifyColors.secondarySlate),
+                              style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                             ),
-                            const Divider(height: 14),
+                            const Divider(height: 16),
 
                             // Quantity & Rate Split Row
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('Closing Qty: ${item.closingQty.toStringAsFixed(2)} ${item.uomSymbol}', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
-                                Text('@ ₹${item.closingRate.toStringAsFixed(2)} / ${item.uomSymbol}', style: const TextStyle(fontSize: 12, color: LedgifyColors.secondarySlate)),
+                                Text(
+                                  'Closing Qty: ${item.closingQty.toStringAsFixed(2)} ${item.uomSymbol}',
+                                  style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                                ),
+                                Text(
+                                  '@ ₹${item.closingRate.toStringAsFixed(2)} / ${item.uomSymbol}',
+                                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                                ),
                               ],
                             ),
                           ],
