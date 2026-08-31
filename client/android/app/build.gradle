@@ -50,9 +50,18 @@ android {
         multiDexEnabled true
     }
 
+    signingConfigs {
+        release {
+            keyAlias 'ledgify'
+            keyPassword 'ledgify123'
+            storeFile file('ledgify.keystore')
+            storePassword 'ledgify123'
+        }
+    }
+
     buildTypes {
         release {
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled false
             shrinkResources false
         }
