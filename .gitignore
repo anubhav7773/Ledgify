@@ -38,6 +38,7 @@ client/android/captures/
 client/android/app/build/
 client/android/app/src/main/res/raw/
 client/android/app/google-services.json
+client/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java
 google-services.json
 
 # iOS
