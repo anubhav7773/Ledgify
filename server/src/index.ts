@@ -14,12 +14,17 @@ app.use(express.json());
 // Keep-Alive & Health Check Endpoints (UptimeRobot / Monitoring)
 // -----------------------------------------------------------------------------
 
-// 1. Root & Ping Keep-Alive (Zero Overhead)
+// 1. Explicit HEAD Method Support for UptimeRobot (Zero Bandwidth / Instant 200 OK)
+app.head(['/', '/ping', '/health', '/healthz'], (req, res) => {
+  res.status(200).end();
+});
+
+// 2. GET Ping & Root Keep-Alive
 app.get(['/', '/ping'], (req, res) => {
   res.status(200).send('pong');
 });
 
-// 2. Comprehensive Health Check
+// 3. GET Comprehensive Health Check
 app.get(['/health', '/healthz'], (req, res) => {
   res.status(200).json({
     status: 'healthy',
