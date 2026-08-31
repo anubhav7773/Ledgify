@@ -19,7 +19,7 @@ class Settings(BaseSettings):
 
     # AI & Multimodal Credentials
     GEMINI_API_KEY: str = ""
-    GEMINI_MODEL_NAME: str = "gemini-2.5-flash"
+    GEMINI_MODEL_NAME: str = "gemini-3.1-flash-lite"
 
     # Google Play Billing
     GOOGLE_PLAY_PACKAGE_NAME: str = "com.asiverticals.ledgify"
