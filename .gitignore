@@ -37,6 +37,8 @@ client/android/gradle/
 client/android/captures/
 client/android/app/build/
 client/android/app/src/main/res/raw/
+client/android/app/google-services.json
+google-services.json
 
 # iOS
 client/ios/Pods/
@@ -48,6 +50,8 @@ client/ios/Flutter/app.flx
 client/ios/Flutter/app.zip
 client/ios/Flutter/flutter_assets/
 client/ios/ServiceDefinitions.json
+client/ios/Runner/GoogleService-Info.plist
+GoogleService-Info.plist
 
 # Supabase Local
 supabase/.branches/
