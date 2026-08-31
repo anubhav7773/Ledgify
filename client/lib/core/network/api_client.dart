@@ -4,11 +4,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
-/// Central HTTP API client connecting Flutter frontend to FastAPI backend.
+/// Central HTTP API client connecting Flutter frontend to FastAPI backend on Render.
 /// Automatically handles JWT Bearer token injection and multi-tenant business context headers.
 class ApiClient {
   static String get baseUrl {
-    return dotenv.env['API_BASE_URL'] ?? 'http://10.0.2.2:8000/api/v1'; // 10.0.2.2 for Android emulator, localhost for web/desktop
+    return dotenv.env['API_BASE_URL'] ?? 'https://ledgify-bizy.onrender.com/api/v1';
   }
 
   static String _activeBusinessId = 'BIZ-DEFAULT-01';
