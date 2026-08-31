@@ -10,8 +10,8 @@ const port = process.env.PORT || 8080;
 
 app.use(express.json());
 
-// Health Check Endpoint
-app.get('/health', (req, res) => {
+// Health Check Endpoints
+app.get(['/health', '/healthz'], (req, res) => {
   res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
 });
 
