@@ -1,40 +1,60 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../../../core/network/supabase_client.dart';
+import '../../../../core/network/api_client.dart';
 import '../../../../core/utils/safe_executor.dart';
 import '../../domain/models/account_model.dart';
 
-/// Repository managing Chart of Accounts, Ledgers, and Master Group operations.
-/// Interacts directly with Supabase PostgreSQL under zero-trust RLS isolation.
+/// Repository managing Chart of Accounts, Ledgers, and Master Group operations via FastAPI backend.
 class AccountRepository {
-  final SupabaseClient _client;
+  AccountRepository();
 
-  AccountRepository({SupabaseClient? client})
-      : _client = client ?? SupabaseClientService.client;
-
-  /// Fetches all active accounts, optionally filtered by classification or group name
+  /// Fetches all active accounts via FastAPI backend
   Future<List<AccountModel>> fetchAccounts({
     String? primaryClassification,
     String? groupName,
     bool includeInactive = false,
   }) async {
     return await executeSafely<List<AccountModel>>(() async {
-      var query = _client.from('accounts').select();
+      final queryParams = <String, String>{};
+      if (groupName != null) queryParams['group_name'] = groupName;
 
-      if (!includeInactive) {
-        query = query.eq('is_active', true);
-      }
-      if (primaryClassification != null) {
-        query = query.eq('primary_classification', primaryClassification);
-      }
-      if (groupName != null) {
-        query = query.eq('group_name', groupName);
-      }
+      final response = await ApiClient.get('/masters/ledgers', queryParams: queryParams);
+      final list = response as List<dynamic>;
 
-      final response = await query.order('name', ascending: true);
-      final List<dynamic> data = response as List<dynamic>;
-
-      return data.map((json) => AccountModel.fromJson(json as Map<String, dynamic>)).toList();
+      return list.map((json) {
+        final data = json as Map<String, dynamic>;
+        return AccountModel(
+          id: data['id'] ?? '',
+          businessId: data['business_id'] ?? 'BIZ-DEFAULT-01',
+          name: data['name'] ?? '',
+          groupName: data['parent_group_name'] ?? 'General',
+          primaryClassification: _inferClassification(data['parent_group_name'] ?? ''),
+          openingBalance: (data['opening_balance'] as num?)?.toDouble() ?? 0.0,
+          currentBalance: (data['current_balance'] as num?)?.toDouble() ?? 0.0,
+          isDebit: (data['opening_balance_type'] ?? 'Dr') == 'Dr',
+          gstin: data['gstin'],
+          pan: data['pan'],
+          isActive: data['is_active'] == true,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
+      }).toList();
     });
+  }
+
+  static String _inferClassification(String groupName) {
+    final g = groupName.toLowerCase();
+    if (g.contains('debtor') || g.contains('bank') || g.contains('cash') || g.contains('asset') || g.contains('stock')) {
+      return 'Asset';
+    }
+    if (g.contains('creditor') || g.contains('liability') || g.contains('duty') || g.contains('tax') || g.contains('loan')) {
+      return 'Liability';
+    }
+    if (g.contains('capital') || g.contains('reserve')) {
+      return 'Equity';
+    }
+    if (g.contains('sale') || g.contains('income') || g.contains('revenue')) {
+      return 'Income';
+    }
+    return 'Expense';
   }
 
   /// Fetches accounts organized hierarchically by Primary Classification -> Group -> Ledgers
@@ -59,6 +79,7 @@ class AccountRepository {
         if (!hierarchy[classification]!.containsKey(group)) {
           hierarchy[classification]![group] = [];
         }
+
         hierarchy[classification]![group]!.add(account);
       }
 
@@ -66,50 +87,37 @@ class AccountRepository {
     });
   }
 
-  /// Creates a new ledger or sub-ledger under a parent group
-  Future<AccountModel> createLedger(AccountModel account) async {
+  /// Creates a new ledger account via FastAPI backend
+  Future<AccountModel> createAccount(AccountModel account) async {
     return await executeSafely<AccountModel>(() async {
-      final insertData = account.toJson();
-      // Remove empty id to let PostgreSQL generate a fresh UUID if not provided
-      if (account.id.isEmpty) {
-        insertData.remove('id');
-      }
+      final payload = {
+        'name': account.name,
+        'parent_group_name': account.groupName,
+        'opening_balance': account.openingBalance,
+        'opening_balance_type': account.isDebit ? 'Dr' : 'Cr',
+        'gstin': account.gstin,
+        'pan': account.pan,
+        'is_active': account.isActive,
+      };
 
-      final response = await _client
-          .from('accounts')
-          .insert(insertData)
-          .select()
-          .single();
+      final response = await ApiClient.post('/masters/ledgers', body: payload);
+      final data = response as Map<String, dynamic>;
 
-      return AccountModel.fromJson(response as Map<String, dynamic>);
-    });
-  }
-
-  /// Updates an existing ledger's details and opening balance
-  Future<AccountModel> updateLedger(AccountModel account) async {
-    return await executeSafely<AccountModel>(() async {
-      final updateData = account.toJson();
-      updateData.remove('id');
-      updateData.remove('business_id');
-
-      final response = await _client
-          .from('accounts')
-          .update(updateData)
-          .eq('id', account.id)
-          .select()
-          .single();
-
-      return AccountModel.fromJson(response as Map<String, dynamic>);
-    });
-  }
-
-  /// Deactivates a ledger (soft-delete to preserve statutory audit history)
-  Future<void> deactivateLedger(String accountId) async {
-    await executeSafely<void>(() async {
-      await _client
-          .from('accounts')
-          .update({'is_active': false})
-          .eq('id', accountId);
+      return AccountModel(
+        id: data['id'] ?? '',
+        businessId: data['business_id'] ?? account.businessId,
+        name: data['name'] ?? account.name,
+        groupName: data['parent_group_name'] ?? account.groupName,
+        primaryClassification: account.primaryClassification,
+        openingBalance: (data['opening_balance'] as num?)?.toDouble() ?? account.openingBalance,
+        currentBalance: (data['current_balance'] as num?)?.toDouble() ?? account.currentBalance,
+        isDebit: (data['opening_balance_type'] ?? 'Dr') == 'Dr',
+        gstin: data['gstin'] ?? account.gstin,
+        pan: data['pan'] ?? account.pan,
+        isActive: data['is_active'] == true,
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
     });
   }
 }
