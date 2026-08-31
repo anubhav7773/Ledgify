@@ -1,0 +1,191 @@
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Roboto+Mono:wght@500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "surface-container": "#e7eeff", "outline-variant": "#c5c5d3", "on-secondary-fixed-variant": "#005320", "surface-container-low": "#f0f3ff", "on-surface": "#111c2d", "surface-container-high": "#dee8ff", "primary": "#00236f", "background": "#f9f9ff", "on-surface-variant": "#444651", "surface": "#f9f9ff" }, "spacing": { "gutter-mobile": "12px", "xs": "4px", "base": "4px", "touch-target": "48px", "margin-mobile": "16px", "lg": "24px", "xl": "32px", "sm": "8px", "md": "16px" }, "fontFamily": { "headline-md": ["Inter"], "body-lg": ["Inter"], "label-caps": ["Inter"] }, "fontSize": { "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }] } } } };</script><style>@layer base { .pt-safe { padding-top: env(safe-area-inset-top); } .pb-safe { padding-bottom: env(safe-area-inset-bottom); } }</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head><body class="bg-background text-on-surface font-body-lg"><header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl pt-safe"><div class="h-16 flex items-center px-margin-mobile gap-md"><button class="w-10 h-10 flex items-center justify-center rounded-full active:bg-surface-container" onclick="history.back()"><span class="material-symbols-outlined">arrow_back</span></button><h1 class="font-headline-md text-headline-md">Voice Entry Flow</h1></div></header><main class="relative w-full pt-16 bg-background min-h-screen"><div class="flex flex-col w-full h-full relative overflow-hidden bg-background">
+<!-- Active Business Indicator -->
+<div class="px-margin-mobile pt-sm pb-lg w-full flex justify-center">
+<div class="inline-flex items-center gap-xs bg-surface-container rounded-full px-lg py-sm shadow-sm">
+<span class="material-symbols-outlined text-[16px] text-primary" style="font-variation-settings: 'FILL' 1;">business_center</span>
+<span class="font-label-caps text-label-caps text-on-surface">Ledgify Enterprise</span>
+</div>
+</div>
+<!-- Audio Visualizer Section -->
+<div class="w-full flex justify-center items-center py-xl relative">
+<div class="relative w-64 h-64 rounded-full overflow-hidden shadow-xl ring-4 ring-surface-container-high z-10 bg-inverse-surface">
+<!-- STITCH_SHADER_START:ANIMATION_19 class="absolute inset-0 w-full h-full" -->
+<div class="absolute inset-0 w-full h-full" style="display:block;">
+<canvas id="shader-canvas-ANIMATION_19" style="display:block;width:100%;height:100%"></canvas>
+<script>
+(function() {
+  const canvas = document.getElementById('shader-canvas-ANIMATION_19');
+
+  // Sync the WebGL drawing-buffer size with the CSS-driven layout size.
+  // This fires on initial layout and whenever the element is resized.
+  function syncSize() {
+    const w = canvas.clientWidth  || 1280;
+    const h = canvas.clientHeight || 720;
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width  = w;
+      canvas.height = h;
+    }
+  }
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(syncSize).observe(canvas);
+  }
+  syncSize();
+
+  const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+  if (!gl) return;
+  const vs = `attribute vec2 a_position;
+varying vec2 v_texCoord;
+void main() {
+  v_texCoord = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+  const fs = `precision highp float;
+uniform float u_time;
+uniform vec2 u_resolution;
+
+varying vec2 v_texCoord;
+
+void main() {
+    vec2 uv = v_texCoord;
+    
+    // Center the coordinates
+    vec2 p = uv * 2.0 - 1.0;
+    p.x *= u_resolution.x / u_resolution.y;
+
+    // Create a series of vertical bars/waves
+    float wave = 0.0;
+    for(float i = 0.0; i < 5.0; i++) {
+        float freq = 2.0 + i * 1.5;
+        float speed = u_time * (1.0 + i * 0.2);
+        float amplitude = 0.15 + 0.1 * sin(u_time * 0.5 + i);
+        
+        // Vertical pulsating lines
+        float line = abs(p.y - amplitude * sin(p.x * freq + speed));
+        wave += 0.005 / line;
+    }
+
+    // Crimson/Rose color (#E11D48)
+    vec3 color = vec3(0.88, 0.11, 0.28);
+    
+    // Add some glow and falloff
+    float mask = smoothstep(0.8, 0.2, abs(p.x));
+    vec3 finalColor = color * wave * mask;
+
+    gl_FragColor = vec4(finalColor, finalColor.r * 0.5);
+}`;
+  function cs(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, cs(gl.VERTEX_SHADER, vs));
+  gl.attachShader(prog, cs(gl.FRAGMENT_SHADER, fs));
+  gl.linkProgram(prog);
+  gl.useProgram(prog);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 1,-1, -1,1, 1,1]), gl.STATIC_DRAW);
+  const pos = gl.getAttribLocation(prog, 'a_position');
+  gl.enableVertexAttribArray(pos);
+  gl.vertexAttribPointer(pos, 2, gl.FLOAT, false, 0, 0);
+  const uTime = gl.getUniformLocation(prog, 'u_time');
+  const uRes = gl.getUniformLocation(prog, 'u_resolution');
+  const uMouse = gl.getUniformLocation(prog, 'u_mouse');
+
+  // u_mouse is in pixel coordinates matching u_resolution (ShaderToy convention).
+  // Shaders that need normalized coords should use: u_mouse / u_resolution.
+  let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+  window.addEventListener('mousemove', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width && rect.height) {
+      const nx = (event.clientX - rect.left) / rect.width;
+      const ny = 1.0 - (event.clientY - rect.top) / rect.height;
+      mouse.x = nx * canvas.width;
+      mouse.y = ny * canvas.height;
+    }
+  });
+
+  function render(t) {
+    if (typeof ResizeObserver === 'undefined') syncSize();
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    if (uTime) gl.uniform1f(uTime, t * 0.001);
+    if (uRes) gl.uniform2f(uRes, canvas.width, canvas.height);
+    if (uMouse) gl.uniform2f(uMouse, mouse.x, mouse.y);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    requestAnimationFrame(render);
+  }
+  render(0);
+})();
+</script>
+</div>
+<!-- STITCH_SHADER_END:ANIMATION_19 -->
+</div>
+<!-- Decorative background glow -->
+<div class="absolute w-80 h-80 bg-primary/10 rounded-full blur-3xl -z-10 animate-[pulse_4s_ease-in-out_infinite]"></div>
+</div>
+<!-- Transcription and AI Chips Area -->
+<div class="px-margin-mobile flex-1 flex flex-col gap-md z-20 pb-24">
+<!-- Transcription Card -->
+<div class="bg-surface-container-lowest rounded-xl p-md shadow-md opacity-0 animate-[fadeInUp_0.5s_ease-out_0.2s_forwards]">
+<div class="flex items-center gap-sm mb-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">graphic_eq</span>
+<span class="font-label-caps text-label-caps">Live Transcription</span>
+</div>
+<p class="font-body-lg text-body-lg text-on-surface italic">
+        "Sold 50 bags of cement to Sharma Builders for 22,500 rupees in cash with 18% GST"
+      </p>
+</div>
+<!-- AI Entity Chips -->
+<div class="flex flex-col gap-xs mt-sm opacity-0 animate-[fadeInUp_0.5s_ease-out_0.4s_forwards]">
+<span class="font-label-caps text-label-caps text-on-surface-variant ml-xs mb-xs">Extracted Entities</span>
+<div class="flex flex-wrap gap-sm">
+<div class="inline-flex items-center gap-xs bg-primary-container/20 text-on-primary-fixed-variant px-sm py-2 rounded-full h-[40px] shadow-sm">
+<span class="material-symbols-outlined text-[16px]">receipt_long</span>
+<span class="font-body-sm text-body-sm font-semibold">Voucher: Sales</span>
+</div>
+<div class="inline-flex items-center gap-xs bg-primary-container/20 text-on-primary-fixed-variant px-sm py-2 rounded-full h-[40px] shadow-sm">
+<span class="material-symbols-outlined text-[16px]">person</span>
+<span class="font-body-sm text-body-sm font-semibold">Party: Sharma Builders</span>
+</div>
+<div class="inline-flex items-center gap-xs bg-primary-container/20 text-on-primary-fixed-variant px-sm py-2 rounded-full h-[40px] shadow-sm">
+<span class="material-symbols-outlined text-[16px]">inventory_2</span>
+<span class="font-body-sm text-body-sm font-semibold">Item: Cement (50 Bags)</span>
+</div>
+<div class="inline-flex items-center gap-xs bg-secondary text-on-secondary px-sm py-2 rounded-full h-[40px] shadow-sm">
+<span class="material-symbols-outlined text-[16px]">currency_rupee</span>
+<span class="font-data-md text-data-md font-bold">22,500.00</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Controls -->
+<div class="fixed bottom-0 left-0 w-full p-margin-mobile bg-gradient-to-t from-surface via-surface to-transparent z-50 flex items-center justify-between pb-safe gap-md pt-xl">
+<button class="w-16 h-16 rounded-full bg-[#E11D48] text-white flex items-center justify-center shadow-[0_0_20px_rgba(225,29,72,0.6)] animate-[pulse_2s_ease-in-out_infinite] transition-transform active:scale-95 shrink-0">
+<span class="material-symbols-outlined text-[32px]" style="font-variation-settings: 'FILL' 1;">mic</span>
+</button>
+<button class="flex-1 h-12 bg-primary text-on-primary rounded-lg font-headline-md text-[16px] shadow-md flex items-center justify-center gap-sm transition-transform active:scale-[0.98]">
+<span>Process Voucher</span>
+<span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+</button>
+</div>
+<style>
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</div></main></body></html>

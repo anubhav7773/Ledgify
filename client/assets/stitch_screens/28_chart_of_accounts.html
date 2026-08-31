@@ -1,0 +1,160 @@
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Roboto+Mono:wght@500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "surface-container": "#e7eeff", "outline-variant": "#c5c5d3", "on-secondary-fixed-variant": "#005320", "surface-container-low": "#f0f3ff", "on-surface": "#111c2d", "surface-container-high": "#dee8ff", "primary": "#00236f", "background": "#f9f9ff", "on-surface-variant": "#444651", "surface": "#f9f9ff" }, "spacing": { "gutter-mobile": "12px", "xs": "4px", "base": "4px", "touch-target": "48px", "margin-mobile": "16px", "lg": "24px", "xl": "32px", "sm": "8px", "md": "16px" }, "fontFamily": { "headline-md": ["Inter"], "body-lg": ["Inter"], "label-caps": ["Inter"] }, "fontSize": { "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }], "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }] } } } };</script><style>@layer base { .pt-safe { padding-top: env(safe-area-inset-top); } .pb-safe { padding-bottom: env(safe-area-inset-bottom); } }</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-background text-on-surface font-body-lg"><header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl pt-safe"><div class="h-16 flex items-center px-margin-mobile gap-md"><button class="w-10 h-10 flex items-center justify-center rounded-full active:bg-surface-container" onclick="history.back()"><span class="material-symbols-outlined">arrow_back</span></button><h1 class="font-headline-md text-headline-md">Voice Entry Flow</h1></div></header><main class="relative w-full pt-16 bg-background min-h-screen"><div class="flex flex-col w-full h-full bg-surface">
+<div class="px-margin-mobile py-4 flex gap-md sticky top-0 bg-surface/90 backdrop-blur z-10 shadow-sm shadow-black/5">
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/70 text-[20px]">search</span>
+<input class="w-full h-12 bg-surface-container rounded-lg pl-10 pr-4 font-body-lg text-on-surface placeholder:text-on-surface-variant/70 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow" placeholder="Filter accounts..." type="text"/>
+</div>
+<button class="h-12 px-4 bg-primary text-on-primary rounded-lg font-headline-md text-[14px] whitespace-nowrap flex items-center gap-2 active:bg-primary/90 transition-colors shadow-sm shadow-primary/20">
+<span class="material-symbols-outlined text-[18px]">add</span>
+      New Ledger
+    </button>
+</div>
+<div class="w-full overflow-x-auto no-scrollbar px-margin-mobile pb-4">
+<div class="flex gap-2 min-w-max">
+<button class="h-10 px-4 rounded-full bg-primary text-on-primary font-headline-md text-[14px] shadow-sm shadow-primary/20">All</button>
+<button class="h-10 px-4 rounded-full bg-surface-container text-on-surface-variant font-body-lg text-[14px] active:bg-surface-container-high transition-colors">Assets</button>
+<button class="h-10 px-4 rounded-full bg-surface-container text-on-surface-variant font-body-lg text-[14px] active:bg-surface-container-high transition-colors">Liabilities</button>
+<button class="h-10 px-4 rounded-full bg-surface-container text-on-surface-variant font-body-lg text-[14px] active:bg-surface-container-high transition-colors">Income</button>
+<button class="h-10 px-4 rounded-full bg-surface-container text-on-surface-variant font-body-lg text-[14px] active:bg-surface-container-high transition-colors">Expenses</button>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto px-margin-mobile pb-[100px] flex flex-col gap-xs">
+<div class="flex flex-col bg-surface-container-lowest rounded-lg overflow-hidden shadow-sm shadow-black/5">
+<button class="w-full min-h-[56px] px-4 flex items-center justify-between bg-surface-container-low active:bg-surface-container transition-colors" onclick="toggleTree(this)">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-[20px] transition-transform duration-200 rotate-90" data-icon="chevron">chevron_right</span>
+<span class="font-headline-md text-body-lg text-on-surface">Current Assets</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-data-lg text-[16px] text-primary">₹15,45,000</span>
+<span class="font-label-caps text-[10px] text-on-surface-variant">DR</span>
+</div>
+</button>
+<div class="flex flex-col w-full overflow-hidden transition-all duration-300" data-content="container">
+<div class="flex flex-col border-l-2 border-surface-container ml-6 mr-4 my-2">
+<button class="w-full min-h-[48px] pl-3 flex items-center justify-between active:bg-surface-container/50 rounded-r-lg transition-colors" onclick="toggleTree(this)">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary/70 text-[18px] transition-transform duration-200 rotate-90" data-icon="chevron">arrow_right</span>
+<span class="font-headline-md text-body-sm text-on-surface">Bank Accounts</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-data-md text-primary/90">₹8,20,000</span>
+</div>
+</button>
+<div class="flex flex-col pl-7 pr-2 pb-2 gap-1 overflow-hidden transition-all duration-300" data-content="container">
+<div class="w-full min-h-[48px] flex items-center justify-between bg-surface py-2 px-3 rounded-lg group">
+<div class="flex flex-col">
+<span class="font-headline-md text-body-sm text-on-surface">HDFC Current A/c</span>
+<span class="font-body-sm text-[12px] text-on-surface-variant">A/c No. •••• 4592</span>
+</div>
+<span class="font-data-md text-primary">₹5,10,000.00</span>
+</div>
+<div class="w-full min-h-[48px] flex items-center justify-between bg-surface py-2 px-3 rounded-lg">
+<div class="flex flex-col">
+<span class="font-headline-md text-body-sm text-on-surface">ICICI Overdraft</span>
+<span class="font-body-sm text-[12px] text-on-surface-variant">Limit ₹5L</span>
+</div>
+<span class="font-data-md text-primary">₹3,10,000.00</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col border-l-2 border-surface-container ml-6 mr-4 mb-2">
+<button class="w-full min-h-[48px] pl-3 flex items-center justify-between active:bg-surface-container/50 rounded-r-lg transition-colors" onclick="toggleTree(this)">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary/70 text-[18px] transition-transform duration-200 rotate-90" data-icon="chevron">arrow_right</span>
+<span class="font-headline-md text-body-sm text-on-surface">Sundry Debtors</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-data-md text-primary/90">₹5,25,000</span>
+</div>
+</button>
+<div class="flex flex-col pl-7 pr-2 pb-2 gap-1 overflow-hidden transition-all duration-300" data-content="container">
+<div class="w-full min-h-[48px] flex items-center justify-between bg-surface py-2 px-3 rounded-lg">
+<div class="flex flex-col">
+<span class="font-headline-md text-body-sm text-on-surface">Sharma Builders</span>
+<span class="font-body-sm text-[12px] text-on-surface-variant">Delhi, DL</span>
+</div>
+<span class="font-data-md text-primary">₹2,50,000.00</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col bg-surface-container-lowest rounded-lg overflow-hidden shadow-sm shadow-black/5">
+<button class="w-full min-h-[56px] px-4 flex items-center justify-between bg-surface-container-low active:bg-surface-container transition-colors" onclick="toggleTree(this)">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary/50 text-[20px] transition-transform duration-200" data-icon="chevron">chevron_right</span>
+<span class="font-headline-md text-body-lg text-on-surface">Fixed Assets</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-data-lg text-[16px] text-on-surface-variant">₹8,50,000</span>
+<span class="font-label-caps text-[10px] text-on-surface-variant">DR</span>
+</div>
+</button>
+<div class="flex flex-col w-full h-0 overflow-hidden transition-all duration-300 opacity-0" data-content="container">
+<div class="p-4 text-center text-on-surface-variant text-body-sm font-body-sm">
+          Content hidden in collapsed state.
+        </div>
+</div>
+</div>
+<div class="flex flex-col bg-surface-container-lowest rounded-lg overflow-hidden shadow-sm shadow-black/5">
+<button class="w-full min-h-[56px] px-4 flex items-center justify-between bg-surface-container-low active:bg-surface-container transition-colors" onclick="toggleTree(this)">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary/50 text-[20px] transition-transform duration-200" data-icon="chevron">chevron_right</span>
+<span class="font-headline-md text-body-lg text-on-surface">Current Liabilities</span>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-data-lg text-[16px] text-error">₹3,80,000</span>
+<span class="font-label-caps text-[10px] text-error/70">CR</span>
+</div>
+</button>
+<div class="flex flex-col w-full h-0 overflow-hidden transition-all duration-300 opacity-0" data-content="container">
+<div class="p-4 text-center text-on-surface-variant text-body-sm font-body-sm">
+          Content hidden in collapsed state.
+        </div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  function toggleTree(btn) {
+    const icon = btn.querySelector('[data-icon="chevron"]');
+    const container = btn.nextElementSibling;
+    const isExpanded = icon.classList.contains('rotate-90');
+    
+    if (isExpanded) {
+      icon.classList.remove('rotate-90');
+      icon.classList.remove('text-primary');
+      icon.classList.add('text-primary/50');
+      
+      // Store actual height before collapsing
+      container.style.height = container.scrollHeight + 'px';
+      
+      // Force reflow
+      container.offsetHeight;
+      
+      container.style.height = '0px';
+      container.style.opacity = '0';
+    } else {
+      icon.classList.add('rotate-90');
+      icon.classList.add('text-primary');
+      icon.classList.remove('text-primary/50');
+      
+      container.style.height = container.scrollHeight + 'px';
+      container.style.opacity = '1';
+      
+      // Remove fixed height after transition so it can grow if children expand
+      setTimeout(() => {
+        if(icon.classList.contains('rotate-90')) {
+            container.style.height = 'auto';
+        }
+      }, 300);
+    }
+  }
+</script></main></body></html>
