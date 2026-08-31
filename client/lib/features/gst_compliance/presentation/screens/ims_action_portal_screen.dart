@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/color_tokens.dart';
-import '../../../../core/theme/typography_tokens.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import 'package:ledgify/features/gst_compliance/data/repositories/gstr_repository.dart';
 import 'package:ledgify/features/gst_compliance/domain/models/ims_entry_model.dart';
 
-/// Screen for the Invoice Management System (IMS) Inward Supplies Action Portal.
-/// Enables MSME accountants to Accept, Reject, or Pend supplier invoices before GSTR-2B generation.
-/// Adheres strictly to docs/05_gst_einvoice_and_ewaybill_spec.md and docs/10_ui_ux_design_system_tokens.md.
+/// Screen for the Invoice Management System (IMS) Inward Supplies Action Portal (Google Stitch UI).
 class ImsActionPortalScreen extends StatefulWidget {
   final GstrRepository? repository;
   final String returnPeriod; // 'MMYYYY'
@@ -71,8 +69,8 @@ class _ImsActionPortalScreenState extends State<ImsActionPortalScreen> {
           SnackBar(
             content: Text('Invoice ${entry.invoiceNumber} marked as $action!'),
             backgroundColor: action == 'ACCEPTED'
-                ? LedgifyColors.debitGreen
-                : (action == 'REJECTED' ? LedgifyColors.creditRed : LedgifyColors.warningOrange),
+                ? AppColors.debitGreen
+                : (action == 'REJECTED' ? AppColors.creditRed : AppColors.warningAmber),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -81,7 +79,7 @@ class _ImsActionPortalScreenState extends State<ImsActionPortalScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update status: $e'), backgroundColor: LedgifyColors.creditRed),
+          SnackBar(content: Text('Failed to update status: $e'), backgroundColor: AppColors.creditRed),
         );
       }
     }
@@ -90,13 +88,14 @@ class _ImsActionPortalScreenState extends State<ImsActionPortalScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        title: const Text('IMS Inward Portal / आवक चालान', style: LedgifyTypography.cardHeader),
-        backgroundColor: LedgifyColors.surfaceLight,
+        title: Text('IMS Inward Supplies Review', style: AppTypography.cardHeader),
+        backgroundColor: AppColors.surfaceCard,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: 'Refresh',
+            icon: const Icon(Icons.refresh_rounded),
+            tooltip: 'Refresh Inward Invoices',
             onPressed: _loadImsEntries,
           ),
         ],
@@ -104,32 +103,35 @@ class _ImsActionPortalScreenState extends State<ImsActionPortalScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Filter Selector
+            // Filter Selector Chips
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: Row(
-                children: [
-                  _buildFilterTab('PENDING', 'Pending (लंबित)'),
-                  const SizedBox(width: 8),
-                  _buildFilterTab('ACCEPTED', 'Accepted (स्वीकृत)'),
-                  const SizedBox(width: 8),
-                  _buildFilterTab('REJECTED', 'Rejected (अस्वीकृत)'),
-                  const SizedBox(width: 8),
-                  _buildFilterTab('ALL', 'All'),
-                ],
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    _buildFilterTab('PENDING', 'Pending Review'),
+                    const SizedBox(width: 8),
+                    _buildFilterTab('ACCEPTED', 'Accepted (ITC Claimed)'),
+                    const SizedBox(width: 8),
+                    _buildFilterTab('REJECTED', 'Rejected (Excluded)'),
+                    const SizedBox(width: 8),
+                    _buildFilterTab('ALL', 'All Invoices'),
+                  ],
+                ),
               ),
             ),
             const Divider(height: 1),
 
             Expanded(
               child: _isLoading
-                  ? const Center(child: CircularProgressIndicator(color: LedgifyColors.primaryBlue))
+                  ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
                   : _errorMessage != null
                       ? Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text('Error: $_errorMessage', style: const TextStyle(color: LedgifyColors.creditRed)),
+                              Text('Error: $_errorMessage', style: const TextStyle(color: AppColors.creditRed)),
                               const SizedBox(height: 8),
                               ElevatedButton(onPressed: _loadImsEntries, child: const Text('Retry')),
                             ],
@@ -140,11 +142,18 @@ class _ImsActionPortalScreenState extends State<ImsActionPortalScreen> {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Icon(Icons.check_circle_outline, size: 48, color: LedgifyColors.debitGreen),
+                                  Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.debitGreenLight,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(Icons.check_circle_outline_rounded, size: 44, color: AppColors.debitGreen),
+                                  ),
                                   const SizedBox(height: 12),
                                   Text(
-                                    'No $_selectedFilter invoices in this period.',
-                                    style: LedgifyTypography.bilingualLabel,
+                                    'No $_selectedFilter invoices in this return period.',
+                                    style: const TextStyle(fontSize: 14, color: AppColors.textSecondary, fontWeight: FontWeight.w600),
                                   ),
                                 ],
                               ),
@@ -158,8 +167,8 @@ class _ImsActionPortalScreenState extends State<ImsActionPortalScreen> {
                                 return Card(
                                   margin: const EdgeInsets.only(bottom: 14),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    side: const BorderSide(color: LedgifyColors.surfaceVariant),
+                                    borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
+                                    side: const BorderSide(color: AppColors.border),
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(16),
@@ -173,14 +182,14 @@ class _ImsActionPortalScreenState extends State<ImsActionPortalScreen> {
                                             Expanded(
                                               child: Text(
                                                 item.supplierName,
-                                                style: LedgifyTypography.cardHeader.copyWith(fontSize: 16),
+                                                style: AppTypography.cardHeader.copyWith(fontSize: 15),
                                               ),
                                             ),
                                             Text(
                                               '₹${item.invoiceValue.toStringAsFixed(2)}',
-                                              style: LedgifyTypography.financialAmount.copyWith(
+                                              style: AppTypography.currencyText.copyWith(
                                                 fontSize: 16,
-                                                color: LedgifyColors.primaryBlue,
+                                                color: AppColors.primary,
                                               ),
                                             ),
                                           ],
@@ -188,12 +197,12 @@ class _ImsActionPortalScreenState extends State<ImsActionPortalScreen> {
                                         const SizedBox(height: 4),
                                         Text(
                                           'GSTIN: ${item.supplierGstin}',
-                                          style: const TextStyle(fontSize: 12, fontFamily: 'monospace', color: LedgifyColors.secondarySlate),
+                                          style: const TextStyle(fontSize: 12, fontFamily: 'monospace', color: AppColors.textSecondary),
                                         ),
                                         const SizedBox(height: 2),
                                         Text(
-                                          'Inv No: ${item.invoiceNumber} • Date: ${item.invoiceDate.day}/${item.invoiceDate.month}/${item.invoiceDate.year}',
-                                          style: const TextStyle(fontSize: 12, color: LedgifyColors.secondarySlate),
+                                          'Inv No: ${item.invoiceNumber} • Date: ${item.invoiceDate.day.toString().padLeft(2, '0')}/${item.invoiceDate.month.toString().padLeft(2, '0')}/${item.invoiceDate.year}',
+                                          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                                         ),
                                         const Divider(height: 16),
 
@@ -201,10 +210,10 @@ class _ImsActionPortalScreenState extends State<ImsActionPortalScreen> {
                                         Row(
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
-                                            Text('Taxable: ₹${item.taxableValue.toStringAsFixed(2)}', style: const TextStyle(fontSize: 12)),
-                                            Text('CGST: ₹${item.cgst.toStringAsFixed(2)}', style: const TextStyle(fontSize: 12)),
-                                            Text('SGST: ₹${item.sgst.toStringAsFixed(2)}', style: const TextStyle(fontSize: 12)),
-                                            Text('IGST: ₹${item.igst.toStringAsFixed(2)}', style: const TextStyle(fontSize: 12)),
+                                            Text('Taxable: ₹${item.taxableValue.toStringAsFixed(2)}', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                                            Text('CGST: ₹${item.cgst.toStringAsFixed(2)}', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                                            Text('SGST: ₹${item.sgst.toStringAsFixed(2)}', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                                            Text('IGST: ₹${item.igst.toStringAsFixed(2)}', style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
                                           ],
                                         ),
                                         const SizedBox(height: 14),
@@ -215,22 +224,22 @@ class _ImsActionPortalScreenState extends State<ImsActionPortalScreen> {
                                             // Accept Button
                                             Expanded(
                                               child: SizedBox(
-                                                height: LedgifyColors.minTouchTargetSize,
+                                                height: AppColors.minTouchTargetSize,
                                                 child: ElevatedButton.icon(
                                                   style: ElevatedButton.styleFrom(
                                                     backgroundColor: item.imsStatus == 'ACCEPTED'
-                                                        ? LedgifyColors.debitGreen
-                                                        : LedgifyColors.debitGreenBg,
+                                                        ? AppColors.debitGreen
+                                                        : AppColors.debitGreenLight,
                                                     foregroundColor: item.imsStatus == 'ACCEPTED'
                                                         ? Colors.white
-                                                        : LedgifyColors.debitGreen,
+                                                        : AppColors.debitGreen,
                                                     elevation: 0,
                                                     shape: RoundedRectangleBorder(
-                                                      borderRadius: BorderRadius.circular(8),
-                                                      side: const BorderSide(color: LedgifyColors.debitGreen),
+                                                      borderRadius: BorderRadius.circular(10),
+                                                      side: const BorderSide(color: AppColors.debitGreen),
                                                     ),
                                                   ),
-                                                  icon: const Icon(Icons.check, size: 18),
+                                                  icon: const Icon(Icons.check_rounded, size: 18),
                                                   label: const Text('Accept', style: TextStyle(fontWeight: FontWeight.w700)),
                                                   onPressed: () => _processAction(item, 'ACCEPTED'),
                                                 ),
@@ -241,22 +250,22 @@ class _ImsActionPortalScreenState extends State<ImsActionPortalScreen> {
                                             // Reject Button
                                             Expanded(
                                               child: SizedBox(
-                                                height: LedgifyColors.minTouchTargetSize,
+                                                height: AppColors.minTouchTargetSize,
                                                 child: ElevatedButton.icon(
                                                   style: ElevatedButton.styleFrom(
                                                     backgroundColor: item.imsStatus == 'REJECTED'
-                                                        ? LedgifyColors.creditRed
-                                                        : LedgifyColors.creditRedBg,
+                                                        ? AppColors.creditRed
+                                                        : AppColors.creditRedLight,
                                                     foregroundColor: item.imsStatus == 'REJECTED'
                                                         ? Colors.white
-                                                        : LedgifyColors.creditRed,
+                                                        : AppColors.creditRed,
                                                     elevation: 0,
                                                     shape: RoundedRectangleBorder(
-                                                      borderRadius: BorderRadius.circular(8),
-                                                      side: const BorderSide(color: LedgifyColors.creditRed),
+                                                      borderRadius: BorderRadius.circular(10),
+                                                      side: const BorderSide(color: AppColors.creditRed),
                                                     ),
                                                   ),
-                                                  icon: const Icon(Icons.close, size: 18),
+                                                  icon: const Icon(Icons.close_rounded, size: 18),
                                                   label: const Text('Reject', style: TextStyle(fontWeight: FontWeight.w700)),
                                                   onPressed: () => _processAction(item, 'REJECTED'),
                                                 ),
@@ -267,15 +276,16 @@ class _ImsActionPortalScreenState extends State<ImsActionPortalScreen> {
                                             // Pending Button
                                             Expanded(
                                               child: SizedBox(
-                                                height: LedgifyColors.minTouchTargetSize,
+                                                height: AppColors.minTouchTargetSize,
                                                 child: OutlinedButton(
                                                   style: OutlinedButton.styleFrom(
-                                                    foregroundColor: LedgifyColors.secondarySlate,
+                                                    foregroundColor: AppColors.textSecondary,
+                                                    side: const BorderSide(color: AppColors.border),
                                                     shape: RoundedRectangleBorder(
-                                                      borderRadius: BorderRadius.circular(8),
+                                                      borderRadius: BorderRadius.circular(10),
                                                     ),
                                                   ),
-                                                  child: const Text('Pending', style: TextStyle(fontWeight: FontWeight.w600)),
+                                                  child: const Text('Pend', style: TextStyle(fontWeight: FontWeight.w700)),
                                                   onPressed: () => _processAction(item, 'PENDING'),
                                                 ),
                                               ),
@@ -306,11 +316,11 @@ class _ImsActionPortalScreenState extends State<ImsActionPortalScreen> {
           _loadImsEntries();
         }
       },
-      selectedColor: LedgifyColors.primaryContainer,
+      selectedColor: AppColors.primaryLight,
       labelStyle: TextStyle(
-        fontSize: 11.5,
+        fontSize: 12,
         fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-        color: isSelected ? LedgifyColors.primaryBlue : LedgifyColors.secondarySlate,
+        color: isSelected ? AppColors.primary : AppColors.textSecondary,
       ),
     );
   }

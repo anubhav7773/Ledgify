@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/color_tokens.dart';
-import '../../../../core/theme/typography_tokens.dart';
+import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../data/repositories/eway_bill_repository.dart';
 import '../domain/models/eway_bill_model.dart';
 import 'generate_eway_bill_screen.dart';
 
-/// Screen listing generated E-Way Bills with real-time validity countdowns and Part B vehicle tracking.
-/// Adheres strictly to docs/10_ui_ux_design_system_tokens.md.
+/// Screen listing generated E-Way Bills with real-time validity countdowns and Part B vehicle tracking (Google Stitch UI).
 class EWayBillListScreen extends StatefulWidget {
   final EWayBillRepository? repository;
   final String? businessId;
@@ -72,12 +71,12 @@ class _EWayBillListScreenState extends State<EWayBillListScreen> {
 
   Future<void> _showUpdateVehicleDialog(EWayBillModel bill) async {
     final vehicleController = TextEditingController(text: bill.vehicleNumber ?? '');
-    final reasonController = TextEditingController(text: 'Transshipment / Break-down');
+    final reasonController = TextEditingController(text: 'Transshipment / Vehicle Break-down');
 
     final updated = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Update Part B Vehicle / वाहन बदलें'),
+        title: const Text('Update Part B Vehicle'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -85,7 +84,7 @@ class _EWayBillListScreenState extends State<EWayBillListScreen> {
               controller: vehicleController,
               textCapitalization: TextCapitalization.characters,
               decoration: const InputDecoration(
-                labelText: 'New Vehicle Number / नया वाहन नंबर *',
+                labelText: 'New Vehicle Number *',
                 hintText: 'e.g., MH04AB1234',
                 border: OutlineInputBorder(),
                 prefixIcon: Icon(Icons.local_shipping_outlined),
@@ -95,7 +94,7 @@ class _EWayBillListScreenState extends State<EWayBillListScreen> {
             TextField(
               controller: reasonController,
               decoration: const InputDecoration(
-                labelText: 'Reason for Change / कारण *',
+                labelText: 'Reason for Change *',
                 border: OutlineInputBorder(),
               ),
             ),
@@ -105,11 +104,11 @@ class _EWayBillListScreenState extends State<EWayBillListScreen> {
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: LedgifyColors.primaryBlue,
+              backgroundColor: AppColors.primary,
               foregroundColor: Colors.white,
             ),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Update / अपडेट करें'),
+            child: const Text('Update Vehicle'),
           ),
         ],
       ),
@@ -126,8 +125,8 @@ class _EWayBillListScreenState extends State<EWayBillListScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Part B vehicle updated successfully! / वाहन नंबर अपडेट हो गया'),
-              backgroundColor: LedgifyColors.debitGreen,
+              content: Text('Part B vehicle updated successfully!'),
+              backgroundColor: AppColors.debitGreen,
             ),
           );
           _loadBills();
@@ -135,7 +134,7 @@ class _EWayBillListScreenState extends State<EWayBillListScreen> {
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to update vehicle: $e'), backgroundColor: LedgifyColors.creditRed),
+            SnackBar(content: Text('Failed to update vehicle: $e'), backgroundColor: AppColors.creditRed),
           );
         }
       }
@@ -145,13 +144,14 @@ class _EWayBillListScreenState extends State<EWayBillListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
-        title: const Text('E-Way Bills / ई-वे बिल (EWB-01)', style: LedgifyTypography.cardHeader),
-        backgroundColor: LedgifyColors.surfaceLight,
+        title: Text('E-Way Bills Tracking', style: AppTypography.cardHeader),
+        backgroundColor: AppColors.surfaceCard,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
-            tooltip: 'Refresh',
+            icon: const Icon(Icons.refresh_rounded),
+            tooltip: 'Refresh E-Way Bills',
             onPressed: _loadBills,
           ),
         ],
@@ -161,7 +161,7 @@ class _EWayBillListScreenState extends State<EWayBillListScreen> {
           children: [
             // Filter Selector Chips
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
@@ -182,13 +182,13 @@ class _EWayBillListScreenState extends State<EWayBillListScreen> {
             // Content List
             Expanded(
               child: _isLoading
-                  ? const Center(child: CircularProgressIndicator(color: LedgifyColors.primaryBlue))
+                  ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
                   : _errorMessage != null
                       ? Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text('Error: $_errorMessage', style: const TextStyle(color: LedgifyColors.creditRed)),
+                              Text('Error: $_errorMessage', style: const TextStyle(color: AppColors.creditRed)),
                               const SizedBox(height: 12),
                               ElevatedButton(onPressed: _loadBills, child: const Text('Retry')),
                             ],
@@ -198,7 +198,7 @@ class _EWayBillListScreenState extends State<EWayBillListScreen> {
                           ? const Center(
                               child: Text(
                                 'No E-Way bills found in this category.',
-                                style: LedgifyTypography.bilingualLabel,
+                                style: TextStyle(color: AppColors.textSecondary),
                               ),
                             )
                           : ListView.builder(
@@ -209,21 +209,21 @@ class _EWayBillListScreenState extends State<EWayBillListScreen> {
                                 final bool isExpired = bill.isExpired;
                                 final bool isExpiringSoon = bill.status == 'ACTIVE' && !isExpired && bill.remainingHours <= 8;
 
-                                Color badgeBg = LedgifyColors.debitGreenBg;
-                                Color badgeColor = LedgifyColors.debitGreen;
+                                Color badgeBg = AppColors.debitGreenLight;
+                                Color badgeColor = AppColors.debitGreen;
                                 if (isExpired || bill.status == 'CANCELLED') {
-                                  badgeBg = LedgifyColors.creditRedBg;
-                                  badgeColor = LedgifyColors.creditRed;
+                                  badgeBg = AppColors.creditRedLight;
+                                  badgeColor = AppColors.creditRed;
                                 } else if (isExpiringSoon) {
-                                  badgeBg = LedgifyColors.warningOrange.withOpacity(0.15);
-                                  badgeColor = LedgifyColors.warningOrange;
+                                  badgeBg = AppColors.warningAmberLight;
+                                  badgeColor = AppColors.warningAmber;
                                 }
 
                                 return Card(
                                   margin: const EdgeInsets.only(bottom: 12),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    side: const BorderSide(color: LedgifyColors.surfaceVariant),
+                                    borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
+                                    side: const BorderSide(color: AppColors.border),
                                   ),
                                   child: Padding(
                                     padding: const EdgeInsets.all(14),
@@ -239,11 +239,11 @@ class _EWayBillListScreenState extends State<EWayBillListScreen> {
                                               children: [
                                                 const Text(
                                                   'E-Way Bill No.',
-                                                  style: TextStyle(fontSize: 11, color: LedgifyColors.secondarySlate),
+                                                  style: TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
                                                 ),
                                                 Text(
                                                   bill.ewbNumber,
-                                                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+                                                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
                                                 ),
                                               ],
                                             ),
@@ -256,7 +256,7 @@ class _EWayBillListScreenState extends State<EWayBillListScreen> {
                                               ),
                                               child: Row(
                                                 children: [
-                                                  Icon(Icons.timer_outlined, size: 12, color: badgeColor),
+                                                  Icon(Icons.timer_outlined, size: 13, color: badgeColor),
                                                   const SizedBox(width: 4),
                                                   Text(
                                                     bill.remainingCountdownFormatted,
@@ -274,8 +274,8 @@ class _EWayBillListScreenState extends State<EWayBillListScreen> {
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
-                                              'Distance: ${bill.distanceKm.toStringAsFixed(0)} KM (${(bill.distanceKm / 200).ceil()} days valid)',
-                                              style: const TextStyle(fontSize: 12, color: LedgifyColors.secondarySlate),
+                                              'Distance: ${bill.distanceKm.toStringAsFixed(0)} KM (${(bill.distanceKm / 200).ceil()} days validity)',
+                                              style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                                             ),
                                             Text(
                                               bill.isPartBCompleted
@@ -284,7 +284,7 @@ class _EWayBillListScreenState extends State<EWayBillListScreen> {
                                               style: TextStyle(
                                                 fontSize: 12,
                                                 fontWeight: FontWeight.w600,
-                                                color: bill.isPartBCompleted ? LedgifyColors.primaryBlue : LedgifyColors.warningOrange,
+                                                color: bill.isPartBCompleted ? AppColors.primary : AppColors.warningAmber,
                                               ),
                                             ),
                                           ],
@@ -297,7 +297,7 @@ class _EWayBillListScreenState extends State<EWayBillListScreen> {
                                             alignment: Alignment.centerRight,
                                             child: TextButton.icon(
                                               icon: const Icon(Icons.edit_outlined, size: 14),
-                                              label: const Text('Update Vehicle / वाहन बदलें', style: TextStyle(fontSize: 12)),
+                                              label: const Text('Update Vehicle', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
                                               onPressed: () => _showUpdateVehicleDialog(bill),
                                             ),
                                           ),
@@ -312,10 +312,10 @@ class _EWayBillListScreenState extends State<EWayBillListScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: LedgifyColors.primaryBlue,
+        backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
-        icon: const Icon(Icons.add_road),
-        label: const Text('Generate EWB / नया ई-वे बिल'),
+        icon: const Icon(Icons.add_road_rounded),
+        label: const Text('Generate EWB', style: TextStyle(fontWeight: FontWeight.w700)),
         onPressed: () async {
           final result = await Navigator.push<bool>(
             context,
@@ -339,11 +339,11 @@ class _EWayBillListScreenState extends State<EWayBillListScreen> {
       onSelected: (selected) {
         if (selected) setState(() => _selectedFilter = key);
       },
-      selectedColor: LedgifyColors.primaryContainer,
+      selectedColor: AppColors.primaryLight,
       labelStyle: TextStyle(
         fontSize: 12,
         fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-        color: isSelected ? LedgifyColors.primaryBlue : LedgifyColors.secondarySlate,
+        color: isSelected ? AppColors.primary : AppColors.textSecondary,
       ),
     );
   }
