@@ -7,7 +7,7 @@ import '../../../../core/theme/app_typography.dart';
 import 'package:ledgify/features/vouchers/domain/models/voucher_model.dart';
 import 'package:ledgify/features/gst_compliance/domain/models/einvoice_log_model.dart';
 
-/// Screen displaying the official E-Invoice with 64-char IRN, 2D QR Code, and statutory tax breakdown (Google Stitch UI).
+/// Screen displaying the official E-Invoice with 64-char IRN, 2D QR Code, and statutory tax breakdown.
 class EInvoiceDetailsScreen extends StatelessWidget {
   final VoucherModel? voucher;
   final EInvoiceLogModel? einvoiceLog;
@@ -32,9 +32,9 @@ class EInvoiceDetailsScreen extends StatelessWidget {
   }
 
   void _shareInvoice() {
-    final vNum = voucher?.voucherNumber ?? invoiceId ?? 'INV-001';
-    final irn = einvoiceLog?.irn ?? '3a1b2c3d4e5f...64char';
-    final ack = einvoiceLog?.ackNo ?? '122610001000';
+    final vNum = voucher?.voucherNumber ?? einvoiceLog?.irn ?? invoiceId ?? 'INV-001';
+    final irn = einvoiceLog?.irn ?? 'IRN-NOT-GENERATED';
+    final ack = einvoiceLog?.ackNo ?? 'N/A';
     final text = 'E-Invoice: $vNum\n'
         'IRN: $irn\n'
         'Ack No: $ack\n'
@@ -44,20 +44,32 @@ class EInvoiceDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final irn = einvoiceLog?.irn ?? '9b20756786c52a0a2df3d82a170155b9e075037d0577be2e6f47738f654b17e8';
-    final qrData = einvoiceLog?.signedQrCode.isNotEmpty == true ? einvoiceLog!.signedQrCode : irn;
-    final ackNo = einvoiceLog?.ackNo ?? '122610294821';
-    final vNum = voucher?.voucherNumber ?? invoiceId ?? 'INV-2026-0801';
-    final docDtls = einvoiceLog?.payloadJson['DocDtls'] as Map<String, dynamic>? ?? {};
-    final valDtls = einvoiceLog?.payloadJson['ValDtls'] as Map<String, dynamic>? ?? {};
-    final sellerDtls = einvoiceLog?.payloadJson['SellerDtls'] as Map<String, dynamic>? ?? {};
-    final buyerDtls = einvoiceLog?.payloadJson['BuyerDtls'] as Map<String, dynamic>? ?? {};
+    final hasData = voucher != null || einvoiceLog != null;
+    final irn = einvoiceLog?.irn ?? (voucher != null ? 'IRN-PENDING-POSTING' : 'N/A');
+    final qrData = einvoiceLog?.signedQrCode.isNotEmpty == true ? einvoiceLog!.signedQrCode : (irn != 'N/A' ? irn : 'NO_DATA');
+    final ackNo = einvoiceLog?.ackNo ?? 'N/A';
+    final vNum = voucher?.voucherNumber ?? einvoiceLog?.payloadJson['DocDtls']?['No']?.toString() ?? invoiceId ?? 'INV-001';
+    final docDate = voucher != null
+        ? '${voucher!.voucherDate.day.toString().padLeft(2, '0')}/${voucher!.voucherDate.month.toString().padLeft(2, '0')}/${voucher!.voucherDate.year}'
+        : (einvoiceLog?.payloadJson['DocDtls']?['Dt']?.toString() ?? 'N/A');
+
+    final double taxableAmount = voucher != null
+        ? (voucher!.totalCreditAmount > 0 ? voucher!.totalCreditAmount : voucher!.totalDebitAmount)
+        : ((einvoiceLog?.payloadJson['ValDtls']?['AssVal'] as num?)?.toDouble() ?? 0.0);
+
+    final double cgstAmount = voucher?.lineItems.fold<double>(0.0, (sum, i) => sum + i.cgstAmt) ?? 0.0;
+    final double sgstAmount = voucher?.lineItems.fold<double>(0.0, (sum, i) => sum + i.sgstAmt) ?? 0.0;
+    final double igstAmount = voucher?.lineItems.fold<double>(0.0, (sum, i) => sum + i.igstAmt) ?? 0.0;
+    final double totalTax = (cgstAmount + sgstAmount + igstAmount > 0)
+        ? (cgstAmount + sgstAmount + igstAmount)
+        : (taxableAmount * 0.18);
+    final double totalInvoiceValue = taxableAmount + totalTax;
 
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
         title: Text('E-Invoice Details', style: AppTypography.cardHeader),
-        backgroundColor: AppColors.surfaceCard,
+        backgroundColor: Colors.white,
         actions: [
           IconButton(
             icon: const Icon(Icons.share_outlined),
@@ -74,12 +86,12 @@ class EInvoiceDetailsScreen extends StatelessWidget {
             children: [
               // 1. Success Banner with QR Code
               Card(
-                elevation: 0,
+                elevation: 2,
+                color: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
                   side: BorderSide(color: AppColors.debitGreen.withOpacity(0.4), width: 1.2),
                 ),
-                color: AppColors.debitGreenLight,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -106,26 +118,20 @@ class EInvoiceDetailsScreen extends StatelessWidget {
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.06),
-                              blurRadius: 10,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.border),
                         ),
                         child: QrImageView(
                           data: qrData,
                           version: QrVersions.auto,
-                          size: 180.0,
-                          gapless: true,
+                          size: 160,
+                          backgroundColor: Colors.white,
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
                       const Text(
-                        'Scan with official NIC / GST e-Invoice app to verify signature',
-                        style: TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
+                        'Scan via statutory NIC e-Invoice QR app',
+                        style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
                       ),
                     ],
                   ),
@@ -133,9 +139,10 @@ class EInvoiceDetailsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // 2. IRN & Acknowledgement Details Card
+              // 2. Statutory IRN Details Card
               Card(
-                elevation: 0,
+                elevation: 2,
+                color: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
                   side: const BorderSide(color: AppColors.border),
@@ -190,9 +197,9 @@ class EInvoiceDetailsScreen extends StatelessWidget {
 
                       _buildInfoRow('Ack Number', ackNo),
                       const Divider(height: 16),
-                      _buildInfoRow('Document Number', docDtls['No']?.toString() ?? vNum),
+                      _buildInfoRow('Document Number', vNum),
                       const Divider(height: 16),
-                      _buildInfoRow('Document Date', docDtls['Dt']?.toString() ?? '2026-08-31'),
+                      _buildInfoRow('Document Date', docDate),
                     ],
                   ),
                 ),
@@ -201,7 +208,8 @@ class EInvoiceDetailsScreen extends StatelessWidget {
 
               // 3. Parties & Tax Valuation Card
               Card(
-                elevation: 0,
+                elevation: 2,
+                color: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
                   side: const BorderSide(color: AppColors.border),
@@ -213,25 +221,26 @@ class EInvoiceDetailsScreen extends StatelessWidget {
                     children: [
                       Text('Parties & Valuation Summary', style: AppTypography.cardHeader),
                       const Divider(height: 20),
-                      _buildInfoRow('Seller GSTIN', sellerDtls['Gstin']?.toString() ?? '27AAAAA0000A1Z5'),
+                      _buildInfoRow('Document Number', vNum),
                       const Divider(height: 16),
-                      _buildInfoRow('Buyer Details', '${buyerDtls['LglNm'] ?? 'Apex Enterprises'} (${buyerDtls['Gstin'] ?? '27ABCDE1234F1Z5'})'),
+                      _buildInfoRow('Taxable Value', '₹${taxableAmount.toStringAsFixed(2)}'),
                       const Divider(height: 16),
-                      _buildInfoRow('Place of Supply (POS)', buyerDtls['Pos']?.toString() ?? '27 - Maharashtra'),
-                      const Divider(height: 16),
-                      _buildInfoRow('Taxable Value', '₹${valDtls['AssVal'] ?? '42,500.00'}'),
-                      const Divider(height: 16),
-                      _buildInfoRow('Estimated GST (18%)', '₹${valDtls['TotInvVal'] != null ? (valDtls['TotInvVal'] - (valDtls['AssVal'] ?? 0)) : '7,650.00'}'),
-                      const Divider(height: 16),
+                      _buildInfoRow('Estimated GST (18%)', '₹${totalTax.toStringAsFixed(2)}'),
+                      const Divider(height: 18),
+
+                      // Grand Total Row
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('Total Invoice Value', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14.5, color: AppColors.textPrimary)),
+                          const Text(
+                            'Total Invoice Value',
+                            style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: Color(0xFF0F172A)),
+                          ),
                           Text(
-                            '₹${valDtls['TotInvVal'] ?? '50,150.00'}',
+                            '₹${totalInvoiceValue.toStringAsFixed(2)}',
                             style: AppTypography.currencyText.copyWith(
+                              fontSize: 18,
                               color: AppColors.debitGreen,
-                              fontSize: 17,
                               fontWeight: FontWeight.w800,
                             ),
                           ),
@@ -241,9 +250,9 @@ class EInvoiceDetailsScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
 
-              // 4. Action Buttons (48dp Touch Targets)
+              // 4. Action Buttons
               SizedBox(
                 height: AppColors.minTouchTargetSize,
                 child: ElevatedButton.icon(
@@ -253,38 +262,29 @@ class EInvoiceDetailsScreen extends StatelessWidget {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   icon: const Icon(Icons.print_outlined),
-                  label: const Text(
-                    'Print Tax Invoice (FORM GST INV-01)',
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
-                  ),
+                  label: const Text('Print Tax Invoice (FORM GST INV-01)', style: TextStyle(fontWeight: FontWeight.w700)),
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Preparing PDF preview of FORM GST INV-01...'),
-                        backgroundColor: AppColors.primary,
-                      ),
+                      const SnackBar(content: Text('Preparing PDF preview of FORM GST INV-01...')),
                     );
                   },
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
+
               SizedBox(
                 height: AppColors.minTouchTargetSize,
                 child: OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.debitGreen,
-                    side: const BorderSide(color: AppColors.debitGreen, width: 1.5),
+                    side: const BorderSide(color: AppColors.debitGreen),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   icon: const Icon(Icons.share_rounded),
-                  label: const Text(
-                    'Share Invoice Summary',
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
-                  ),
+                  label: const Text('Share Invoice Summary', style: TextStyle(fontWeight: FontWeight.w700)),
                   onPressed: _shareInvoice,
                 ),
               ),
-              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -297,13 +297,16 @@ class EInvoiceDetailsScreen extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 13, color: AppColors.textSecondary)),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 13, color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+        ),
         const SizedBox(width: 8),
         Expanded(
           child: Text(
             value,
-            textAlign: TextAlign.end,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+            textAlign: TextAlign.right,
+            style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
           ),
         ),
       ],

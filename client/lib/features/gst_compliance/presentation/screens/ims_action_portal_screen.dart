@@ -4,7 +4,7 @@ import '../../../../core/theme/app_typography.dart';
 import 'package:ledgify/features/gst_compliance/data/repositories/gstr_repository.dart';
 import 'package:ledgify/features/gst_compliance/domain/models/ims_entry_model.dart';
 
-/// Screen for the Invoice Management System (IMS) Inward Supplies Action Portal (Google Stitch UI).
+/// Screen for the Invoice Management System (IMS) Inward Supplies Action Portal.
 class ImsActionPortalScreen extends StatefulWidget {
   final GstrRepository? repository;
   final String returnPeriod; // 'MMYYYY'
@@ -23,7 +23,7 @@ class _ImsActionPortalScreenState extends State<ImsActionPortalScreen> {
   late final GstrRepository _repository;
   bool _isLoading = true;
   String? _errorMessage;
-  List<ImsEntryModel> _entries = [];
+  List<ImsEntryModel> _allEntries = [];
   String _selectedFilter = 'PENDING';
 
   @override
@@ -31,6 +31,11 @@ class _ImsActionPortalScreenState extends State<ImsActionPortalScreen> {
     super.initState();
     _repository = widget.repository ?? GstrRepository();
     _loadImsEntries();
+  }
+
+  List<ImsEntryModel> get _filteredEntries {
+    if (_selectedFilter == 'ALL') return _allEntries;
+    return _allEntries.where((e) => e.imsStatus.toUpperCase() == _selectedFilter.toUpperCase()).toList();
   }
 
   Future<void> _loadImsEntries() async {
@@ -47,7 +52,7 @@ class _ImsActionPortalScreenState extends State<ImsActionPortalScreen> {
 
       if (mounted) {
         setState(() {
-          _entries = entries;
+          _allEntries = entries;
           _isLoading = false;
         });
       }
@@ -62,6 +67,28 @@ class _ImsActionPortalScreenState extends State<ImsActionPortalScreen> {
   }
 
   Future<void> _processAction(ImsEntryModel entry, String action) async {
+    setState(() {
+      final index = _allEntries.indexWhere((e) => e.id == entry.id);
+      if (index != -1) {
+        _allEntries[index] = ImsEntryModel(
+          id: entry.id,
+          businessId: entry.businessId,
+          supplierGstin: entry.supplierGstin,
+          supplierName: entry.supplierName,
+          invoiceNumber: entry.invoiceNumber,
+          invoiceDate: entry.invoiceDate,
+          invoiceValue: entry.invoiceValue,
+          taxableValue: entry.taxableValue,
+          igst: entry.igst,
+          cgst: entry.cgst,
+          sgst: entry.sgst,
+          cess: entry.cess,
+          imsStatus: action,
+          createdAt: entry.createdAt,
+        );
+      }
+    });
+
     try {
       await _repository.updateImsStatus(entry.id, action, null);
       if (mounted) {
@@ -74,12 +101,11 @@ class _ImsActionPortalScreenState extends State<ImsActionPortalScreen> {
             duration: const Duration(seconds: 2),
           ),
         );
-        _loadImsEntries();
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to update status: $e'), backgroundColor: AppColors.creditRed),
+          SnackBar(content: Text('Failed to update status on server: $e'), backgroundColor: AppColors.creditRed),
         );
       }
     }
@@ -87,11 +113,13 @@ class _ImsActionPortalScreenState extends State<ImsActionPortalScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final displayList = _filteredEntries;
+
     return Scaffold(
       backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
         title: Text('IMS Inward Supplies Review', style: AppTypography.cardHeader),
-        backgroundColor: AppColors.surfaceCard,
+        backgroundColor: Colors.white,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
@@ -104,7 +132,8 @@ class _ImsActionPortalScreenState extends State<ImsActionPortalScreen> {
         child: Column(
           children: [
             // Filter Selector Chips
-            Padding(
+            Container(
+              color: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
@@ -121,7 +150,7 @@ class _ImsActionPortalScreenState extends State<ImsActionPortalScreen> {
                 ),
               ),
             ),
-            const Divider(height: 1),
+            const Divider(height: 1, color: AppColors.divider),
 
             Expanded(
               child: _isLoading
@@ -137,7 +166,7 @@ class _ImsActionPortalScreenState extends State<ImsActionPortalScreen> {
                             ],
                           ),
                         )
-                      : _entries.isEmpty
+                      : displayList.isEmpty
                           ? Center(
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -152,7 +181,7 @@ class _ImsActionPortalScreenState extends State<ImsActionPortalScreen> {
                                   ),
                                   const SizedBox(height: 12),
                                   Text(
-                                    'No $_selectedFilter invoices in this return period.',
+                                    'No $_selectedFilter invoices in this period.',
                                     style: const TextStyle(fontSize: 14, color: AppColors.textSecondary, fontWeight: FontWeight.w600),
                                   ),
                                 ],
@@ -160,12 +189,14 @@ class _ImsActionPortalScreenState extends State<ImsActionPortalScreen> {
                             )
                           : ListView.builder(
                               padding: const EdgeInsets.all(16),
-                              itemCount: _entries.length,
+                              itemCount: displayList.length,
                               itemBuilder: (context, index) {
-                                final item = _entries[index];
+                                final item = displayList[index];
 
                                 return Card(
                                   margin: const EdgeInsets.only(bottom: 14),
+                                  color: Colors.white,
+                                  elevation: 2,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
                                     side: const BorderSide(color: AppColors.border),
@@ -218,14 +249,14 @@ class _ImsActionPortalScreenState extends State<ImsActionPortalScreen> {
                                         ),
                                         const SizedBox(height: 14),
 
-                                        // Action Button Row (48dp Touch Targets)
+                                        // Action Button Row (Non-wrapping, responsive 48dp touch targets)
                                         Row(
                                           children: [
                                             // Accept Button
                                             Expanded(
                                               child: SizedBox(
                                                 height: AppColors.minTouchTargetSize,
-                                                child: ElevatedButton.icon(
+                                                child: ElevatedButton(
                                                   style: ElevatedButton.styleFrom(
                                                     backgroundColor: item.imsStatus == 'ACCEPTED'
                                                         ? AppColors.debitGreen
@@ -234,14 +265,24 @@ class _ImsActionPortalScreenState extends State<ImsActionPortalScreen> {
                                                         ? Colors.white
                                                         : AppColors.debitGreen,
                                                     elevation: 0,
+                                                    padding: const EdgeInsets.symmetric(horizontal: 4),
                                                     shape: RoundedRectangleBorder(
                                                       borderRadius: BorderRadius.circular(10),
                                                       side: const BorderSide(color: AppColors.debitGreen),
                                                     ),
                                                   ),
-                                                  icon: const Icon(Icons.check_rounded, size: 18),
-                                                  label: const Text('Accept', style: TextStyle(fontWeight: FontWeight.w700)),
                                                   onPressed: () => _processAction(item, 'ACCEPTED'),
+                                                  child: const FittedBox(
+                                                    fit: BoxFit.scaleDown,
+                                                    child: Row(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        Icon(Icons.check_rounded, size: 16),
+                                                        SizedBox(width: 4),
+                                                        Text('Accept', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+                                                      ],
+                                                    ),
+                                                  ),
                                                 ),
                                               ),
                                             ),
@@ -251,7 +292,7 @@ class _ImsActionPortalScreenState extends State<ImsActionPortalScreen> {
                                             Expanded(
                                               child: SizedBox(
                                                 height: AppColors.minTouchTargetSize,
-                                                child: ElevatedButton.icon(
+                                                child: ElevatedButton(
                                                   style: ElevatedButton.styleFrom(
                                                     backgroundColor: item.imsStatus == 'REJECTED'
                                                         ? AppColors.creditRed
@@ -260,14 +301,24 @@ class _ImsActionPortalScreenState extends State<ImsActionPortalScreen> {
                                                         ? Colors.white
                                                         : AppColors.creditRed,
                                                     elevation: 0,
+                                                    padding: const EdgeInsets.symmetric(horizontal: 4),
                                                     shape: RoundedRectangleBorder(
                                                       borderRadius: BorderRadius.circular(10),
                                                       side: const BorderSide(color: AppColors.creditRed),
                                                     ),
                                                   ),
-                                                  icon: const Icon(Icons.close_rounded, size: 18),
-                                                  label: const Text('Reject', style: TextStyle(fontWeight: FontWeight.w700)),
                                                   onPressed: () => _processAction(item, 'REJECTED'),
+                                                  child: const FittedBox(
+                                                    fit: BoxFit.scaleDown,
+                                                    child: Row(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        Icon(Icons.close_rounded, size: 16),
+                                                        SizedBox(width: 4),
+                                                        Text('Reject', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+                                                      ],
+                                                    ),
+                                                  ),
                                                 ),
                                               ),
                                             ),
@@ -279,14 +330,19 @@ class _ImsActionPortalScreenState extends State<ImsActionPortalScreen> {
                                                 height: AppColors.minTouchTargetSize,
                                                 child: OutlinedButton(
                                                   style: OutlinedButton.styleFrom(
-                                                    foregroundColor: AppColors.textSecondary,
-                                                    side: const BorderSide(color: AppColors.border),
+                                                    foregroundColor: item.imsStatus == 'PENDING' ? AppColors.primary : AppColors.textSecondary,
+                                                    backgroundColor: item.imsStatus == 'PENDING' ? AppColors.primaryLight : Colors.transparent,
+                                                    side: BorderSide(color: item.imsStatus == 'PENDING' ? AppColors.primary : AppColors.border),
+                                                    padding: const EdgeInsets.symmetric(horizontal: 4),
                                                     shape: RoundedRectangleBorder(
                                                       borderRadius: BorderRadius.circular(10),
                                                     ),
                                                   ),
-                                                  child: const Text('Pend', style: TextStyle(fontWeight: FontWeight.w700)),
                                                   onPressed: () => _processAction(item, 'PENDING'),
+                                                  child: const FittedBox(
+                                                    fit: BoxFit.scaleDown,
+                                                    child: Text('Pend', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+                                                  ),
                                                 ),
                                               ),
                                             ),
@@ -313,10 +369,11 @@ class _ImsActionPortalScreenState extends State<ImsActionPortalScreen> {
       onSelected: (selected) {
         if (selected) {
           setState(() => _selectedFilter = key);
-          _loadImsEntries();
         }
       },
       selectedColor: AppColors.primaryLight,
+      backgroundColor: Colors.white,
+      side: BorderSide(color: isSelected ? AppColors.primary : AppColors.border),
       labelStyle: TextStyle(
         fontSize: 12,
         fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
