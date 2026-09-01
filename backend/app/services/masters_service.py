@@ -13,6 +13,13 @@ from app.schemas.masters import (
 )
 
 
+def _ensure_uuid(bid: str) -> str:
+    try:
+        return str(uuid.UUID(bid))
+    except (ValueError, AttributeError):
+        return str(uuid.uuid5(uuid.NAMESPACE_DNS, bid or "default"))
+
+
 class MastersService:
     def __init__(self, db: Client):
         self.db = db
@@ -90,7 +97,8 @@ class MastersService:
     async def fetch_ledgers(self, business_id: str) -> List[LedgerResponse]:
         """Fetches all accounts/ledgers for active tenant from database."""
         try:
-            res = self.db.from_("accounts").select("*").eq("business_id", business_id).execute()
+            uuid_bid = _ensure_uuid(business_id)
+            res = self.db.from_("accounts").select("*").eq("business_id", uuid_bid).execute()
             if res.data:
                 return [
                     LedgerResponse(

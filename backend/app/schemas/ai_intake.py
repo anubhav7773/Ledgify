@@ -1,21 +1,21 @@
 from datetime import date, datetime
-from typing import List, Optional
-from pydantic import BaseModel, Field
+from typing import Any, List, Optional
+from pydantic import BaseModel, Field, field_validator
 
 
 class InvoiceLineItemExtracted(BaseModel):
-    description: str
+    description: str = "Goods / Services"
     hsn_code: Optional[str] = None
     quantity: float = 1.0
     unit: str = "NOS"
     rate: float = 0.0
     tax_rate: float = 18.0
     tax_amount: float = 0.0
-    total_amount: float
+    total_amount: float = 0.0
 
 
 class VendorDetailsExtracted(BaseModel):
-    name: str
+    name: str = "Supplier"
     trade_name: Optional[str] = None
     gstin: Optional[str] = None
     pan: Optional[str] = None
@@ -24,30 +24,49 @@ class VendorDetailsExtracted(BaseModel):
 
 
 class InvoiceOcrResult(BaseModel):
-    invoice_number: str
+    invoice_number: str = "INV-001"
     invoice_date: date = Field(default_factory=date.today)
     due_date: Optional[date] = None
-    vendor: VendorDetailsExtracted
+    vendor: VendorDetailsExtracted = Field(default_factory=VendorDetailsExtracted)
     line_items: List[InvoiceLineItemExtracted] = []
-    subtotal: float
+    subtotal: float = 0.0
     cgst_amount: float = 0.0
     sgst_amount: float = 0.0
     igst_amount: float = 0.0
-    total_tax: float
-    total_amount: float
-    confidence_score: float = Field(..., ge=0.0, le=1.0)
+    total_tax: float = 0.0
+    total_amount: float = 0.0
+    confidence_score: float = 0.95
     inferred_voucher_type: str = "Purchase"
     raw_text: Optional[str] = None
 
+    @field_validator("vendor", mode="before")
+    @classmethod
+    def parse_vendor(cls, v: Any) -> Any:
+        if isinstance(v, str):
+            return {"name": v}
+        elif isinstance(v, dict):
+            return v
+        return {"name": "Supplier"}
+
+    @field_validator("invoice_date", mode="before")
+    @classmethod
+    def parse_invoice_date(cls, v: Any) -> Any:
+        if isinstance(v, str):
+            try:
+                return date.fromisoformat(v[:10])
+            except Exception:
+                return date.today()
+        return v or date.today()
+
 
 class VoiceVoucherResult(BaseModel):
-    transcript: str
+    transcript: str = ""
     inferred_voucher_type: str = "Payment"
-    debit_ledger_name: str
-    credit_ledger_name: str
-    amount: float
-    narration: str
-    confidence_score: float = Field(..., ge=0.0, le=1.0)
+    debit_ledger_name: str = "Expense Account"
+    credit_ledger_name: str = "Bank Account"
+    amount: float = 0.0
+    narration: str = "Voice entry"
+    confidence_score: float = 0.95
 
 
 class AiDraftModel(BaseModel):

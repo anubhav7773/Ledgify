@@ -18,6 +18,13 @@ from app.schemas.gst import (
 )
 
 
+def _ensure_uuid(bid: str) -> str:
+    try:
+        return str(uuid.UUID(bid))
+    except (ValueError, AttributeError):
+        return str(uuid.uuid5(uuid.NAMESPACE_DNS, bid or "default"))
+
+
 class GstComplianceService:
     def __init__(self, db: Client):
         self.db = db
@@ -25,7 +32,8 @@ class GstComplianceService:
     async def get_registrations(self, business_id: str) -> List[GstRegistrationResponse]:
         """Fetches active GSTIN registrations for business from DB."""
         try:
-            res = self.db.from_("gst_registrations").select("*").eq("business_id", business_id).execute()
+            uuid_bid = _ensure_uuid(business_id)
+            res = self.db.from_("gst_registrations").select("*").eq("business_id", uuid_bid).execute()
             if res.data:
                 return [GstRegistrationResponse(**g) for g in res.data]
         except Exception:

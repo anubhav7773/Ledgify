@@ -18,6 +18,13 @@ from app.schemas.banking_payroll import (
 from app.services.accounting_service import AccountingService
 
 
+def _ensure_uuid(bid: str) -> str:
+    try:
+        return str(uuid.UUID(bid))
+    except (ValueError, AttributeError):
+        return str(uuid.uuid5(uuid.NAMESPACE_DNS, bid or "default"))
+
+
 class BankingService:
     def __init__(self, db: Client):
         self.db = db
@@ -25,7 +32,8 @@ class BankingService:
     async def get_accounts(self, business_id: str) -> List[BankAccountResponse]:
         """Fetches bank accounts connected to the business from database."""
         try:
-            res = self.db.from_("bank_accounts").select("*").eq("business_id", business_id).execute()
+            uuid_bid = _ensure_uuid(business_id)
+            res = self.db.from_("bank_accounts").select("*").eq("business_id", uuid_bid).execute()
             if res.data:
                 return [
                     BankAccountResponse(

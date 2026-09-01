@@ -1,3 +1,4 @@
+import uuid
 from datetime import date
 from typing import List, Optional
 from supabase import Client
@@ -8,6 +9,13 @@ from app.schemas.reports import (
     TrialBalanceItem,
     TrialBalanceResponse,
 )
+
+
+def _ensure_uuid(bid: str) -> str:
+    try:
+        return str(uuid.UUID(bid))
+    except (ValueError, AttributeError):
+        return str(uuid.uuid5(uuid.NAMESPACE_DNS, bid or "default"))
 
 
 class ReportsService:
@@ -26,15 +34,16 @@ class ReportsService:
         items: List[TrialBalanceItem] = []
 
         try:
+            uuid_bid = _ensure_uuid(business_id)
             # 1. Fetch all accounts
-            acc_res = self.db.from_("accounts").select("*").eq("business_id", business_id).execute()
+            acc_res = self.db.from_("accounts").select("*").eq("business_id", uuid_bid).execute()
             accounts = acc_res.data or []
 
             # 2. Fetch all voucher line items in period
             vch_res = (
                 self.db.from_("vouchers")
                 .select("id, voucher_number, voucher_date, voucher_line_items(*)")
-                .eq("business_id", business_id)
+                .eq("business_id", uuid_bid)
                 .gte("voucher_date", from_date.isoformat())
                 .lte("voucher_date", to_date.isoformat())
                 .execute()
