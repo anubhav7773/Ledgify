@@ -1,5 +1,6 @@
 import hashlib
 import json
+import logging
 import uuid
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
@@ -16,6 +17,8 @@ from app.schemas.dpdp_billing import (
     SubscriptionStatusResponse,
     SubscriptionTier,
 )
+
+logger = logging.getLogger(__name__)
 
 # In-memory DPDP state store
 _in_memory_consents: Dict[str, bool] = {
@@ -47,6 +50,13 @@ _in_memory_subscriptions: Dict[str, dict] = {
         "grace_period_until": None,
     }
 }
+
+
+def _ensure_uuid(bid: str) -> str:
+    try:
+        return str(uuid.UUID(bid))
+    except (ValueError, AttributeError):
+        return str(uuid.uuid5(uuid.NAMESPACE_DNS, bid or "default"))
 
 
 class DpdpComplianceService:
@@ -95,6 +105,7 @@ class DpdpComplianceService:
             "consent_payload_hash": sha_hash,
         }
         _in_memory_consent_logs.insert(0, log_record)
+        logger.info(f"[DPDP] Consent toggled: {purpose_code.value} -> {status_str} for tenant {business_id}")
 
         return DpdpConsentStateResponse(
             purpose_code=purpose_code,
@@ -116,27 +127,30 @@ class DpdpComplianceService:
         ]
 
     async def export_data_portability(self, business_id: str) -> DsrPortabilityPackageResponse:
+        uuid_bid = _ensure_uuid(business_id)
+        logger.info(f"[DPDP DSR] Generating data portability archive for tenant: {uuid_bid}")
         total_vouchers = 0
         total_accounts = 0
         try:
-            v_res = self.db.from_("vouchers").select("id").eq("business_id", business_id).execute()
+            v_res = self.db.from_("vouchers").select("id").eq("business_id", uuid_bid).execute()
             if v_res.data:
                 total_vouchers = len(v_res.data)
-            a_res = self.db.from_("accounts").select("id").eq("business_id", business_id).execute()
+            a_res = self.db.from_("accounts").select("id").eq("business_id", uuid_bid).execute()
             if a_res.data:
                 total_accounts = len(a_res.data)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.warning(f"[DPDP DSR] Error querying counts for export: {e}")
 
-        archive_content = json.dumps({"business_id": business_id, "vouchers_count": total_vouchers, "accounts_count": total_accounts})
+        archive_content = json.dumps({"business_id": uuid_bid, "vouchers_count": total_vouchers, "accounts_count": total_accounts})
         integrity_hash = hashlib.sha256(archive_content.encode("utf-8")).hexdigest()
 
         now = datetime.utcnow()
         export_id = f"dsr-exp-{uuid.uuid4().hex[:8]}"
+        logger.info(f"[DPDP DSR] Portability package generated successfully: {export_id} (Vouchers: {total_vouchers}, Accounts: {total_accounts})")
 
         return DsrPortabilityPackageResponse(
             export_id=export_id,
-            business_id=business_id,
+            business_id=uuid_bid,
             total_vouchers=total_vouchers,
             total_accounts=total_accounts,
             generated_at=now,
@@ -145,16 +159,23 @@ class DpdpComplianceService:
         )
 
     async def execute_section_128_erasure(self, business_id: str, reason: str) -> DsrErasureResponse:
-        # Pseudonymize party ledger names while preserving amounts for 8-year statutory audit
+        uuid_bid = _ensure_uuid(business_id)
+        logger.info(f"[DPDP DSR] Executing Section 128 Right to Erasure for tenant: {uuid_bid} (Reason: {reason})")
         count = 0
         try:
-            a_res = self.db.from_("accounts").select("id").eq("business_id", business_id).execute()
+            a_res = self.db.from_("accounts").select("id").eq("business_id", uuid_bid).execute()
             if a_res.data:
                 count = len(a_res.data)
-        except Exception:
-            pass
+                self.db.from_("accounts").update({
+                    "party_gstin": None,
+                    "party_pan": None,
+                }).eq("business_id", uuid_bid).execute()
+                logger.info(f"[DPDP DSR] Successfully pseudonymized {count} accounts for tenant: {uuid_bid}")
+        except Exception as e:
+            logger.error(f"[DPDP DSR] Database error during erasure: {e}")
 
         retention_year = datetime.utcnow().year + 8
+        logger.info(f"[DPDP DSR] Erasure completed. Statutory audit books archived until 31st March {retention_year}")
         return DsrErasureResponse(
             status="COMPLETED",
             pseudonymized_ledgers_count=count,

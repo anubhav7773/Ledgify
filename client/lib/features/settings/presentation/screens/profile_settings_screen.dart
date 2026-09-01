@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../auth/presentation/screens/login_screen.dart';
+import '../../../auth/services/auth_service.dart';
 import '../../../dpdp_compliance/presentation/screens/data_rights_center_screen.dart';
 import '../../../monetization/presentation/screens/subscription_paywall_screen.dart';
 import 'learned_aliases_screen.dart';
@@ -406,12 +407,16 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                   'Sign Out',
                   style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
                 ),
-                onPressed: () {
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LoginScreen()),
-                    (route) => false,
-                  );
+                onPressed: () async {
+                  try {
+                    await AuthService().signOut();
+                  } catch (_) {}
+                  if (context.mounted) {
+                    Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (context) => const LoginScreen()),
+                      (route) => false,
+                    );
+                  }
                 },
               ),
             ),
