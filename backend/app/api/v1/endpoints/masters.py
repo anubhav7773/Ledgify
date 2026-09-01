@@ -1,10 +1,12 @@
-from typing import List
+from typing import List, Optional
 from fastapi import APIRouter, Depends, status
 from supabase import Client
 from app.api.deps import get_current_business_id, get_db
 from app.schemas.common import ApiResponse
 from app.schemas.masters import (
     AccountGroupResponse,
+    FixedAssetCreate,
+    FixedAssetResponse,
     LedgerCreate,
     LedgerResponse,
     StockItemResponse,
@@ -65,4 +67,31 @@ async def list_stock_items(
     """
     service = MastersService(db)
     result = await service.fetch_stock_items(business_id)
+    return ApiResponse(success=True, data=result)
+
+
+@router.get("/fixed-assets", response_model=ApiResponse[List[FixedAssetResponse]])
+async def list_fixed_assets(
+    business_id: str = Depends(get_current_business_id),
+    db: Client = Depends(get_db),
+):
+    """
+    Retrieves Schedule II compliant fixed assets register.
+    """
+    service = MastersService(db)
+    result = await service.fetch_fixed_assets(business_id)
+    return ApiResponse(success=True, data=result)
+
+
+@router.post("/fixed-assets", response_model=ApiResponse[FixedAssetResponse], status_code=status.HTTP_201_CREATED)
+async def create_fixed_asset(
+    payload: FixedAssetCreate,
+    business_id: str = Depends(get_current_business_id),
+    db: Client = Depends(get_db),
+):
+    """
+    Creates a new fixed asset record in the Schedule II register.
+    """
+    service = MastersService(db)
+    result = await service.create_fixed_asset(business_id, payload)
     return ApiResponse(success=True, data=result)

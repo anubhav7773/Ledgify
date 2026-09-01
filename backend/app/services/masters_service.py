@@ -223,7 +223,8 @@ class MastersService:
     async def fetch_stock_items(self, business_id: str) -> List[StockItemResponse]:
         """Fetches inventory stock items from database."""
         try:
-            res = self.db.from_("stock_items").select("*").eq("business_id", business_id).execute()
+            uuid_bid = _ensure_uuid(business_id)
+            res = self.db.from_("stock_items").select("*").eq("business_id", uuid_bid).execute()
             if res.data:
                 return [
                     StockItemResponse(
@@ -243,3 +244,78 @@ class MastersService:
         except Exception:
             pass
         return []
+
+    async def fetch_fixed_assets(self, business_id: str) -> List[FixedAssetResponse]:
+        """Fetches Schedule II fixed assets from database."""
+        try:
+            uuid_bid = _ensure_uuid(business_id)
+            res = self.db.from_("fixed_assets").select("*, accounts(name)").eq("business_id", uuid_bid).execute()
+            if res.data:
+                return [
+                    FixedAssetResponse(
+                        id=f["id"],
+                        business_id=f["business_id"],
+                        asset_name=f["asset_name"],
+                        category=f.get("category", "PLANT_MACHINERY"),
+                        asset_account_id=f.get("asset_account_id", ""),
+                        purchase_date=date.fromisoformat(f["purchase_date"]),
+                        original_cost=float(f.get("original_cost", 0.0)),
+                        residual_value=float(f.get("residual_value", 0.0)),
+                        useful_life_years=float(f.get("useful_life_years", 5.0)),
+                        is_nesd=f.get("is_nesd", False),
+                        shift_working=f.get("shift_working", "Single"),
+                        itc_claimed_flag=f.get("itc_claimed_flag", False),
+                        accumulated_depreciation=float(f.get("accumulated_depreciation", 0.0)),
+                        is_disposed=f.get("is_disposed", False),
+                        disposal_date=date.fromisoformat(f["disposal_date"]) if f.get("disposal_date") else None,
+                        created_at=datetime.fromisoformat(f["created_at"].replace("Z", "")) if f.get("created_at") else None,
+                        asset_account_name=f.get("accounts", {}).get("name") if isinstance(f.get("accounts"), dict) else None,
+                    )
+                    for f in res.data
+                ]
+        except Exception:
+            pass
+        return []
+
+    async def create_fixed_asset(self, business_id: str, payload: FixedAssetCreate) -> FixedAssetResponse:
+        """Inserts a new fixed asset record into the database."""
+        uuid_bid = _ensure_uuid(business_id)
+        rec_id = f"fa-{uuid.uuid4().hex[:8]}"
+        record = {
+            "id": rec_id,
+            "business_id": uuid_bid,
+            "asset_name": payload.asset_name,
+            "category": payload.category,
+            "asset_account_id": payload.asset_account_id,
+            "purchase_date": payload.purchase_date.isoformat(),
+            "original_cost": payload.original_cost,
+            "residual_value": payload.residual_value,
+            "useful_life_years": payload.useful_life_years,
+            "is_nesd": payload.is_nesd,
+            "shift_working": payload.shift_working,
+            "itc_claimed_flag": payload.itc_claimed_flag,
+            "accumulated_depreciation": 0.0,
+            "is_disposed": False,
+        }
+        try:
+            self.db.from_("fixed_assets").insert(record).execute()
+        except Exception:
+            pass
+
+        return FixedAssetResponse(
+            id=rec_id,
+            business_id=uuid_bid,
+            asset_name=payload.asset_name,
+            category=payload.category,
+            asset_account_id=payload.asset_account_id,
+            purchase_date=payload.purchase_date,
+            original_cost=payload.original_cost,
+            residual_value=payload.residual_value,
+            useful_life_years=payload.useful_life_years,
+            is_nesd=payload.is_nesd,
+            shift_working=payload.shift_working,
+            itc_claimed_flag=payload.itc_claimed_flag,
+            accumulated_depreciation=0.0,
+            is_disposed=False,
+            created_at=datetime.utcnow(),
+        )

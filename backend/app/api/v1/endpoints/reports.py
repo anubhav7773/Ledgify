@@ -6,6 +6,7 @@ from app.api.deps import get_current_business_id, get_db
 from app.schemas.common import ApiResponse
 from app.schemas.reports import (
     BalanceSheetResponse,
+    DashboardKpisResponse,
     DayBookEntryResponse,
     ProfitAndLossResponse,
     TrialBalanceResponse,
@@ -13,6 +14,19 @@ from app.schemas.reports import (
 from app.services.reports_service import ReportsService
 
 router = APIRouter()
+
+
+@router.get("/dashboard-kpis", response_model=ApiResponse[DashboardKpisResponse])
+async def get_dashboard_kpis(
+    business_id: str = Depends(get_current_business_id),
+    db: Client = Depends(get_db),
+):
+    """
+    Returns real-time executive dashboard KPIs, liquidity ratios, and 30-day forward cash flow runway.
+    """
+    service = ReportsService(db)
+    result = await service.get_dashboard_kpis(business_id)
+    return ApiResponse(success=True, data=result)
 
 
 @router.get("/trial-balance", response_model=ApiResponse[TrialBalanceResponse])
@@ -66,8 +80,7 @@ async def get_balance_sheet(
 
 @router.get("/day-book", response_model=ApiResponse[List[DayBookEntryResponse]])
 async def get_day_book(
-    from_date: Optional[date] = Query(None),
-    to_date: Optional[date] = Query(None),
+    target_date: Optional[date] = Query(None),
     business_id: str = Depends(get_current_business_id),
     db: Client = Depends(get_db),
 ):
@@ -75,5 +88,6 @@ async def get_day_book(
     Returns chronological Day Book stream of double-entry transactions.
     """
     service = ReportsService(db)
-    result = await service.get_day_book(business_id, from_date, to_date)
+    t_date = target_date or date.today()
+    result = await service.get_day_book(business_id, t_date)
     return ApiResponse(success=True, data=result)

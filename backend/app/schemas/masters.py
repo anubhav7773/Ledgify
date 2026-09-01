@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from enum import Enum
 from typing import List, Optional
 from pydantic import BaseModel, Field
@@ -61,3 +61,26 @@ class StockItemResponse(StockItemCreate):
     business_id: str
     current_quantity: float = 0.0
     current_valuation: float = 0.0
+
+
+class FixedAssetCreate(BaseModel):
+    asset_name: str
+    category: str
+    asset_account_id: str
+    purchase_date: date
+    original_cost: float
+    residual_value: float = 0.0
+    useful_life_years: float = 5.0
+    is_nesd: bool = False
+    shift_working: str = "Single"
+    itc_claimed_flag: bool = False
+
+
+class FixedAssetResponse(FixedAssetCreate):
+    id: str
+    business_id: str
+    accumulated_depreciation: float = 0.0
+    is_disposed: bool = False
+    disposal_date: Optional[date] = None
+    created_at: Optional[datetime] = None
+    asset_account_name: Optional[str] = None
