@@ -49,7 +49,7 @@ class PayslipViewScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(LedgifyColors.cardBorderRadius),
                   side: const BorderSide(color: LedgifyColors.surfaceVariant),
                 ),
-                color: LedgifyColors.surfaceCard,
+                color: Colors.white,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(

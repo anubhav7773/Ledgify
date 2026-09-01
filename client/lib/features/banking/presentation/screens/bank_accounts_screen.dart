@@ -99,7 +99,7 @@ class _BankAccountsScreenState extends State<BankAccountsScreen> {
       backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
         title: Text('Bank Accounts Management', style: AppTypography.cardHeader),
-        backgroundColor: AppColors.surfaceCard,
+        backgroundColor: Colors.white,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
@@ -141,6 +141,8 @@ class _BankAccountsScreenState extends State<BankAccountsScreen> {
 
                       return Card(
                         margin: const EdgeInsets.only(bottom: 14),
+                        color: Colors.white,
+                        elevation: 2,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
                           side: const BorderSide(color: AppColors.border),

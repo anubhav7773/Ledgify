@@ -101,7 +101,7 @@ class _MonthlyPayrollRunScreenState extends State<MonthlyPayrollRunScreen> {
       backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
         title: Text('Monthly Payroll Execution', style: AppTypography.cardHeader),
-        backgroundColor: AppColors.surfaceCard,
+        backgroundColor: Colors.white,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh_rounded),
@@ -175,6 +175,8 @@ class _MonthlyPayrollRunScreenState extends State<MonthlyPayrollRunScreen> {
 
                     return Card(
                       margin: const EdgeInsets.only(bottom: 10),
+                      color: Colors.white,
+                      elevation: 2,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
                         side: const BorderSide(color: AppColors.border),

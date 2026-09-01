@@ -48,7 +48,7 @@ class _EmployeeDirectoryScreenState extends State<EmployeeDirectoryScreen> {
       backgroundColor: AppColors.backgroundLight,
       appBar: AppBar(
         title: Text('Employee Directory', style: AppTypography.cardHeader),
-        backgroundColor: AppColors.surfaceCard,
+        backgroundColor: Colors.white,
         actions: [
           IconButton(
             icon: const Icon(Icons.calculate_outlined),
@@ -102,6 +102,8 @@ class _EmployeeDirectoryScreenState extends State<EmployeeDirectoryScreen> {
 
                       return Card(
                         margin: const EdgeInsets.only(bottom: 12),
+                        color: Colors.white,
+                        elevation: 2,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
                           side: const BorderSide(color: AppColors.border),
