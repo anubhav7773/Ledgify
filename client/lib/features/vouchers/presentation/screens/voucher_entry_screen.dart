@@ -366,28 +366,31 @@ class _VoucherEntryScreenState extends State<VoucherEntryScreen> {
 
                             return Card(
                               margin: const EdgeInsets.only(bottom: 12),
+                              color: Colors.white,
+                              elevation: 2,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
                                 side: const BorderSide(color: AppColors.border),
                               ),
                               child: Padding(
-                                padding: const EdgeInsets.all(14),
+                                padding: const EdgeInsets.all(12),
                                 child: Column(
                                   children: [
                                     Row(
                                       children: [
                                         // Dr / Cr Selector
                                         SizedBox(
-                                          width: 78,
+                                          width: 72,
                                           child: DropdownButtonFormField<String>(
                                             value: item.entryType,
                                             decoration: const InputDecoration(
-                                              contentPadding: EdgeInsets.symmetric(horizontal: 8),
+                                              contentPadding: EdgeInsets.symmetric(horizontal: 6, vertical: 8),
                                               border: OutlineInputBorder(),
+                                              isDense: true,
                                             ),
                                             items: const [
-                                              DropdownMenuItem(value: 'Dr', child: Text('Dr', style: TextStyle(color: AppColors.debitGreen, fontWeight: FontWeight.w800))),
-                                              DropdownMenuItem(value: 'Cr', child: Text('Cr', style: TextStyle(color: AppColors.creditRed, fontWeight: FontWeight.w800))),
+                                              DropdownMenuItem(value: 'Dr', child: Text('Dr', style: TextStyle(color: AppColors.debitGreen, fontWeight: FontWeight.w800, fontSize: 13))),
+                                              DropdownMenuItem(value: 'Cr', child: Text('Cr', style: TextStyle(color: AppColors.creditRed, fontWeight: FontWeight.w800, fontSize: 13))),
                                             ],
                                             onChanged: (newVal) {
                                               if (newVal != null) {
@@ -402,11 +405,12 @@ class _VoucherEntryScreenState extends State<VoucherEntryScreen> {
                                         Expanded(
                                           child: DropdownButtonFormField<String>(
                                             value: item.accountId,
-                                            hint: const Text('Select Ledger *'),
+                                            hint: const Text('Select Ledger *', style: TextStyle(fontSize: 13)),
                                             isExpanded: true,
                                             decoration: const InputDecoration(
-                                              contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                                              contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                                               border: OutlineInputBorder(),
+                                              isDense: true,
                                             ),
                                             items: _availableAccounts.map((acc) {
                                               return DropdownMenuItem(
@@ -414,6 +418,7 @@ class _VoucherEntryScreenState extends State<VoucherEntryScreen> {
                                                 child: Text(
                                                   '${acc.name} (${acc.groupName})',
                                                   overflow: TextOverflow.ellipsis,
+                                                  style: const TextStyle(fontSize: 13),
                                                 ),
                                               );
                                             }).toList(),
@@ -423,11 +428,14 @@ class _VoucherEntryScreenState extends State<VoucherEntryScreen> {
                                             },
                                           ),
                                         ),
+                                        const SizedBox(width: 4),
 
                                         // Delete Button
                                         IconButton(
                                           icon: const Icon(Icons.delete_outline_rounded, color: AppColors.creditRed, size: 20),
                                           tooltip: 'Remove Row',
+                                          padding: EdgeInsets.zero,
+                                          constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
                                           onPressed: () => _removeLineItem(index),
                                         ),
                                       ],

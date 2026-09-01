@@ -111,8 +111,9 @@ class _QuickCreateStockItemDialogState extends State<QuickCreateStockItemDialog>
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
+      backgroundColor: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: const Text('Quick Create Stock Item / नया स्टॉक बनाएं', style: LedgifyTypography.cardHeader),
+      title: const Text('Quick Create Stock Item', style: LedgifyTypography.cardHeader),
       content: Form(
         key: _formKey,
         child: SingleChildScrollView(
@@ -185,7 +186,7 @@ class _QuickCreateStockItemDialogState extends State<QuickCreateStockItemDialog>
             minimumSize: const Size(120, LedgifyColors.minTouchTargetSize),
           ),
           onPressed: _isCreating ? null : _createStockItem,
-          child: Text(_isCreating ? 'Saving...' : 'Create & Use / बनाएं'),
+          child: Text(_isCreating ? 'Saving...' : 'Create & Use'),
         ),
       ],
     );

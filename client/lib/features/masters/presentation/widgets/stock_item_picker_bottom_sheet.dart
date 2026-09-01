@@ -57,66 +57,76 @@ class StockItemPickerBottomSheet extends StatelessWidget {
         20,
         MediaQuery.of(context).viewInsets.bottom + 20,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Map Inventory Item', style: LedgifyTypography.cardHeader),
-                  Text('Scanned: "$rawItemDescription"', style: const TextStyle(fontSize: 12, color: LedgifyColors.secondarySlate)),
-                ],
-              ),
-              IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
-          ),
-          const Divider(height: 16),
-
-          if (candidates.isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 20.0),
-              child: Center(
-                child: Text('No stock items matched.', style: LedgifyTypography.bilingualLabel),
-              ),
-            )
-          else
-            ...candidates.map((item) {
-              final isHigh = item.compositeScore >= 0.75;
-              final badgeBg = isHigh ? LedgifyColors.debitGreenBg : LedgifyColors.warningOrange.withOpacity(0.15);
-              final badgeColor = isHigh ? LedgifyColors.debitGreen : LedgifyColors.warningOrange;
-
-              return Card(
-                margin: const EdgeInsets.only(bottom: 8),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  side: const BorderSide(color: LedgifyColors.surfaceVariant),
-                ),
-                child: ListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-                  title: Text(item.itemName, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
-                  subtitle: Text('HSN: ${item.hsnSacCode} • GST: ${item.gstRateSlab}% • Unit: ${item.uqc}', style: const TextStyle(fontSize: 12, color: LedgifyColors.secondarySlate)),
-                  trailing: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: badgeBg,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      '${item.matchPercentage}% Match',
-                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: badgeColor),
-                    ),
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Map Inventory Item', style: LedgifyTypography.cardHeader),
+                      Text(
+                        'Scanned: "$rawItemDescription"',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 12, color: LedgifyColors.secondarySlate),
+                      ),
+                    ],
                   ),
-                  onTap: () => Navigator.pop(context, item),
                 ),
-              );
-            }),
+                IconButton(
+                  icon: const Icon(Icons.close),
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ],
+            ),
+            const Divider(height: 16),
+
+            if (candidates.isEmpty)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 20.0),
+                child: Center(
+                  child: Text('No stock items matched.', style: LedgifyTypography.bilingualLabel),
+                ),
+              )
+            else
+              ...candidates.map((item) {
+                final isHigh = item.compositeScore >= 0.75;
+                final badgeBg = isHigh ? LedgifyColors.debitGreenBg : LedgifyColors.warningOrange.withOpacity(0.15);
+                final badgeColor = isHigh ? LedgifyColors.debitGreen : LedgifyColors.warningOrange;
+
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  color: Colors.white,
+                  elevation: 1,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    side: const BorderSide(color: LedgifyColors.surfaceVariant),
+                  ),
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                    title: Text(item.itemName, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14.5)),
+                    subtitle: Text('HSN: ${item.hsnSacCode} • GST: ${item.gstRateSlab}% • Unit: ${item.uqc}', style: const TextStyle(fontSize: 11.5, color: LedgifyColors.secondarySlate)),
+                    trailing: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: badgeBg,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        '${item.matchPercentage}% Match',
+                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: badgeColor),
+                      ),
+                    ),
+                    onTap: () => Navigator.pop(context, item),
+                  ),
+                );
+              }),
 
           const SizedBox(height: 12),
 

@@ -134,7 +134,8 @@ class _BalanceSheetScreenState extends State<BalanceSheetScreen> {
                       const SizedBox(height: 10),
 
                       Card(
-                        elevation: 0,
+                        elevation: 2,
+                        color: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
                           side: const BorderSide(color: AppColors.border),
@@ -165,7 +166,8 @@ class _BalanceSheetScreenState extends State<BalanceSheetScreen> {
                       const SizedBox(height: 10),
 
                       Card(
-                        elevation: 0,
+                        elevation: 2,
+                        color: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
                           side: const BorderSide(color: AppColors.border),

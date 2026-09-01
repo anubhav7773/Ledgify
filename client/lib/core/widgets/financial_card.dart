@@ -28,10 +28,11 @@ class FinancialCard extends StatelessWidget {
     }
 
     return Card(
-      elevation: 0,
+      elevation: 2,
+      color: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(AppColors.cardBorderRadius),
-        side: const BorderSide(color: AppColors.surfaceVariant),
+        side: const BorderSide(color: AppColors.border),
       ),
       child: InkWell(
         onTap: onTap,
@@ -43,22 +44,32 @@ class FinancialCard extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5),
+                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13.5, color: Color(0xFF0F172A)),
               ),
-              Text(
-                bilingualSubtitle,
-                style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-              ),
+              if (bilingualSubtitle.isNotEmpty) ...[
+                const SizedBox(height: 2),
+                Text(
+                  bilingualSubtitle,
+                  style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                ),
+              ],
               const SizedBox(height: 10),
 
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    CurrencyFormatter.formatInr(amount),
-                    style: AppTypography.currencyText.copyWith(
-                      fontSize: 18,
-                      color: amountColor,
+                  Expanded(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        CurrencyFormatter.formatInr(amount),
+                        style: AppTypography.currencyText.copyWith(
+                          fontSize: 18,
+                          color: amountColor,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
                     ),
                   ),
                   if (entryType != null)

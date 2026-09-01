@@ -192,17 +192,25 @@ class _FixedAssetRegisterScreenState extends State<FixedAssetRegisterScreen> {
                         margin: const EdgeInsets.all(16),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: LedgifyColors.surfaceCard,
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(LedgifyColors.cardBorderRadius),
                           border: Border.all(color: LedgifyColors.surfaceVariant),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.04),
+                              blurRadius: 8,
+                              offset: const Offset(0, 2),
+                            ),
+                          ],
                         ),
                         child: Column(
                           children: [
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 _buildMetricColumn('Total Cost', '₹${_totalOriginalCost.toStringAsFixed(2)}', LedgifyColors.secondarySlate),
+                                const SizedBox(width: 8),
                                 _buildMetricColumn('Acc. Depreciation', '₹${_totalAccumulatedDep.toStringAsFixed(2)}', LedgifyColors.creditRed),
+                                const SizedBox(width: 8),
                                 _buildMetricColumn('Net Book Value', '₹${_totalNetBookValue.toStringAsFixed(2)}', LedgifyColors.debitGreen),
                               ],
                             ),
@@ -341,7 +349,7 @@ class _FixedAssetRegisterScreenState extends State<FixedAssetRegisterScreen> {
         backgroundColor: LedgifyColors.primaryBlue,
         foregroundColor: Colors.white,
         icon: const Icon(Icons.add),
-        label: const Text('Add Asset / नई संपत्ति'),
+        label: const Text('Add Asset'),
         onPressed: () async {
           final result = await Navigator.push<bool>(
             context,
@@ -358,20 +366,32 @@ class _FixedAssetRegisterScreenState extends State<FixedAssetRegisterScreen> {
   }
 
   Widget _buildMetricColumn(String label, String value, Color valueColor) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(label, style: const TextStyle(fontSize: 11, color: LedgifyColors.secondarySlate, fontWeight: FontWeight.w500)),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 15,
-            fontWeight: FontWeight.w700,
-            color: valueColor,
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: const TextStyle(fontSize: 11, color: LedgifyColors.secondarySlate, fontWeight: FontWeight.w600),
           ),
-        ),
-      ],
+          const SizedBox(height: 4),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
+                color: valueColor,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -20,7 +20,7 @@ class DebitCreditBalanceBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: isBalanced ? LedgifyColors.debitGreenBg : LedgifyColors.creditRedBg,
         borderRadius: BorderRadius.circular(12),
@@ -30,45 +30,57 @@ class DebitCreditBalanceBar extends StatelessWidget {
         ),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // Total Debits
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Total Debit (Dr)',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: LedgifyColors.secondarySlate),
-              ),
-              Text(
-                '₹${totalDebit.toStringAsFixed(2)}',
-                style: LedgifyTypography.financialAmount.copyWith(
-                  color: LedgifyColors.debitGreen,
-                  fontSize: 16,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Total Debit (Dr)',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: LedgifyColors.secondarySlate),
                 ),
-              ),
-            ],
+                const SizedBox(height: 2),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    '₹${totalDebit.toStringAsFixed(2)}',
+                    style: LedgifyTypography.financialAmount.copyWith(
+                      color: LedgifyColors.debitGreen,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
+          const SizedBox(width: 8),
 
           // Balance Indicator Badge
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               color: isBalanced ? LedgifyColors.debitGreen : LedgifyColors.creditRed,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
                   isBalanced ? Icons.check_circle : Icons.warning_amber_rounded,
-                  size: 16,
+                  size: 14,
                   color: Colors.white,
                 ),
                 const SizedBox(width: 4),
                 Text(
                   isBalanced ? 'Balanced' : 'Diff: ₹${difference.toStringAsFixed(2)}',
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
                   ),
@@ -76,23 +88,35 @@ class DebitCreditBalanceBar extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(width: 8),
 
           // Total Credits
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              const Text(
-                'Total Credit (Cr)',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: LedgifyColors.secondarySlate),
-              ),
-              Text(
-                '₹${totalCredit.toStringAsFixed(2)}',
-                style: LedgifyTypography.financialAmount.copyWith(
-                  color: LedgifyColors.creditRed,
-                  fontSize: 16,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Total Credit (Cr)',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, color: LedgifyColors.secondarySlate),
                 ),
-              ),
-            ],
+                const SizedBox(height: 2),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    '₹${totalCredit.toStringAsFixed(2)}',
+                    style: LedgifyTypography.financialAmount.copyWith(
+                      color: LedgifyColors.creditRed,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

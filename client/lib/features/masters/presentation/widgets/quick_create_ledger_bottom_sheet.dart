@@ -125,7 +125,7 @@ class _QuickCreateLedgerBottomSheetState extends State<QuickCreateLedgerBottomSh
     return SafeArea(
       child: Container(
         decoration: const BoxDecoration(
-          color: AppColors.surfaceCard,
+          color: Colors.white,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         padding: EdgeInsets.fromLTRB(
@@ -134,12 +134,13 @@ class _QuickCreateLedgerBottomSheetState extends State<QuickCreateLedgerBottomSh
           20,
           MediaQuery.of(context).viewInsets.bottom + 20,
         ),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
               // Drag handle pill
               Center(
                 child: Container(
@@ -245,6 +246,7 @@ class _QuickCreateLedgerBottomSheetState extends State<QuickCreateLedgerBottomSh
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

@@ -108,19 +108,26 @@ class _TrialBalanceScreenState extends State<TrialBalanceScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 color: _report!.isBalanced ? AppColors.debitGreenLight : AppColors.creditRedLight,
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      _report!.isBalanced ? '✓ Trial Balance Balanced (₹${_report!.totalClosingDr.toStringAsFixed(2)})' : '⚠ Discrepancy Detected',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 12.5,
-                        color: _report!.isBalanced ? AppColors.debitGreen : AppColors.creditRed,
+                    Expanded(
+                      child: Text(
+                        _report!.isBalanced ? '✓ Trial Balance Balanced' : '⚠ Discrepancy Detected',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 12.5,
+                          color: _report!.isBalanced ? AppColors.debitGreen : AppColors.creditRed,
+                        ),
                       ),
                     ),
-                    Text(
-                      'Dr: ₹${_report!.totalClosingDr.toStringAsFixed(2)} | Cr: ₹${_report!.totalClosingCr.toStringAsFixed(2)}',
-                      style: AppTypography.currencyText.copyWith(fontSize: 11.5, fontWeight: FontWeight.w700),
+                    const SizedBox(width: 8),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        'Dr: ₹${_report!.totalClosingDr.toStringAsFixed(2)} | Cr: ₹${_report!.totalClosingCr.toStringAsFixed(2)}',
+                        style: AppTypography.currencyText.copyWith(fontSize: 11.5, fontWeight: FontWeight.w700),
+                      ),
                     ),
                   ],
                 ),
