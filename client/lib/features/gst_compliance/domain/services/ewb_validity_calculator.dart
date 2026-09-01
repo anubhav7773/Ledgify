@@ -17,13 +17,13 @@ class EwbValidityCalculator {
     return generatedAt.add(Duration(days: validityDays));
   }
 
-  /// Formats remaining time into a human-readable bilingual countdown string
+  /// Formats remaining time into a pure English countdown string
   static String formatRemainingTime(DateTime validUpto) {
     final now = DateTime.now();
     final difference = validUpto.difference(now);
 
     if (difference.isNegative) {
-      return 'Expired / समाप्त';
+      return 'Expired';
     }
 
     final hours = difference.inHours;
@@ -32,9 +32,9 @@ class EwbValidityCalculator {
     if (hours >= 24) {
       final days = difference.inDays;
       final remHours = hours % 24;
-      return '$days d $remHours h remaining';
+      return '${days}d ${remHours}h remaining';
     }
 
-    return '$hours h $minutes m remaining';
+    return '${hours}h ${minutes}m remaining';
   }
 }

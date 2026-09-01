@@ -111,15 +111,8 @@ class _AppShellState extends State<AppShell> {
             // Spotlight Search Action (Min 48dp Touch Target)
             IconButton(
               icon: const Icon(Icons.search_rounded, color: AppColors.textPrimary),
-              tooltip: 'Global Search (G)',
+              tooltip: 'Global Search',
               onPressed: _onSearchPressed,
-            ),
-
-            // Tally Gateway Shortcuts Quick Jump
-            IconButton(
-              icon: const Icon(Icons.keyboard_command_key_rounded, color: AppColors.textPrimary),
-              tooltip: 'Tally Shortcuts',
-              onPressed: () => TallyShortcutsHandler.showQuickJumpSheet(context),
             ),
 
             // Subscription Tier Badge (Tap to open Paywall)
