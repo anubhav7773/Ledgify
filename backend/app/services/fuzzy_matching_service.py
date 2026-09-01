@@ -1,7 +1,6 @@
 from typing import Dict, List, Optional
 from rapidfuzz import fuzz
 from app.schemas.ai_intake import FuzzyMatchCandidate, FuzzyMatchResponse
-from app.services.masters_service import _in_memory_ledgers
 
 
 class FuzzyMatchingService:
@@ -24,6 +23,7 @@ class FuzzyMatchingService:
         query: str,
         business_id: str,
         threshold: float = 65.0,
+        available_ledgers: Optional[List[dict]] = None,
     ) -> FuzzyMatchResponse:
         clean_query = query.strip().lower()
 
@@ -48,13 +48,11 @@ class FuzzyMatchingService:
                 ],
             )
 
-        # Get available ledgers for active business
-        ledgers = [l for l in _in_memory_ledgers if l["business_id"] == business_id]
-
         candidates: List[FuzzyMatchCandidate] = []
+        ledgers = available_ledgers or []
 
         for ledger in ledgers:
-            ledger_name = ledger["name"]
+            ledger_name = ledger.get("name", "")
             # Calculate composite score (Token Sort + Partial Ratio)
             token_sort = fuzz.token_sort_ratio(query, ledger_name)
             partial = fuzz.partial_ratio(query, ledger_name)
@@ -63,7 +61,7 @@ class FuzzyMatchingService:
             if composite_score >= threshold:
                 candidates.append(
                     FuzzyMatchCandidate(
-                        ledger_id=ledger["id"],
+                        ledger_id=ledger.get("id", "led-01"),
                         ledger_name=ledger_name,
                         similarity_score=composite_score,
                         is_exact_match=(composite_score >= 99.0),
