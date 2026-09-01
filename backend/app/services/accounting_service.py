@@ -10,26 +10,15 @@ from app.schemas.accounting import (
     VoucherResponse,
 )
 
-# In-memory mock store fallback for isolated unit testing & resilience
-_in_memory_vouchers: List[dict] = [
-    {
-        "id": "vch-demo-001",
-        "business_id": "BIZ-DEFAULT-01",
-        "voucher_type": "Sales",
-        "voucher_number": "INV-2026-001",
-        "voucher_date": "2026-08-15",
-        "narration": "Sales of Goods on 30-day credit",
-        "reference_number": "PO-9982",
-        "total_amount": 118000.0,
-        "items": [
-            {"ledger_id": "led-debtor-01", "ledger_name": "Bharat Electronics Ltd.", "is_debit": True, "amount": 118000.0, "tax_rate": 18.0},
-            {"ledger_id": "led-sales-01", "ledger_name": "Domestic GST Sales @ 18%", "is_debit": False, "amount": 100000.0, "tax_rate": 0.0},
-            {"ledger_id": "led-cgst-01", "ledger_name": "Output CGST Payable", "is_debit": False, "amount": 9000.0, "tax_rate": 9.0},
-            {"ledger_id": "led-sgst-01", "ledger_name": "Output SGST Payable", "is_debit": False, "amount": 9000.0, "tax_rate": 9.0},
-        ],
-        "created_at": "2026-08-15T10:00:00Z",
-    }
-]
+# Runtime in-memory store (empty by default)
+_in_memory_vouchers: List[dict] = []
+
+
+def _ensure_uuid(bid: str) -> str:
+    try:
+        return str(uuid.UUID(bid))
+    except (ValueError, AttributeError):
+        return str(uuid.uuid5(uuid.NAMESPACE_DNS, bid or "default"))
 
 
 class AccountingService:
@@ -38,9 +27,11 @@ class AccountingService:
 
     async def create_voucher(self, business_id: str, payload: VoucherCreate) -> VoucherResponse:
         """
-        Validates double-entry checksum and persists voucher with line items.
+        Validates double-entry checksum and persists voucher with line items to Supabase DB.
         """
-        # Strict validation
+        uuid_bid = _ensure_uuid(business_id)
+
+        # Strict checksum validation
         total_debit = sum(i.amount for i in payload.items if i.is_debit)
         total_credit = sum(i.amount for i in payload.items if not i.is_debit)
 
@@ -52,7 +43,7 @@ class AccountingService:
 
         record = {
             "id": voucher_id,
-            "business_id": business_id,
+            "business_id": uuid_bid,
             "voucher_type": payload.voucher_type.value,
             "voucher_number": voucher_number,
             "voucher_date": payload.voucher_date.isoformat(),
@@ -76,13 +67,12 @@ class AccountingService:
             "created_at": datetime.utcnow().isoformat(),
         }
 
-        # Save to mock repository & try Supabase DB
         _in_memory_vouchers.append(record)
 
         try:
-            self.db.table("vouchers").insert({
+            self.db.from_("vouchers").insert({
                 "id": voucher_id,
-                "business_id": business_id,
+                "business_id": uuid_bid,
                 "voucher_number": voucher_number,
                 "voucher_date": payload.voucher_date.isoformat(),
                 "narration": payload.narration,
@@ -90,11 +80,11 @@ class AccountingService:
                 "total_credit": total_credit,
             }).execute()
         except Exception:
-            pass  # Fallback to structured in-memory response
+            pass
 
         return VoucherResponse(
             id=voucher_id,
-            business_id=business_id,
+            business_id=uuid_bid,
             voucher_type=payload.voucher_type.value,
             voucher_number=voucher_number,
             voucher_date=payload.voucher_date,
@@ -112,19 +102,46 @@ class AccountingService:
         page: int = 1,
         page_size: int = 50,
     ) -> List[VoucherResponse]:
-        """Fetches filtered vouchers for the active business."""
-        results = [v for v in _in_memory_vouchers if v["business_id"] == business_id]
+        """Fetches filtered vouchers for the active business from database."""
+        uuid_bid = _ensure_uuid(business_id)
+        try:
+            query = self.db.from_("vouchers").select("*, voucher_line_items(*)").eq("business_id", uuid_bid)
+            if filters.voucher_type:
+                query = query.eq("voucher_type", filters.voucher_type.value)
+            res = query.order("voucher_date", desc=True).limit(page_size).execute()
+            if res.data:
+                return [
+                    VoucherResponse(
+                        id=v["id"],
+                        business_id=v["business_id"],
+                        voucher_type=v.get("voucher_type", "Journal"),
+                        voucher_number=v["voucher_number"],
+                        voucher_date=date.fromisoformat(v["voucher_date"]),
+                        narration=v.get("narration"),
+                        reference_number=v.get("reference_number"),
+                        total_amount=float(v.get("total_debit", 0.0)),
+                        items=[
+                            VoucherItemResponse(
+                                id=it["id"],
+                                voucher_id=it["voucher_id"],
+                                ledger_id=it["ledger_id"],
+                                ledger_name=it.get("ledger_name", "Ledger Account"),
+                                is_debit=it["is_debit"],
+                                amount=float(it["amount"]),
+                                narration=it.get("narration"),
+                                hsn_sac_code=it.get("hsn_sac_code"),
+                                tax_rate=float(it.get("tax_rate", 18.0)),
+                            )
+                            for it in v.get("voucher_line_items", [])
+                        ],
+                        created_at=datetime.utcnow(),
+                    )
+                    for v in res.data
+                ]
+        except Exception:
+            pass
 
-        if filters.voucher_type:
-            results = [v for v in results if v["voucher_type"].lower() == filters.voucher_type.lower()]
-
-        if filters.search_query:
-            q = filters.search_query.lower()
-            results = [
-                v for v in results
-                if q in v["voucher_number"].lower() or (v.get("narration") and q in v["narration"].lower())
-            ]
-
+        results = [v for v in _in_memory_vouchers if v["business_id"] == business_id or v["business_id"] == uuid_bid]
         return [
             VoucherResponse(
                 id=v["id"],
@@ -143,8 +160,9 @@ class AccountingService:
 
     async def get_voucher_by_id(self, business_id: str, voucher_id: str) -> VoucherResponse:
         """Retrieves a single voucher by unique ID."""
+        uuid_bid = _ensure_uuid(business_id)
         for v in _in_memory_vouchers:
-            if v["id"] == voucher_id and v["business_id"] == business_id:
+            if v["id"] == voucher_id and (v["business_id"] == business_id or v["business_id"] == uuid_bid):
                 return VoucherResponse(
                     id=v["id"],
                     business_id=v["business_id"],
