@@ -29,6 +29,7 @@ async def get_chart_of_accounts(
 
 @router.get("/ledgers", response_model=ApiResponse[List[LedgerResponse]])
 async def list_ledgers(
+    group_name: Optional[str] = None,
     business_id: str = Depends(get_current_business_id),
     db: Client = Depends(get_db),
 ):
@@ -36,7 +37,7 @@ async def list_ledgers(
     Retrieves all active ledgers with current balances and GSTIN metadata.
     """
     service = MastersService(db)
-    result = await service.fetch_ledgers(business_id)
+    result = await service.fetch_ledgers(business_id, group_name=group_name)
     return ApiResponse(success=True, data=result)
 
 

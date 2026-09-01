@@ -9,13 +9,8 @@ class FuzzyMatchingService:
     OCR raw supplier strings to Chart of Accounts ledgers.
     """
 
-    # Learned vendor aliases dictionary
-    _learned_aliases: Dict[str, str] = {
-        "bharat electro": "Bharat Electronics Ltd.",
-        "tatasteel": "Tata Steel Supply Co.",
-        "hdfc": "HDFC Current Account (A/c 50200012345678)",
-        "petty cash": "Cash on Hand",
-    }
+    # Learned vendor aliases dictionary (empty by default, populated dynamically at runtime)
+    _learned_aliases: Dict[str, str] = {}
 
     @classmethod
     def match_vendor_to_ledger(

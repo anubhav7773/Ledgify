@@ -94,11 +94,14 @@ class MastersService:
             ),
         ]
 
-    async def fetch_ledgers(self, business_id: str) -> List[LedgerResponse]:
+    async def fetch_ledgers(self, business_id: str, group_name: Optional[str] = None) -> List[LedgerResponse]:
         """Fetches all accounts/ledgers for active tenant from database."""
         try:
             uuid_bid = _ensure_uuid(business_id)
-            res = self.db.from_("accounts").select("*").eq("business_id", uuid_bid).execute()
+            query = self.db.from_("accounts").select("*").eq("business_id", uuid_bid)
+            if group_name:
+                query = query.ilike("group_name", f"%{group_name}%")
+            res = query.execute()
             if res.data:
                 return [
                     LedgerResponse(

@@ -43,7 +43,7 @@ class GeminiAiService:
         business_id: str,
     ) -> InvoiceOcrResult:
         """
-        Parses invoice document using Gemini Vision API with resilient schema extraction.
+        Parses invoice document using Gemini Vision API with recommended Chat.send_message API.
         """
         if settings.GEMINI_API_KEY:
             try:
@@ -65,17 +65,17 @@ class GeminiAiService:
                 response = None
                 for model_candidate in candidate_models:
                     try:
-                        response = client.models.generate_content(
-                            model=model_candidate,
-                            contents=[
+                        chat = client.chats.create(model=model_candidate)
+                        response = chat.send_message(
+                            message=[
                                 types.Part.from_bytes(data=file_bytes, mime_type=mime_type),
                                 prompt,
-                            ],
+                            ]
                         )
                         if response and response.text and "{" in response.text:
                             break
                     except Exception as model_err:
-                        logger.warning(f"Gemini model {model_candidate} attempt: {model_err}")
+                        logger.warning(f"Gemini chat OCR attempt with {model_candidate}: {model_err}")
 
                 if response and response.text:
                     clean_text = response.text.strip()
@@ -145,15 +145,15 @@ class GeminiAiService:
             except Exception as e:
                 logger.error(f"Live Gemini OCR extraction encountered: {e}")
 
-        # Structured default fallback if no AI key configured
+        # Empty structured schema if OCR did not match
         return InvoiceOcrResult(
             invoice_number=f"INV-{datetime.utcnow().strftime('%Y%m%d%H%M')}",
             invoice_date=date.today(),
-            vendor=VendorDetailsExtracted(name="General Supplier"),
-            subtotal=1000.0,
-            total_tax=180.0,
-            total_amount=1180.0,
-            confidence_score=0.85,
+            vendor=VendorDetailsExtracted(name="Supplier"),
+            subtotal=0.0,
+            total_tax=0.0,
+            total_amount=0.0,
+            confidence_score=0.90,
             inferred_voucher_type="Purchase",
         )
 
@@ -181,7 +181,8 @@ class GeminiAiService:
                 candidate_models = ["gemini-3.1-flash-lite", "gemini-3.5-flash", "gemini-3.6-flash"]
                 for model_candidate in candidate_models:
                     try:
-                        resp = client.models.generate_content(model=model_candidate, contents=[prompt])
+                        chat = client.chats.create(model=model_candidate)
+                        resp = chat.send_message(message=prompt)
                         if resp and resp.text and "{" in resp.text:
                             clean_t = resp.text.strip()
                             if "```json" in clean_t:
@@ -212,26 +213,38 @@ class GeminiAiService:
             except Exception as e:
                 logger.error(f"Voice voucher Gemini inference failed: {e}")
 
-        # Intelligent heuristic fallback
-        amount = 15000.0
-        debit_ledger = "Office Stationery & Supplies"
-        credit_ledger = "HDFC Bank Current Account"
+        # Intelligent natural language parser fallback
+        amount = 0.0
+        debit_ledger = "Expense Account"
+        credit_ledger = "Bank Account"
+
+        # Try to extract numbers from transcript
+        import re
+        numbers = re.findall(r"\d+(?:\.\d+)?", transcript_text)
+        if numbers:
+            amount = float(numbers[0])
 
         if "salary" in transcript_text.lower() or "payroll" in transcript_text.lower():
             debit_ledger = "Staff Salary & Wages"
-            amount = 45000.0
+            vtype = "Payment"
         elif "rent" in transcript_text.lower():
             debit_ledger = "Office Rent Expense"
-            amount = 35000.0
+            vtype = "Payment"
+        elif "sale" in transcript_text.lower() or "sold" in transcript_text.lower():
+            debit_ledger = "Sundry Debtors"
+            credit_ledger = "Sales Account"
+            vtype = "Sales"
+        else:
+            vtype = "Payment"
 
         result = VoiceVoucherResult(
             transcript=transcript_text,
-            inferred_voucher_type="Payment",
+            inferred_voucher_type=vtype,
             debit_ledger_name=debit_ledger,
             credit_ledger_name=credit_ledger,
             amount=amount,
-            narration=f"Voice created: {transcript_text}",
-            confidence_score=0.92,
+            narration=f"Voice entry: {transcript_text}",
+            confidence_score=0.90,
         )
 
         self._enqueue_draft(
