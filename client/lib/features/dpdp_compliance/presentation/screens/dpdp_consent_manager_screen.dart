@@ -54,7 +54,7 @@ class _DpdpConsentManagerScreenState extends State<DpdpConsentManagerScreen> {
       final confirm = await showDialog<bool>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: Text('Revoke Consent? / सहमति वापस लें?'),
+          title: Text('Revoke Consent?'),
           content: Text(
             'Revoking consent for "${purpose.titleEnglish}" will disable AI parsing/automated processing for this feature until consent is re-granted.',
           ),
@@ -63,7 +63,7 @@ class _DpdpConsentManagerScreenState extends State<DpdpConsentManagerScreen> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: AppColors.creditRed, foregroundColor: Colors.white),
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Revoke / वापस लें'),
+              child: const Text('Revoke'),
             ),
           ],
         ),
@@ -117,7 +117,7 @@ class _DpdpConsentManagerScreenState extends State<DpdpConsentManagerScreen> {
                     const SizedBox(height: 20),
 
                     // Purposes Toggles Section
-                    const Text('Data Processing Purposes / डेटा उपयोग के उद्देश्य', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                    const Text('Data Processing Purposes', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
                     const SizedBox(height: 10),
 
                     Card(
@@ -143,7 +143,7 @@ class _DpdpConsentManagerScreenState extends State<DpdpConsentManagerScreen> {
                     const SizedBox(height: 24),
 
                     // Immutable Audit Trail Table
-                    const Text('Unalterable Consent Audit Log / सहमति इतिहास', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
+                    const Text('Unalterable Consent Audit Log', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
                     const SizedBox(height: 10),
 
                     Card(

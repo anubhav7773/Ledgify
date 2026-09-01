@@ -42,11 +42,11 @@ class GstStateCodes {
     97: {'en': 'Other Territory', 'hi': 'अन्य क्षेत्र'},
   };
 
-  /// Returns bilingual state name string formatted like "Maharashtra / महाराष्ट्र (27)"
+  /// Returns state name string formatted like "Maharashtra (27)"
   static String getStateDisplayName(int code) {
     final entry = stateMap[code];
     if (entry == null) return 'State $code';
-    return '${entry['en']} / ${entry['hi']} (${code.toString().padLeft(2, '0')})';
+    return '${entry['en']} (${code.toString().padLeft(2, '0')})';
   }
 
   /// Returns English state name for a given 2-digit code

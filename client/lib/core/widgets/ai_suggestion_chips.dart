@@ -27,26 +27,26 @@ class AiSuggestionChips extends StatelessWidget {
         children: [
           _buildChip(
             icon: Icons.person_outline,
-            label: 'Change Party / पार्टी बदलें',
+            label: 'Change Party',
             onTap: onEditParty,
           ),
           const SizedBox(width: 8),
           _buildChip(
             icon: Icons.currency_rupee,
-            label: 'Edit Amount / राशि बदलें',
+            label: 'Edit Amount',
             onTap: onEditAmount,
           ),
           const SizedBox(width: 8),
           _buildChip(
             icon: Icons.swap_horiz,
-            label: 'Switch Type / प्रकार बदलें',
+            label: 'Switch Type',
             onTap: onSwitchVoucherType,
           ),
           if (onAddNarration != null) ...[
             const SizedBox(width: 8),
             _buildChip(
               icon: Icons.comment_outlined,
-              label: 'Narration / विवरण',
+              label: 'Add Narration',
               onTap: onAddNarration!,
             ),
           ],
@@ -54,7 +54,7 @@ class AiSuggestionChips extends StatelessWidget {
             const SizedBox(width: 8),
             _buildChip(
               icon: Icons.percent,
-              label: 'Apply TDS/TCS / टीडीएस',
+              label: 'Apply TDS/TCS',
               onTap: onApplyTds!,
             ),
           ],

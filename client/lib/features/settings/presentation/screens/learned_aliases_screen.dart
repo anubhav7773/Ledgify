@@ -54,7 +54,7 @@ class _LearnedAliasesScreenState extends State<LearnedAliasesScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Learned Aliases / सीखे गए उपनाम', style: LedgifyTypography.cardHeader),
+        title: const Text('Learned Aliases', style: LedgifyTypography.cardHeader),
         backgroundColor: LedgifyColors.surfaceLight,
         actions: [
           IconButton(
@@ -71,7 +71,7 @@ class _LearnedAliasesScreenState extends State<LearnedAliasesScreen> {
               padding: const EdgeInsets.all(16.0),
               child: TextField(
                 decoration: const InputDecoration(
-                  labelText: 'Search learned aliases / खोजें',
+                  labelText: 'Search learned aliases',
                   prefixIcon: Icon(Icons.search),
                   border: OutlineInputBorder(),
                 ),

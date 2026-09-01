@@ -122,7 +122,7 @@ class _QuickCreateStockItemDialogState extends State<QuickCreateStockItemDialog>
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(
-                  labelText: 'Item Name / वस्तु का नाम *',
+                  labelText: 'Item Name *',
                   border: OutlineInputBorder(),
                 ),
                 validator: (val) => val == null || val.trim().isEmpty ? 'Required' : null,
@@ -176,7 +176,7 @@ class _QuickCreateStockItemDialogState extends State<QuickCreateStockItemDialog>
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel / रद्द करें'),
+          child: const Text('Cancel'),
         ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(

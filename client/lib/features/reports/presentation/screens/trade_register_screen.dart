@@ -60,7 +60,7 @@ class _TradeRegisterScreenState extends State<TradeRegisterScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isSales ? 'Sales Register / बिक्री रजिस्टर' : 'Purchase Register / खरीद रजिस्टर', style: LedgifyTypography.cardHeader),
+        title: Text(isSales ? 'Sales Register' : 'Purchase Register', style: LedgifyTypography.cardHeader),
         backgroundColor: LedgifyColors.surfaceLight,
         actions: [
           IconButton(
@@ -86,8 +86,8 @@ class _TradeRegisterScreenState extends State<TradeRegisterScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
               child: SegmentedButton<String>(
                 segments: const [
-                  ButtonSegment(value: 'SALES', label: Text('Sales Register / बिक्री')),
-                  ButtonSegment(value: 'PURCHASE', label: Text('Purchase Register / खरीद')),
+                  ButtonSegment(value: 'SALES', label: Text('Sales Register')),
+                  ButtonSegment(value: 'PURCHASE', label: Text('Purchase Register')),
                 ],
                 selected: {_registerType},
                 onSelectionChanged: (val) {

@@ -200,7 +200,7 @@ class _CreateFixedAssetScreenState extends State<CreateFixedAssetScreen> {
                       TextFormField(
                         controller: _nameController,
                         decoration: const InputDecoration(
-                          labelText: 'Asset Name / संपत्ति का नाम *',
+                          labelText: 'Asset Name *',
                           hintText: 'e.g., CNC Milling Machine #02',
                           border: OutlineInputBorder(),
                           prefixIcon: Icon(Icons.precision_manufacturing_outlined),
@@ -214,7 +214,7 @@ class _CreateFixedAssetScreenState extends State<CreateFixedAssetScreen> {
                         value: _selectedCategory,
                         isExpanded: true,
                         decoration: const InputDecoration(
-                          labelText: 'Schedule II Category / श्रेणी *',
+                          labelText: 'Schedule II Category *',
                           border: OutlineInputBorder(),
                           prefixIcon: Icon(Icons.category_outlined),
                         ),
@@ -234,7 +234,7 @@ class _CreateFixedAssetScreenState extends State<CreateFixedAssetScreen> {
                         value: _selectedAccountId,
                         isExpanded: true,
                         decoration: const InputDecoration(
-                          labelText: 'Asset Ledger / खाता बही *',
+                          labelText: 'Asset Ledger *',
                           border: OutlineInputBorder(),
                           prefixIcon: Icon(Icons.book_outlined),
                         ),
@@ -261,7 +261,7 @@ class _CreateFixedAssetScreenState extends State<CreateFixedAssetScreen> {
                         },
                         child: InputDecorator(
                           decoration: const InputDecoration(
-                            labelText: 'Purchase Date / खरीद दिनांक *',
+                            labelText: 'Purchase Date *',
                             border: OutlineInputBorder(),
                             prefixIcon: Icon(Icons.calendar_today_outlined),
                           ),
@@ -281,7 +281,7 @@ class _CreateFixedAssetScreenState extends State<CreateFixedAssetScreen> {
                               controller: _costController,
                               keyboardType: const TextInputType.numberWithOptions(decimal: true),
                               decoration: const InputDecoration(
-                                labelText: 'Original Cost / लागत (₹) *',
+                                labelText: 'Original Cost (₹) *',
                                 prefixText: '₹ ',
                                 border: OutlineInputBorder(),
                               ),

@@ -42,27 +42,14 @@ extension DpdpPurposeExtension on DpdpPurpose {
     }
   }
 
-  String get titleHindi {
-    switch (this) {
-      case DpdpPurpose.financialOcrExtraction:
-        return 'बिल की एआई स्कैनिंग';
-      case DpdpPurpose.voiceVoucherProcessing:
-        return 'आवाज़ द्वारा वाउचर रिकॉर्डिंग';
-      case DpdpPurpose.connectedBankingSync:
-        return 'बैंक खाता एवं बीआरएस स्टेटमेंट';
-      case DpdpPurpose.governmentPortalSync:
-        return 'जीएसटी एवं ई-इनवॉइस पोर्टल सिंक';
-      case DpdpPurpose.telemetryAnalytics:
-        return 'ऐप उपयोग व त्रुटि रिपोर्टिंग';
-    }
-  }
+  String get titleHindi => titleEnglish;
 
   String get descriptionEnglish {
     switch (this) {
       case DpdpPurpose.financialOcrExtraction:
-        return 'Your uploaded bill image is temporarily processed by Gemini 2.5 Flash exclusively to extract vendor name, GSTIN, and tax line items. Your image is never used to train foundation models.';
+        return 'Your uploaded bill image is temporarily processed by Gemini exclusively to extract vendor name, GSTIN, and tax line items. Your image is never used to train foundation models.';
       case DpdpPurpose.voiceVoucherProcessing:
-        return 'Audio recordings in vernacular languages (Hindi, Hinglish, English) are processed strictly to infer transaction debit/credit lines and discarded immediately after transcription.';
+        return 'Audio recordings are processed strictly to infer transaction debit/credit lines and discarded immediately after transcription.';
       case DpdpPurpose.connectedBankingSync:
         return 'Bank e-statements are ingested to compute automated Trigram reconciliation. Account credentials are never stored on device.';
       case DpdpPurpose.governmentPortalSync:
@@ -72,20 +59,7 @@ extension DpdpPurposeExtension on DpdpPurpose {
     }
   }
 
-  String get descriptionHindi {
-    switch (this) {
-      case DpdpPurpose.financialOcrExtraction:
-        return 'आपके बिल की फोटो केवल व्यापारी नाम, जीएसटी और कर विवरण निकालने के लिए जेमिनी एआई द्वारा प्रोसेस की जाती है। आपकी फोटो का उपयोग किसी अन्य उद्देश्य के लिए नहीं होता।';
-      case DpdpPurpose.voiceVoucherProcessing:
-        return 'आपकी आवाज की रिकॉर्डिंग केवल वाउचर प्रविष्टि दर्ज करने के लिए प्रोसेस की जाती है और ट्रांसक्रिप्शन के तुरंत बाद हटा दी जाती है।';
-      case DpdpPurpose.connectedBankingSync:
-        return 'बैंक स्टेटमेंट केवल स्वचालित समाधान (BRS) के लिए पढ़े जाते हैं। बैंक पासवर्ड कभी सेव नहीं होते।';
-      case DpdpPurpose.governmentPortalSync:
-        return 'जीएसटी और ई-इनवॉइस पोर्टल के साथ सरकारी नियमों के तहत डेटा का सुरक्षित आदान-प्रदान किया जाता है।';
-      case DpdpPurpose.telemetryAnalytics:
-        return 'ऐप की गति और त्रुटियों की तकनीकी रिपोर्ट ताकि हिसाब-किताब में कोई रुकावट न आए।';
-    }
-  }
+  String get descriptionHindi => descriptionEnglish;
 
   /// Computes deterministic SHA-256 hash of the statutory notice text
   String get statutoryNoticeHash {

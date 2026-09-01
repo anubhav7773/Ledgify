@@ -41,7 +41,7 @@ class _RewardedScanRefillDialogState extends State<RewardedScanRefillDialog> {
           Navigator.pop(context);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('+2 Bonus AI Scans Added! / 2 बोनस स्कैन जोड़े गए!'),
+              content: Text('+2 Bonus AI Scans Added!'),
               backgroundColor: LedgifyColors.debitGreen,
             ),
           );
@@ -105,7 +105,7 @@ class _RewardedScanRefillDialogState extends State<RewardedScanRefillDialog> {
                   ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                   : const Icon(Icons.play_circle_outline),
               label: Text(
-                _isLoadingAd ? 'Loading Video...' : 'Watch Ad for +2 Scans / विज्ञापन देखें',
+                _isLoadingAd ? 'Loading Video...' : 'Watch Ad for +2 Scans',
                 style: const TextStyle(fontWeight: FontWeight.w700),
               ),
               onPressed: _isLoadingAd ? null : _watchAdForBonus,

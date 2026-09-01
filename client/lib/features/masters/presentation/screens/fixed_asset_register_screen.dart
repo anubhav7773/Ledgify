@@ -74,7 +74,7 @@ class _FixedAssetRegisterScreenState extends State<FixedAssetRegisterScreen> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Run Depreciation / मूल्यह्रास दर्ज करें'),
+          title: const Text('Run Depreciation'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -87,7 +87,7 @@ class _FixedAssetRegisterScreenState extends State<FixedAssetRegisterScreen> {
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.calendar_today, color: LedgifyColors.primaryBlue),
-                title: const Text('Period End Date / अवधि अंत:'),
+                title: const Text('Period End Date:'),
                 subtitle: Text(
                   '${selectedDate.day.toString().padLeft(2, '0')}/${selectedDate.month.toString().padLeft(2, '0')}/${selectedDate.year}',
                   style: const TextStyle(fontWeight: FontWeight.w600),
@@ -114,7 +114,7 @@ class _FixedAssetRegisterScreenState extends State<FixedAssetRegisterScreen> {
                 foregroundColor: Colors.white,
               ),
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Execute Run / दर्ज करें'),
+              child: const Text('Execute Run'),
             ),
           ],
         ),
@@ -161,7 +161,7 @@ class _FixedAssetRegisterScreenState extends State<FixedAssetRegisterScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Fixed Asset Register / संपत्ति रजिस्टर', style: LedgifyTypography.cardHeader),
+        title: const Text('Fixed Asset Register', style: LedgifyTypography.cardHeader),
         backgroundColor: LedgifyColors.surfaceLight,
         actions: [
           IconButton(
@@ -201,9 +201,9 @@ class _FixedAssetRegisterScreenState extends State<FixedAssetRegisterScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                _buildMetricColumn('Total Cost / कुल लागत', '₹${_totalOriginalCost.toStringAsFixed(2)}', LedgifyColors.secondarySlate),
-                                _buildMetricColumn('Acc. Dep. / कुल ह्रास', '₹${_totalAccumulatedDep.toStringAsFixed(2)}', LedgifyColors.creditRed),
-                                _buildMetricColumn('Net Book Value / शुद्ध मूल्य', '₹${_totalNetBookValue.toStringAsFixed(2)}', LedgifyColors.debitGreen),
+                                _buildMetricColumn('Total Cost', '₹${_totalOriginalCost.toStringAsFixed(2)}', LedgifyColors.secondarySlate),
+                                _buildMetricColumn('Acc. Depreciation', '₹${_totalAccumulatedDep.toStringAsFixed(2)}', LedgifyColors.creditRed),
+                                _buildMetricColumn('Net Book Value', '₹${_totalNetBookValue.toStringAsFixed(2)}', LedgifyColors.debitGreen),
                               ],
                             ),
                             const Divider(height: 24),
@@ -227,7 +227,7 @@ class _FixedAssetRegisterScreenState extends State<FixedAssetRegisterScreen> {
                                       )
                                     : const Icon(Icons.calculate_outlined, size: 20),
                                 label: const Text(
-                                  'Run Periodic Depreciation / मूल्यह्रास दर्ज करें',
+                                  'Run Periodic Depreciation',
                                   style: TextStyle(fontWeight: FontWeight.w700),
                                 ),
                                 onPressed: _isRunningDepreciation ? null : _runDepreciationDialog,

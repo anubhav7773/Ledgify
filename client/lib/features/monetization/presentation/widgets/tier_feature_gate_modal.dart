@@ -47,7 +47,7 @@ class TierFeatureGateModal extends StatelessWidget {
           const SizedBox(height: 14),
 
           Text(
-            'Pro Feature / प्रो सुविधा',
+            'Pro Feature',
             style: LedgifyTypography.cardHeader.copyWith(fontSize: 18),
             textAlign: TextAlign.center,
           ),
@@ -78,7 +78,7 @@ class TierFeatureGateModal extends StatelessWidget {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               icon: const Icon(Icons.star, size: 18),
-              label: const Text('Upgrade to Pro / अपग्रेड करें', style: TextStyle(fontWeight: FontWeight.w700)),
+              label: const Text('Upgrade to Pro', style: TextStyle(fontWeight: FontWeight.w700)),
               onPressed: () {
                 Navigator.pop(context);
                 Navigator.push(
@@ -92,7 +92,7 @@ class TierFeatureGateModal extends StatelessWidget {
 
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Maybe Later / बाद में'),
+            child: const Text('Maybe Later'),
           ),
         ],
       ),

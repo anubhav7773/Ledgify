@@ -53,7 +53,7 @@ class DpdpConsentModalDialog extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Text('Data Processing Consent', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
-                    Text('डेटा उपयोग की सहमति (DPDP Act 2023)', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                    Text('Indian DPDP Act 2023 Compliant', style: TextStyle(fontSize: 12, color: AppColors.textSecondary)),
                   ],
                 ),
               ),

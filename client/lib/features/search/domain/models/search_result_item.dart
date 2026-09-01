@@ -32,15 +32,15 @@ class SearchResultItem {
   String get categoryLabel {
     switch (category) {
       case SearchCategory.ledger:
-        return 'Ledger / लेजर';
+        return 'Ledger';
       case SearchCategory.voucher:
-        return 'Voucher / वाउचर';
+        return 'Voucher';
       case SearchCategory.stockItem:
-        return 'Stock Item / वस्तु';
+        return 'Stock Item';
       case SearchCategory.report:
-        return 'Report / रिपोर्ट';
+        return 'Report';
       case SearchCategory.setting:
-        return 'Menu / मेन्यू';
+        return 'Menu';
     }
   }
 

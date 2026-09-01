@@ -91,7 +91,7 @@ class _ErasureConfirmationDialogState extends State<ErasureConfirmationDialog> {
             const SizedBox(height: 12),
 
             const Text(
-              'Type "DELETE" or "मिटाएं" below to confirm:',
+              'Type "DELETE" below to confirm:',
               style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: 6),
@@ -128,7 +128,7 @@ class _ErasureConfirmationDialogState extends State<ErasureConfirmationDialog> {
 
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Cancel / रद्द करें'),
+              child: const Text('Cancel'),
             ),
           ],
         ),

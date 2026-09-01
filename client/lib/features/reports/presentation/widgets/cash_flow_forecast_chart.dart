@@ -46,7 +46,7 @@ class CashFlowForecastChart extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('30-Day Predictive Cash Runway', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
-                    Text('अनुमानित 30-दिवसीय रोकड़ प्रवाह', style: TextStyle(fontSize: 11, color: LedgifyColors.secondarySlate)),
+                    Text('Estimated 30-Day Cash Flow', style: TextStyle(fontSize: 11, color: LedgifyColors.secondarySlate)),
                   ],
                 ),
                 Container(

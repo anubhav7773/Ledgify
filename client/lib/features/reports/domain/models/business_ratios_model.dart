@@ -61,8 +61,8 @@ class BusinessRatiosModel {
   }
 
   String get currentRatioStatus {
-    if (currentRatio >= 1.5) return 'Healthy / सुरक्षित';
-    if (currentRatio >= 1.0) return 'Moderate / सामान्य';
-    return 'Critical / जोखिम';
+    if (currentRatio >= 1.5) return 'Healthy';
+    if (currentRatio >= 1.0) return 'Moderate';
+    return 'Critical';
   }
 }

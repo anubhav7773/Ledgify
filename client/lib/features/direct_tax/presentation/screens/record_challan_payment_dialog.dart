@@ -290,7 +290,7 @@ class _RecordChallanPaymentDialogState extends State<RecordChallanPaymentDialog>
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel / रद्द करें')),
+        TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: LedgifyColors.primaryBlue,

@@ -67,7 +67,7 @@ class StockItemPickerBottomSheet extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Map Inventory Item / वस्तु चुनें', style: LedgifyTypography.cardHeader),
+                  const Text('Map Inventory Item', style: LedgifyTypography.cardHeader),
                   Text('Scanned: "$rawItemDescription"', style: const TextStyle(fontSize: 12, color: LedgifyColors.secondarySlate)),
                 ],
               ),
@@ -130,7 +130,7 @@ class StockItemPickerBottomSheet extends StatelessWidget {
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               ),
               icon: const Icon(Icons.add_shopping_cart),
-              label: const Text('+ Create New Item / नई वस्तु बनाएं', style: TextStyle(fontWeight: FontWeight.w700)),
+              label: const Text('+ Create New Item', style: TextStyle(fontWeight: FontWeight.w700)),
               onPressed: () async {
                 Navigator.pop(context);
                 final StockItemModel? created = await QuickCreateStockItemDialog.show(

@@ -99,7 +99,7 @@ class _LedgerStatementScreenState extends State<LedgerStatementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ledger Statement / खाता विवरण', style: LedgifyTypography.cardHeader),
+        title: const Text('Ledger Statement', style: LedgifyTypography.cardHeader),
         backgroundColor: LedgifyColors.surfaceLight,
         actions: [
           IconButton(
@@ -122,7 +122,7 @@ class _LedgerStatementScreenState extends State<LedgerStatementScreen> {
               child: DropdownButtonFormField<String>(
                 value: _selectedAccountId,
                 decoration: const InputDecoration(
-                  labelText: 'Select Ledger Account / खाता चुनें *',
+                  labelText: 'Select Ledger Account *',
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.account_box_outlined),
                 ),

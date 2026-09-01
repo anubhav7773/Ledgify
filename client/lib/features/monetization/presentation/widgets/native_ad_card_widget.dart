@@ -3,7 +3,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import '../../../../core/theme/color_tokens.dart';
 import '../../data/services/admob_service.dart';
 
-/// Native Ad Card widget styled with M3 design tokens and statutory "Ad / विज्ञापन" badge.
+/// Native Ad Card widget styled with M3 design tokens and statutory "Sponsored" badge.
 class NativeAdCardWidget extends StatefulWidget {
   const NativeAdCardWidget({super.key});
 
@@ -85,7 +85,7 @@ class _NativeAdCardWidgetState extends State<NativeAdCardWidget> {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: const Text(
-                    'Ad / विज्ञापन',
+                    'Sponsored',
                     style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: Color(0xFFB45309)),
                   ),
                 ),

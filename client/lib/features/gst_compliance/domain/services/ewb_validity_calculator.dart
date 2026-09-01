@@ -32,9 +32,9 @@ class EwbValidityCalculator {
     if (hours >= 24) {
       final days = difference.inDays;
       final remHours = hours % 24;
-      return '$days d $remHours h remaining / $days दिन $remHours घंटे शेष';
+      return '$days d $remHours h remaining';
     }
 
-    return '$hours h $minutes m remaining / $hours घंटे $minutes मिनट शेष';
+    return '$hours h $minutes m remaining';
   }
 }

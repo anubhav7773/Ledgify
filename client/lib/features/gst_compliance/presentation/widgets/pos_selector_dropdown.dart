@@ -28,7 +28,7 @@ class PosSelectorDropdown extends StatelessWidget {
       value: GstStateCodes.isValidStateCode(effectiveCode) ? effectiveCode : 27, // Default Maharashtra (27)
       isExpanded: true,
       decoration: InputDecoration(
-        labelText: 'Place of Supply (POS) / आपूर्ति का स्थान *',
+        labelText: 'Place of Supply (POS) *',
         border: const OutlineInputBorder(),
         prefixIcon: const Icon(Icons.location_on_outlined),
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),

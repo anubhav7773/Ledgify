@@ -37,7 +37,7 @@ class DebitCreditBalanceBar extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Total Debit / कुल नाम (Dr)',
+                'Total Debit (Dr)',
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: LedgifyColors.secondarySlate),
               ),
               Text(
@@ -82,7 +82,7 @@ class DebitCreditBalanceBar extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               const Text(
-                'Total Credit / कुल जमा (Cr)',
+                'Total Credit (Cr)',
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: LedgifyColors.secondarySlate),
               ),
               Text(

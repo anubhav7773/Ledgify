@@ -19,7 +19,7 @@ class PayslipViewScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Payslip / वेतन पर्ची', style: LedgifyTypography.cardHeader),
+        title: const Text('Payslip', style: LedgifyTypography.cardHeader),
         backgroundColor: LedgifyColors.surfaceLight,
         actions: [
           IconButton(
@@ -97,7 +97,7 @@ class PayslipViewScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Earnings / आय', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: LedgifyColors.debitGreen)),
+                            const Text('Earnings', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: LedgifyColors.debitGreen)),
                             const Divider(height: 16),
                             _buildLineRow('Basic Pay', salarySlip.basicSalary),
                             _buildLineRow('HRA', salarySlip.hra),
@@ -120,7 +120,7 @@ class PayslipViewScreen extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Deductions / कटौती', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: LedgifyColors.creditRed)),
+                            const Text('Deductions', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, color: LedgifyColors.creditRed)),
                             const Divider(height: 16),
                             _buildLineRow('EPF (12%)', salarySlip.epfEmployee),
                             _buildLineRow('ESI (0.75%)', salarySlip.esiEmployee),
@@ -153,7 +153,7 @@ class PayslipViewScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('Net Salary Payable', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
-                          Text('शुद्ध देय वेतन', style: TextStyle(fontSize: 12, color: LedgifyColors.secondarySlate)),
+                          Text('Net Payable Salary', style: TextStyle(fontSize: 12, color: LedgifyColors.secondarySlate)),
                         ],
                       ),
                       Text(
@@ -176,7 +176,7 @@ class PayslipViewScreen extends StatelessWidget {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
                   icon: const Icon(Icons.picture_as_pdf),
-                  label: const Text('Download Payslip PDF / पीडीएफ डाउनलोड करें', style: TextStyle(fontWeight: FontWeight.w700)),
+                  label: const Text('Download Payslip PDF', style: TextStyle(fontWeight: FontWeight.w700)),
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Payslip PDF generated successfully!')),

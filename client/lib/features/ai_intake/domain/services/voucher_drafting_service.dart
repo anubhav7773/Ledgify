@@ -325,9 +325,9 @@ class VoucherDraftingService {
     required String docDate,
   }) {
     if (voucherType == 'Purchase') {
-      return 'Being purchase of goods against Bill No. $docNo dtd $docDate from $partyName / $partyName से बिल संख्या $docNo के तहत माल की खरीद दर्ज की गई।';
+      return 'Being purchase of goods against Bill No. $docNo dtd $docDate from $partyName.';
     } else if (voucherType == 'Sales') {
-      return 'Being sales of goods against Invoice No. $docNo dtd $docDate to $partyName / $partyName को चालान संख्या $docNo के तहत माल की बिक्री।';
+      return 'Being sales of goods against Invoice No. $docNo dtd $docDate to $partyName.';
     }
     return 'Transaction against reference #$docNo with $partyName.';
   }
