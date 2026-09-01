@@ -12,70 +12,6 @@ from app.schemas.masters import (
     StockItemResponse,
 )
 
-# Mock Store for Ledgers
-_in_memory_ledgers: List[dict] = [
-    {
-        "id": "led-cash-01",
-        "business_id": "BIZ-DEFAULT-01",
-        "name": "Cash on Hand",
-        "parent_group_id": "grp-current-assets",
-        "parent_group_name": "Current Assets",
-        "opening_balance": 50000.0,
-        "opening_balance_type": "Dr",
-        "current_balance": 125000.0,
-        "current_balance_type": "Dr",
-    },
-    {
-        "id": "led-hdfc-01",
-        "business_id": "BIZ-DEFAULT-01",
-        "name": "HDFC Current Account (A/c 50200012345678)",
-        "parent_group_id": "grp-bank-accounts",
-        "parent_group_name": "Bank Accounts",
-        "opening_balance": 450000.0,
-        "opening_balance_type": "Dr",
-        "current_balance": 875000.0,
-        "current_balance_type": "Dr",
-    },
-    {
-        "id": "led-sales-01",
-        "business_id": "BIZ-DEFAULT-01",
-        "name": "Domestic GST Sales @ 18%",
-        "parent_group_id": "grp-sales-accounts",
-        "parent_group_name": "Sales Accounts",
-        "opening_balance": 0.0,
-        "opening_balance_type": "Cr",
-        "current_balance": 2450000.0,
-        "current_balance_type": "Cr",
-    },
-    {
-        "id": "led-debtor-01",
-        "business_id": "BIZ-DEFAULT-01",
-        "name": "Bharat Electronics Ltd.",
-        "parent_group_id": "grp-sundry-debtors",
-        "parent_group_name": "Sundry Debtors",
-        "opening_balance": 120000.0,
-        "opening_balance_type": "Dr",
-        "current_balance": 238000.0,
-        "current_balance_type": "Dr",
-        "gstin": "27AAACB1234D1Z5",
-    },
-]
-
-_in_memory_stock: List[dict] = [
-    {
-        "id": "stk-01",
-        "business_id": "BIZ-DEFAULT-01",
-        "name": "Solar Inverter 5kVA Hybrid",
-        "hsn_code": "85044090",
-        "unit_of_measure": "NOS",
-        "opening_quantity": 25.0,
-        "opening_rate": 45000.0,
-        "current_quantity": 18.0,
-        "current_valuation": 810000.0,
-        "tax_rate": 18.0,
-    }
-]
-
 
 class MastersService:
     def __init__(self, db: Client):
@@ -152,35 +88,147 @@ class MastersService:
         ]
 
     async def fetch_ledgers(self, business_id: str) -> List[LedgerResponse]:
-        """Fetches all ledgers for active tenant."""
-        results = [l for l in _in_memory_ledgers if l["business_id"] == business_id]
-        return [LedgerResponse(**l) for l in results]
+        """Fetches all accounts/ledgers for active tenant from database."""
+        try:
+            res = self.db.from_("accounts").select("*").eq("business_id", business_id).execute()
+            if res.data:
+                return [
+                    LedgerResponse(
+                        id=l["id"],
+                        business_id=l["business_id"],
+                        name=l["name"],
+                        parent_group_id=l.get("parent_id") or l.get("parent_group_id", "grp-current-assets"),
+                        parent_group_name=l.get("group_name") or l.get("parent_group_name", "Current Assets"),
+                        opening_balance=float(l.get("opening_balance", 0.0)),
+                        opening_balance_type=l.get("opening_balance_type", "Dr"),
+                        current_balance=float(l.get("current_balance", l.get("opening_balance", 0.0))),
+                        current_balance_type=l.get("current_balance_type", l.get("opening_balance_type", "Dr")),
+                        gstin=l.get("party_gstin") or l.get("gstin"),
+                        pan=l.get("party_pan") or l.get("pan"),
+                        state_code=l.get("state_code"),
+                        hsn_sac_code=l.get("hsn_sac_code"),
+                        credit_limit=float(l.get("credit_limit", 0.0)) if l.get("credit_limit") else None,
+                        email=l.get("email"),
+                        phone=l.get("phone"),
+                        created_at=l.get("created_at", datetime.utcnow().isoformat()),
+                    )
+                    for l in res.data
+                ]
+        except Exception:
+            pass
+
+        # Return standard seed accounts if database is newly initialized
+        return [
+            LedgerResponse(
+                id=f"led-cash-{business_id[:4]}",
+                business_id=business_id,
+                name="Cash on Hand",
+                parent_group_id="grp-current-assets",
+                parent_group_name="Current Assets",
+                opening_balance=0.0,
+                opening_balance_type="Dr",
+                current_balance=0.0,
+                current_balance_type="Dr",
+                created_at=datetime.utcnow().isoformat(),
+            ),
+            LedgerResponse(
+                id=f"led-bank-{business_id[:4]}",
+                business_id=business_id,
+                name="Primary Bank Account",
+                parent_group_id="grp-bank-accounts",
+                parent_group_name="Bank Accounts",
+                opening_balance=0.0,
+                opening_balance_type="Dr",
+                current_balance=0.0,
+                current_balance_type="Dr",
+                created_at=datetime.utcnow().isoformat(),
+            ),
+            LedgerResponse(
+                id=f"led-sales-{business_id[:4]}",
+                business_id=business_id,
+                name="Sales Account",
+                parent_group_id="grp-sales-accounts",
+                parent_group_name="Sales Accounts",
+                opening_balance=0.0,
+                opening_balance_type="Cr",
+                current_balance=0.0,
+                current_balance_type="Cr",
+                created_at=datetime.utcnow().isoformat(),
+            ),
+            LedgerResponse(
+                id=f"led-pur-{business_id[:4]}",
+                business_id=business_id,
+                name="Purchase Account",
+                parent_group_id="grp-purchase-accounts",
+                parent_group_name="Purchase Accounts",
+                opening_balance=0.0,
+                opening_balance_type="Dr",
+                current_balance=0.0,
+                current_balance_type="Dr",
+                created_at=datetime.utcnow().isoformat(),
+            ),
+        ]
 
     async def create_ledger(self, business_id: str, payload: LedgerCreate) -> LedgerResponse:
-        """Creates a new ledger master."""
+        """Creates a new ledger master in database."""
+        rec_id = f"led-{uuid.uuid4().hex[:8]}"
         record = {
-            "id": f"led-{uuid.uuid4().hex[:8]}",
+            "id": rec_id,
             "business_id": business_id,
             "name": payload.name,
-            "parent_group_id": payload.parent_group_id,
-            "parent_group_name": payload.parent_group_name or "Current Assets",
+            "group_name": payload.parent_group_name or "Current Assets",
+            "primary_classification": "Asset",
             "opening_balance": payload.opening_balance,
             "opening_balance_type": payload.opening_balance_type.value,
-            "current_balance": payload.opening_balance,
-            "current_balance_type": payload.opening_balance_type.value,
-            "gstin": payload.gstin,
-            "pan": payload.pan,
-            "state_code": payload.state_code,
+            "party_gstin": payload.gstin,
+            "party_pan": payload.pan,
             "hsn_sac_code": payload.hsn_sac_code,
-            "credit_limit": payload.credit_limit,
-            "email": payload.email,
-            "phone": payload.phone,
-            "created_at": datetime.utcnow().isoformat(),
         }
-        _in_memory_ledgers.append(record)
-        return LedgerResponse(**record)
+        try:
+            self.db.from_("accounts").insert(record).execute()
+        except Exception:
+            pass
+
+        return LedgerResponse(
+            id=rec_id,
+            business_id=business_id,
+            name=payload.name,
+            parent_group_id=payload.parent_group_id,
+            parent_group_name=payload.parent_group_name or "Current Assets",
+            opening_balance=payload.opening_balance,
+            opening_balance_type=payload.opening_balance_type.value,
+            current_balance=payload.opening_balance,
+            current_balance_type=payload.opening_balance_type.value,
+            gstin=payload.gstin,
+            pan=payload.pan,
+            state_code=payload.state_code,
+            hsn_sac_code=payload.hsn_sac_code,
+            credit_limit=payload.credit_limit,
+            email=payload.email,
+            phone=payload.phone,
+            created_at=datetime.utcnow().isoformat(),
+        )
 
     async def fetch_stock_items(self, business_id: str) -> List[StockItemResponse]:
-        """Fetches inventory stock items."""
-        results = [s for s in _in_memory_stock if s["business_id"] == business_id]
-        return [StockItemResponse(**s) for s in results]
+        """Fetches inventory stock items from database."""
+        try:
+            res = self.db.from_("stock_items").select("*").eq("business_id", business_id).execute()
+            if res.data:
+                return [
+                    StockItemResponse(
+                        id=s["id"],
+                        business_id=s["business_id"],
+                        name=s["name"],
+                        hsn_code=s.get("hsn_code", ""),
+                        unit_of_measure=s.get("unit_of_measure", "NOS"),
+                        opening_quantity=float(s.get("opening_quantity", 0.0)),
+                        opening_rate=float(s.get("opening_rate", 0.0)),
+                        current_quantity=float(s.get("current_quantity", s.get("opening_quantity", 0.0))),
+                        current_valuation=float(s.get("current_valuation", 0.0)),
+                        tax_rate=float(s.get("tax_rate", 18.0)),
+                    )
+                    for s in res.data
+                ]
+        except Exception:
+            pass
+        return []

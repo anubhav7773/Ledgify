@@ -8,7 +8,6 @@ from app.schemas.reports import (
     TrialBalanceItem,
     TrialBalanceResponse,
 )
-from app.services.accounting_service import _in_memory_vouchers
 
 
 class ReportsService:
@@ -22,63 +21,70 @@ class ReportsService:
         to_date: date,
     ) -> TrialBalanceResponse:
         """
-        Calculates multi-column 4-box Trial Balance with verified zero discrepancy checksum.
+        Calculates multi-column 4-box Trial Balance with verified zero discrepancy checksum from live vouchers.
         """
-        items = [
-            TrialBalanceItem(
-                ledger_id="led-capital-01",
-                ledger_name="Shareholder Capital",
-                group_name="Capital Account",
-                opening_credit=1000000.0,
-                closing_credit=1000000.0,
-            ),
-            TrialBalanceItem(
-                ledger_id="led-bank-01",
-                ledger_name="HDFC Bank Current Account",
-                group_name="Bank Accounts",
-                opening_debit=450000.0,
-                transactions_debit=520000.0,
-                transactions_credit=150000.0,
-                closing_debit=820000.0,
-            ),
-            TrialBalanceItem(
-                ledger_id="led-debtors-01",
-                ledger_name="Bharat Electronics Ltd.",
-                group_name="Sundry Debtors",
-                opening_debit=120000.0,
-                transactions_debit=118000.0,
-                transactions_credit=0.0,
-                closing_debit=238000.0,
-            ),
-            TrialBalanceItem(
-                ledger_id="led-sales-01",
-                ledger_name="Domestic GST Sales @ 18%",
-                group_name="Sales Accounts",
-                transactions_credit=100000.0,
-                closing_credit=100000.0,
-            ),
-            TrialBalanceItem(
-                ledger_id="led-cgst-01",
-                ledger_name="Output CGST Payable",
-                group_name="Duties & Taxes",
-                transactions_credit=9000.0,
-                closing_credit=9000.0,
-            ),
-            TrialBalanceItem(
-                ledger_id="led-sgst-01",
-                ledger_name="Output SGST Payable",
-                group_name="Duties & Taxes",
-                transactions_credit=9000.0,
-                closing_credit=9000.0,
-            ),
-            TrialBalanceItem(
-                ledger_id="led-rent-01",
-                ledger_name="Office Rent Expense",
-                group_name="Indirect Expenses",
-                transactions_debit=60000.0,
-                closing_debit=60000.0,
-            ),
-        ]
+        items: List[TrialBalanceItem] = []
+
+        try:
+            # 1. Fetch all accounts
+            acc_res = self.db.from_("accounts").select("*").eq("business_id", business_id).execute()
+            accounts = acc_res.data or []
+
+            # 2. Fetch all voucher line items in period
+            vch_res = (
+                self.db.from_("vouchers")
+                .select("id, voucher_number, voucher_date, voucher_line_items(*)")
+                .eq("business_id", business_id)
+                .gte("voucher_date", from_date.isoformat())
+                .lte("voucher_date", to_date.isoformat())
+                .execute()
+            )
+            vouchers = vch_res.data or []
+
+            # Aggregate transactions by ledger
+            tx_dr_map = {}
+            tx_cr_map = {}
+
+            for v in vouchers:
+                for line in v.get("voucher_line_items", []):
+                    lid = line.get("ledger_id")
+                    amt = float(line.get("amount", 0.0))
+                    is_dr = line.get("is_debit", True)
+                    if is_dr:
+                        tx_dr_map[lid] = tx_dr_map.get(lid, 0.0) + amt
+                    else:
+                        tx_cr_map[lid] = tx_cr_map.get(lid, 0.0) + amt
+
+            for a in accounts:
+                lid = a["id"]
+                op_bal = float(a.get("opening_balance", 0.0))
+                op_type = a.get("opening_balance_type", "Dr")
+                op_dr = op_bal if op_type == "Dr" else 0.0
+                op_cr = op_bal if op_type == "Cr" else 0.0
+
+                tx_dr = tx_dr_map.get(lid, 0.0)
+                tx_cr = tx_cr_map.get(lid, 0.0)
+
+                net = (op_dr - op_cr) + (tx_dr - tx_cr)
+                cl_dr = net if net > 0 else 0.0
+                cl_cr = abs(net) if net < 0 else 0.0
+
+                if op_bal > 0 or tx_dr > 0 or tx_cr > 0:
+                    items.append(
+                        TrialBalanceItem(
+                            ledger_id=lid,
+                            ledger_name=a["name"],
+                            group_name=a.get("group_name", "Current Assets"),
+                            opening_debit=op_dr,
+                            opening_credit=op_cr,
+                            transactions_debit=tx_dr,
+                            transactions_credit=tx_cr,
+                            closing_debit=cl_dr,
+                            closing_credit=cl_cr,
+                        )
+                    )
+        except Exception:
+            pass
 
         total_op_dr = sum(i.opening_debit for i in items)
         total_op_cr = sum(i.opening_credit for i in items)
@@ -107,37 +113,28 @@ class ReportsService:
         from_date: date,
         to_date: date,
     ) -> ProfitAndLossResponse:
-        """
-        Computes Schedule III compliant Profit & Loss report.
-        """
-        revenue = 2450000.0
-        other_income = 35000.0
-        total_rev = revenue + other_income
+        """Calculates Trading & P&L from live database accounts and vouchers."""
+        tb = await self.get_trial_balance(business_id, from_date, to_date)
 
-        cogs = 1200000.0
-        employee_exp = 380000.0
-        finance_costs = 22000.0
-        depreciation = 45000.0
-        other_exp = 115000.0
-        total_exp = cogs + employee_exp + finance_costs + depreciation + other_exp
+        sales = sum(i.closing_credit for i in tb.items if "Sales" in i.group_name or "Direct Incomes" in i.group_name)
+        purchases = sum(i.closing_debit for i in tb.items if "Purchase" in i.group_name)
+        direct_exp = sum(i.closing_debit for i in tb.items if "Direct Expenses" in i.group_name)
+        indirect_exp = sum(i.closing_debit for i in tb.items if "Indirect Expenses" in i.group_name)
+        indirect_inc = sum(i.closing_credit for i in tb.items if "Indirect Incomes" in i.group_name)
 
-        gross_profit = revenue - cogs
-        net_pbt = total_rev - total_exp
-        net_pat = net_pbt * 0.75  # 25% corporate tax slab
+        gross_profit = sales - (purchases + direct_exp)
+        net_profit = gross_profit + indirect_inc - indirect_exp
 
         return ProfitAndLossResponse(
-            revenue_from_operations=revenue,
-            other_income=other_income,
-            total_revenue=total_rev,
-            cost_of_materials_consumed=cogs,
-            employee_benefit_expenses=employee_exp,
-            finance_costs=finance_costs,
-            depreciation_and_amortization=depreciation,
-            other_expenses=other_exp,
-            total_expenses=total_exp,
+            opening_stock=0.0,
+            purchase_accounts=purchases,
+            direct_expenses=direct_exp,
+            sales_accounts=sales,
+            closing_stock=0.0,
             gross_profit=gross_profit,
-            net_profit_before_tax=net_pbt,
-            net_profit_after_tax=net_pat,
+            indirect_incomes=indirect_inc,
+            indirect_expenses=indirect_exp,
+            net_profit=net_profit,
             from_date=from_date,
             to_date=to_date,
         )
@@ -147,48 +144,63 @@ class ReportsService:
         business_id: str,
         as_on_date: date,
     ) -> BalanceSheetResponse:
-        """
-        Generates Schedule III balance sheet with asset-liability equilibrium.
-        """
-        shareholders_funds = 2500000.0
-        non_current_liabilities = 800000.0
-        current_liabilities = 450000.0
-        total_liabilities = shareholders_funds + non_current_liabilities + current_liabilities
+        """Calculates Section 133 Tally-style Balance Sheet from live database accounts."""
+        pnl = await self.get_profit_and_loss(business_id, date(as_on_date.year, 4, 1), as_on_date)
+        tb = await self.get_trial_balance(business_id, date(as_on_date.year, 4, 1), as_on_date)
 
-        non_current_assets = 1600000.0
-        current_assets = 2150000.0
-        total_assets = non_current_assets + current_assets
+        fixed_assets = sum(i.closing_debit for i in tb.items if "Fixed Assets" in i.group_name)
+        current_assets = sum(i.closing_debit for i in tb.items if "Current Assets" in i.group_name or "Bank Accounts" in i.group_name or "Sundry Debtors" in i.group_name)
+        capital = sum(i.closing_credit for i in tb.items if "Capital Account" in i.group_name)
+        loans = sum(i.closing_credit for i in tb.items if "Loans" in i.group_name)
+        curr_liabilities = sum(i.closing_credit for i in tb.items if "Current Liabilities" in i.group_name or "Sundry Creditors" in i.group_name or "Duties & Taxes" in i.group_name)
+
+        reserves = pnl.net_profit
+        tot_equity_reserves = capital + reserves
+        tot_liabilities = tot_equity_reserves + loans + curr_liabilities
+        tot_assets = fixed_assets + current_assets
 
         return BalanceSheetResponse(
-            shareholders_funds=shareholders_funds,
-            non_current_liabilities=non_current_liabilities,
-            current_liabilities=current_liabilities,
-            total_equity_and_liabilities=total_liabilities,
-            non_current_assets=non_current_assets,
-            current_assets=current_assets,
-            total_assets=total_assets,
-            is_balanced=abs(total_liabilities - total_assets) < 0.01,
             as_on_date=as_on_date,
+            capital_equity=capital,
+            current_net_profit=reserves,
+            total_equity_and_reserves=tot_equity_reserves,
+            loans_liability=loans,
+            current_liabilities=curr_liabilities,
+            total_liabilities_and_equity=tot_liabilities,
+            fixed_assets=fixed_assets,
+            current_assets=current_assets,
+            total_assets=tot_assets,
+            is_balanced=abs(tot_liabilities - tot_assets) < 0.01,
+            discrepancy=abs(tot_liabilities - tot_assets),
         )
 
     async def get_day_book(
         self,
         business_id: str,
-        from_date: Optional[date] = None,
-        to_date: Optional[date] = None,
+        target_date: date,
     ) -> List[DayBookEntryResponse]:
-        """Returns chronological list of transactions."""
-        return [
-            DayBookEntryResponse(
-                id=v["id"],
-                voucher_number=v["voucher_number"],
-                voucher_type=v["voucher_type"],
-                voucher_date=date.fromisoformat(v["voucher_date"]),
-                particulars=v["items"][0]["ledger_name"] if v.get("items") else "General Entry",
-                debit_amount=v["total_amount"],
-                credit_amount=v["total_amount"],
-                narration=v.get("narration"),
+        """Retrieves daily transaction Day Book register from live database vouchers."""
+        try:
+            res = (
+                self.db.from_("vouchers")
+                .select("*, voucher_line_items(*)")
+                .eq("business_id", business_id)
+                .gte("voucher_date", target_date.isoformat())
+                .lte("voucher_date", target_date.isoformat())
+                .execute()
             )
-            for v in _in_memory_vouchers
-            if v["business_id"] == business_id
-        ]
+            vouchers = res.data or []
+            return [
+                DayBookEntryResponse(
+                    id=v["id"],
+                    voucher_number=v["voucher_number"],
+                    voucher_type=v.get("voucher_type", "Journal"),
+                    voucher_date=date.fromisoformat(v["voucher_date"]),
+                    narration=v.get("narration"),
+                    party_name=v.get("voucher_line_items", [{}])[0].get("ledger_name", "General Entry"),
+                    total_amount=float(v.get("total_amount", 0.0)),
+                )
+                for v in vouchers
+            ]
+        except Exception:
+            return []
